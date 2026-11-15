@@ -189,6 +189,7 @@ export type Database = {
         Returns: undefined
       }
       k_get: { Args: { _token: string }; Returns: Json }
+      k_header_hid: { Args: never; Returns: string }
       k_hid: { Args: { _token: string }; Returns: string }
       k_rename: { Args: { _name: string; _token: string }; Returns: undefined }
       k_save_box: {
