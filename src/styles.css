@@ -135,3 +135,10 @@ h1, h2 { text-shadow: 0 0 12px color-mix(in oklab, var(--primary) 40%, transpare
 .pixel { image-rendering: pixelated; }
 @keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
 .bob { animation: bob 2.4s ease-in-out infinite; }
+
+body::before, body::after {
+  content: ""; position: fixed; width: 140px; height: 140px; pointer-events: none; z-index: 0; opacity: .18;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23d8f5c0' stroke-width='1'%3E%3Cpath d='M0 0L100 100M0 0L100 40M0 0L40 100M0 0L100 0M0 0L0 100'/%3E%3Cpath d='M20 0Q18 18 0 20M45 0Q40 35 0 45M70 0Q62 55 0 70M95 0Q85 80 0 95'/%3E%3C/svg%3E") no-repeat;
+}
+body::before { top: 0; left: 0; }
+body::after { bottom: 70px; right: 0; transform: rotate(180deg); }
