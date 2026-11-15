@@ -5,6 +5,7 @@ import { createHousehold } from "@/lib/store";
 import { setToken } from "@/lib/household";
 import rozitta from "@/assets/rozitta.png";
 import cabbage from "@/assets/cabbage.png";
+import { SwampDecor } from "./SwampDecor";
 
 export function Welcome() {
   const [name, setName] = useState("Наш дом");
@@ -17,11 +18,12 @@ export function Welcome() {
   };
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-8 px-6">
-      <div>
+      <SwampDecor />
+      <div className="relative z-[1]">
         <div className="relative w-fit">
           <img src={rozitta} alt="Розитта" className="pixel bob h-36 w-36" />
-          <img src={cabbage} alt="" className="pixel wobble absolute -right-10 bottom-0 h-14 w-14" />
-          <img src={cabbage} alt="" className="pixel wobble absolute -left-6 top-2 h-8 w-8" />
+          <img src={cabbage} alt="" className="pixel absolute -right-10 bottom-0 h-14 w-14" />
+          <img src={cabbage} alt="" className="pixel absolute -left-6 top-2 h-8 w-8" />
         </div>
         <h1 className="mt-4 font-display text-xl leading-relaxed text-primary">Коробки без хаоса</h1>
         <p className="mt-1 text-accent">Розитта, хранительница болотного склада, к вашим услугам</p>
