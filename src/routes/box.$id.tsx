@@ -14,9 +14,9 @@ import { deleteBox, restoreBox, saveBox } from "@/lib/store";
 export const Route = createFileRoute("/box/$id")({
   head: () => ({
     meta: [
-      { title: "Коробка — Коробки" },
+      { title: "Коробка — Тайные Хроники Топей Розитты" },
       { name: "description", content: "Содержимое коробки, группа и заметки." },
-      { property: "og:title", content: "Коробка — Коробки" },
+      { property: "og:title", content: "Коробка — Тайные Хроники Топей Розитты" },
       { property: "og:description", content: "Содержимое коробки, группа и заметки." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

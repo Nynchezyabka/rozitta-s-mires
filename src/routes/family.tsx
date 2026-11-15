@@ -12,9 +12,9 @@ import { renameHousehold } from "@/lib/store";
 export const Route = createFileRoute("/family")({
   head: () => ({
     meta: [
-      { title: "Семья — Коробки" },
+      { title: "Семья — Тайные Хроники Топей Розитты" },
       { name: "description", content: "Пригласите родных по ссылке или QR-коду — без почты и паролей." },
-      { property: "og:title", content: "Семья — Коробки" },
+      { property: "og:title", content: "Семья — Тайные Хроники Топей Розитты" },
       { property: "og:description", content: "Пригласите родных по ссылке или QR-коду." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -33,7 +33,7 @@ function Family({ d, token }: { d: HouseholdData; token: string }) {
   }, [link]);
   return (
     <div className="space-y-5 pt-2">
-      <h1 className="font-display text-2xl font-bold">Семья</h1>
+      <h1 className="font-display text-2xl font-bold">Хранители ключей</h1>
       <div className="space-y-3 rounded-3xl bg-card p-5 text-center">
         <p className="font-semibold">Наведите камеру телефона на код</p>
         {qr && <img src={qr} alt="QR-код приглашения" className="mx-auto w-56 rounded-xl" />}

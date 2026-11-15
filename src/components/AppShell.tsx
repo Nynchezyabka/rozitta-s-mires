@@ -6,6 +6,17 @@ import { Welcome } from "./Welcome";
 import rozitta from "@/assets/rozitta.png";
 import cabbage from "@/assets/cabbage.png";
 import { SwampDecor } from "./SwampDecor";
+import { sfx, soundOn, setSound } from "@/lib/rozitta";
+
+function SoundToggle() {
+  const [on, setOn] = useState(true);
+  useEffect(() => setOn(soundOn()), []);
+  return (
+    <button aria-label="Звук" onClick={() => { setSound(!on); setOn(!on); if (!on) sfx.quack(); }} className="rounded-full bg-secondary p-2 text-sm leading-none">
+      {on ? "🔊" : "🔇"}
+    </button>
+  );
+}
 
 function SessionTimer() {
   const [end, setEnd] = useState<number | null>(null);
@@ -62,11 +73,11 @@ function SessionTimer() {
 }
 
 const nav = [
-  { to: "/", label: "Коробки", icon: Home },
-  { to: "/new", label: "Новая", icon: Plus },
+  { to: "/", label: "Сундуки", icon: Home },
+  { to: "/new", label: "Собрать", icon: Plus },
   { to: "/groups", label: "Группы", icon: Tags },
   { to: "/stickers", label: "Наклейки", icon: Printer },
-  { to: "/family", label: "Семья", icon: Users },
+  { to: "/family", label: "Ключи", icon: Users },
 ] as const;
 
 export function AppShell({ children }: { children: (d: NonNullable<ReturnType<typeof useHousehold>["data"]>, token: string) => ReactNode }) {
@@ -78,10 +89,11 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
       <header className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-background/90 px-4 py-3 backdrop-blur">
         <Link to="/" className="flex items-center gap-2 font-display text-xs leading-tight text-primary">
           <img src={rozitta} alt="Розитта" className="pixel bob h-10 w-10" />
-          {data?.household.name ?? "Коробки"}
+          {data?.household.name ?? "Тайные Хроники Топей Розитты"}
         </Link>
         <div className="flex items-center gap-2">
           <SessionTimer />
+          <SoundToggle />
           <Link to="/settings" aria-label="Настройки ИИ" className="rounded-full bg-secondary p-2 text-secondary-foreground">
             <Settings className="h-4 w-4" />
           </Link>

@@ -11,14 +11,16 @@ import { compressImage, type HouseholdData } from "@/lib/household";
 import { saveBox } from "@/lib/store";
 import { recognizePhoto } from "@/lib/store.functions";
 import { matchGroup } from "@/lib/defaults";
+import { RozittaBubble } from "@/components/RozittaBubble";
+import { BREWING, sfx } from "@/lib/rozitta";
 import { getAiKey, recognizeWithKey } from "@/lib/ai-key";
 
 export const Route = createFileRoute("/new")({
   head: () => ({
     meta: [
-      { title: "Новая коробка — Коробки" },
+      { title: "Новая коробка — Тайные Хроники Топей Розитты" },
       { name: "description", content: "Сфотографируйте открытую коробку или книги — список появится сам." },
-      { property: "og:title", content: "Новая коробка — Коробки" },
+      { property: "og:title", content: "Новая коробка — Тайные Хроники Топей Розитты" },
       { property: "og:description", content: "Сфотографируйте открытую коробку или книги — список появится сам." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -54,6 +56,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const onFile = async (f?: File) => {
     if (!f) return;
     setBusy(true);
+    sfx.bubble();
     try {
       const img = await compressImage(f);
       const first = !photo;
@@ -84,7 +87,8 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
     try {
       const r = await saveBox({ data: { token, group_id: groupId, photo, items, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
-      toast.success("Коробка сохранена");
+      sfx.key();
+      toast.success("Сундучок заперт на волшебный ключ");
       nav({ to: "/box/$id", params: { id: r.id } });
     } catch (e) {
       toast.error((e as Error).message);
@@ -98,6 +102,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
     <div className="space-y-5">
       <Steps n={step} />
       <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
+      {busy && step === 1 && <RozittaBubble phrases={BREWING} />}
       {step === 1 && (
         <div className="space-y-5">
           <h1 className="font-display text-2xl font-bold">Сфотографируйте</h1>
@@ -151,7 +156,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
             </label>
           )}
           <Button className="h-14 w-full rounded-2xl text-base" disabled={busy} onClick={save}>
-            {busy ? "Сохраняю…" : "Сохранить коробку"}
+            {busy ? "Сохраняю…" : "Запереть сундучок"}
           </Button>
           <button className="w-full text-sm text-muted-foreground" onClick={() => setStep(2)}>
             ← назад к списку
