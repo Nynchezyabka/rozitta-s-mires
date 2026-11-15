@@ -4,12 +4,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Camera, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { ItemsEditor, GroupPicker, isLater, type EditItem } from "@/components/BoxParts";
+import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, type EditItem } from "@/components/BoxParts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { compressImage, type HouseholdData } from "@/lib/household";
-import { deleteBox, saveBox } from "@/lib/store.functions";
+import { deleteBox, restoreBox, saveBox } from "@/lib/store.functions";
 
 export const Route = createFileRoute("/box/$id")({
   head: () => ({
@@ -39,6 +39,8 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const [groupId, setGroupId] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [decideBy, setDecideBy] = useState("");
+  const [kidSize, setKidSize] = useState("");
+  const [kidSeason, setKidSeason] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -47,6 +49,8 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
     setGroupId(box.group_id);
     setNote(box.note ?? "");
     setDecideBy(box.decide_by ?? "");
+    setKidSize(box.kid_size ?? "");
+    setKidSeason(box.kid_season ?? "");
   }, [box?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!box) return <p className="py-10 text-center text-muted-foreground">Коробка не найдена</p>;
@@ -55,7 +59,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const save = async () => {
     setBusy(true);
     try {
-      await saveBox({ data: { token, id, group_id: groupId, note, decide_by: decideBy || null, photo, items } });
+      await saveBox({ data: { token, id, group_id: groupId, note, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, photo, items } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
       setPhoto(null);
       toast.success("Сохранено");
@@ -91,6 +95,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
       <section className="space-y-2">
         <h2 className="font-semibold">Группа</h2>
         <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />
+          {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
         {isLater(group) && <Input type="date" value={decideBy} onChange={(e) => setDecideBy(e.target.value)} className="h-12" aria-label="Решить до" />}
       </section>
       <section className="space-y-2">
@@ -103,10 +108,20 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
       <button
         className="flex w-full items-center justify-center gap-2 py-2 text-sm text-destructive"
         onClick={async () => {
-          if (!confirm(`Удалить коробку №${box.number}?`)) return;
           await deleteBox({ data: { token, id } });
           await qc.invalidateQueries({ queryKey: ["household", token] });
           nav({ to: "/" });
+          toast(`Коробка №${box.number} удалена`, {
+            duration: 7000,
+            action: {
+              label: "Вернуть",
+              onClick: async () => {
+                await restoreBox({ data: { token, id } });
+                await qc.invalidateQueries({ queryKey: ["household", token] });
+                toast.success("Вернула");
+              },
+            },
+          });
         }}
       >
         <Trash2 className="h-4 w-4" /> Удалить коробку

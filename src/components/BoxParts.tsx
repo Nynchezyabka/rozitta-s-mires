@@ -60,3 +60,27 @@ export function GroupPicker({ groups, value, onChange }: { groups: HouseholdData
 }
 
 export const isLater = (g?: { name: string } | null) => !!g && g.name.toLowerCase().includes("позже");
+
+export const isKids = (g?: { name: string } | null) => !!g && g.name.toLowerCase().includes("детск");
+export const KID_SIZES = ["0–1 год", "1–2 года", "2–4 года", "4–6 лет", "6–8 лет", "8–10 лет", "10+ лет"];
+export const KID_SEASONS = ["Лето", "Демисезон", "Зима", "Всесезон"];
+
+export function KidsPicker({ size, season, onSize, onSeason }: { size: string; season: string; onSize: (v: string) => void; onSeason: (v: string) => void }) {
+  const row = (opts: string[], val: string, set: (v: string) => void) => (
+    <div className="flex flex-wrap gap-2">
+      {opts.map((o) => (
+        <button key={o} type="button" onClick={() => set(val === o ? "" : o)} className={`rounded-full px-3 py-1.5 text-sm font-medium ${val === o ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+  return (
+    <div className="space-y-3 rounded-2xl bg-card p-4">
+      <p className="text-sm font-medium">Размер / возраст</p>
+      {row(KID_SIZES, size, onSize)}
+      <p className="text-sm font-medium">Сезон</p>
+      {row(KID_SEASONS, season, onSeason)}
+    </div>
+  );
+}

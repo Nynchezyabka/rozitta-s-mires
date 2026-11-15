@@ -36,7 +36,7 @@ export const getHousehold = createServerFn({ method: "POST" })
     const { db, household } = await householdFor(data.token);
     const [groups, boxes, items] = await Promise.all([
       db.from("groups").select("id, name, color, icon, position").eq("household_id", household.id).order("position"),
-      db.from("boxes").select("id, number, group_id, photo_path, note, decide_by, created_at").eq("household_id", household.id).order("number"),
+      db.from("boxes").select("id, number, group_id, photo_path, note, decide_by, kid_size, kid_season, created_at").eq("household_id", household.id).is("deleted_at", null).order("number"),
       db.from("items").select("id, box_id, name, kind, author, needs_review").eq("household_id", household.id).order("created_at"),
     ]);
     const paths = (boxes.data ?? []).map((b) => b.photo_path).filter((p): p is string => !!p);
@@ -49,7 +49,7 @@ export const getHousehold = createServerFn({ method: "POST" })
       household,
       groups: groups.data ?? [],
       boxes: (boxes.data ?? []).map((b) => ({ ...b, photo_url: b.photo_path ? urls[b.photo_path] ?? null : null })),
-      items: items.data ?? [],
+      items: (items.data ?? []).filter((i) => (boxes.data ?? []).some((b) => b.id === i.box_id)),
     };
   });
 
@@ -83,7 +83,7 @@ type ItemIn = { name: string; kind?: string; author?: string | null; needs_revie
 
 export const saveBox = createServerFn({ method: "POST" })
   .inputValidator(
-    (i: Tok & { id?: string; group_id: string | null; note?: string; decide_by?: string | null; photo?: string | null; items: ItemIn[] }) => tok(i),
+    (i: Tok & { id?: string; group_id: string | null; note?: string; decide_by?: string | null; kid_size?: string | null; kid_season?: string | null; photo?: string | null; items: ItemIn[] }) => tok(i),
   )
   .handler(async ({ data }) => {
     const { db, household } = await householdFor(data.token);
@@ -100,6 +100,8 @@ export const saveBox = createServerFn({ method: "POST" })
       group_id: data.group_id,
       note: data.note ?? null,
       decide_by: data.decide_by || null,
+      kid_size: data.kid_size || null,
+      kid_season: data.kid_season || null,
       ...(photo_path ? { photo_path } : {}),
     };
     if (boxId) {
@@ -130,7 +132,15 @@ export const deleteBox = createServerFn({ method: "POST" })
   .inputValidator((i: Tok & { id: string }) => tok(i))
   .handler(async ({ data }) => {
     const { db, household } = await householdFor(data.token);
-    await db.from("boxes").delete().eq("id", data.id).eq("household_id", household.id);
+    await db.from("boxes").update({ deleted_at: new Date().toISOString() }).eq("id", data.id).eq("household_id", household.id);
+    return { ok: true };
+  });
+
+export const restoreBox = createServerFn({ method: "POST" })
+  .inputValidator((i: Tok & { id: string }) => tok(i))
+  .handler(async ({ data }) => {
+    const { db, household } = await householdFor(data.token);
+    await db.from("boxes").update({ deleted_at: null }).eq("id", data.id).eq("household_id", household.id);
     return { ok: true };
   });
 
