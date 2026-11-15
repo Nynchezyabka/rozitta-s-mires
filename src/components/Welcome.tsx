@@ -5,6 +5,7 @@ import { createHousehold } from "@/lib/store";
 import { setToken } from "@/lib/household";
 import rozitta from "@/assets/rozitta.png";
 import cabbage from "@/assets/cabbage.png";
+import { SwampDecor } from "./SwampDecor";
 
 export function Welcome() {
   const [name, setName] = useState("Наш дом");
@@ -17,17 +18,18 @@ export function Welcome() {
   };
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-8 px-6">
-      <div>
+      <SwampDecor />
+      <div className="relative z-[1]">
         <div className="relative w-fit">
           <img src={rozitta} alt="Розитта" className="pixel bob h-36 w-36" />
-          <img src={cabbage} alt="" className="pixel wobble absolute -right-10 bottom-0 h-14 w-14" />
-          <img src={cabbage} alt="" className="pixel wobble absolute -left-6 top-2 h-8 w-8" />
+          <img src={cabbage} alt="" className="pixel absolute -right-10 bottom-0 h-14 w-14" />
+          <img src={cabbage} alt="" className="pixel absolute -left-6 top-2 h-8 w-8" />
         </div>
         <h1 className="mt-4 font-display text-xl leading-relaxed text-primary">Коробки без хаоса</h1>
         <p className="mt-1 text-accent">Розитта, хранительница болотного склада, к вашим услугам</p>
         <p className="mt-2 text-muted-foreground">Сфотографируйте коробку — список вещей появится сам. Без почты и паролей.</p>
       </div>
-      <div className="space-y-3 rounded-3xl bg-card p-5 shadow-sm">
+      <div className="relative z-[1] space-y-3 rounded-3xl bg-card/90 backdrop-blur p-5 shadow-sm">
         <p className="font-semibold">Начать новый дом</p>
         <Input value={name} onChange={(e) => setName(e.target.value)} className="h-12 text-base" />
         <Button
@@ -46,7 +48,7 @@ export function Welcome() {
           {busy ? "Создаю…" : "Создать"}
         </Button>
       </div>
-      <div className="space-y-3 rounded-3xl bg-secondary/60 p-5">
+      <div className="relative z-[1] space-y-3 rounded-3xl bg-secondary/80 backdrop-blur p-5">
         <p className="font-semibold">Меня пригласили</p>
         <p className="text-sm text-muted-foreground">Отсканируйте QR камерой телефона или вставьте ссылку:</p>
         <Input placeholder="Ссылка-приглашение" value={link} onChange={(e) => setLink(e.target.value)} className="h-12" />
