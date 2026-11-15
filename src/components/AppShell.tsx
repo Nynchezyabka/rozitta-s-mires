@@ -8,7 +8,6 @@ import { useXmas, setXmasMode } from "@/lib/season";
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
 import rozitta from "@/assets/rozitta.png";
-import cabbage from "@/assets/cabbage.png";
 import { SwampDecor } from "./SwampDecor";
 import { sfx, soundOn, setSound } from "@/lib/rozitta";
 
