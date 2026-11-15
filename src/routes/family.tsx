@@ -7,7 +7,7 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { setToken, type HouseholdData } from "@/lib/household";
-import { renameHousehold } from "@/lib/store.functions";
+import { renameHousehold } from "@/lib/store";
 
 export const Route = createFileRoute("/family")({
   head: () => ({

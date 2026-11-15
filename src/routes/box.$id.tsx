@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { compressImage, type HouseholdData } from "@/lib/household";
-import { deleteBox, restoreBox, saveBox } from "@/lib/store.functions";
+import { deleteBox, restoreBox, saveBox } from "@/lib/store";
 
 export const Route = createFileRoute("/box/$id")({
   head: () => ({

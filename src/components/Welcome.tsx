@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createHousehold } from "@/lib/store.functions";
+import { createHousehold } from "@/lib/store";
 import { setToken } from "@/lib/household";
 
 export function Welcome() {

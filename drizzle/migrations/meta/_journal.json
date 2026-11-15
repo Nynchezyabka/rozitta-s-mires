@@ -15,6 +15,13 @@
       "when": 1794748696675,
       "tag": "0001_box_kids_and_trash",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794748804302,
+      "tag": "0002_token_rpc",
+      "breakpoints": true
     }
   ]
 }

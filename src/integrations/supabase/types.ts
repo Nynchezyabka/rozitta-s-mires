@@ -183,7 +183,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      k_create_household: { Args: { _name: string }; Returns: string }
+      k_delete_group: {
+        Args: { _id: string; _token: string }
+        Returns: undefined
+      }
+      k_get: { Args: { _token: string }; Returns: Json }
+      k_hid: { Args: { _token: string }; Returns: string }
+      k_rename: { Args: { _name: string; _token: string }; Returns: undefined }
+      k_save_box: {
+        Args: { _box: Json; _items: Json; _token: string }
+        Returns: string
+      }
+      k_save_group: {
+        Args: {
+          _color: string
+          _icon: string
+          _id: string
+          _name: string
+          _position: number
+          _token: string
+        }
+        Returns: undefined
+      }
+      k_trash_box: {
+        Args: { _deleted: boolean; _id: string; _token: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

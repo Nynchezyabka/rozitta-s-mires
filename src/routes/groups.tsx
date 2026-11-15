@@ -6,7 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GROUP_COLORS, GROUP_ICONS } from "@/lib/defaults";
-import { deleteGroup, saveGroup } from "@/lib/store.functions";
+import { deleteGroup, saveGroup } from "@/lib/store";
 import type { HouseholdData } from "@/lib/household";
 
 export const Route = createFileRoute("/groups")({

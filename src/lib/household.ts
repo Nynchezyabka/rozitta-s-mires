@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
-import { getHousehold } from "./store.functions";
+import { getHousehold } from "./store";
 
 const KEY = "korobki-token";
 const listeners = new Set<(t: string | null) => void>();
@@ -31,7 +31,7 @@ export function useHousehold() {
   return { token, ...q };
 }
 
-export type HouseholdData = Awaited<ReturnType<typeof getHousehold>>;
+export type { HouseholdData } from "./store";
 
 export async function compressImage(file: File, max = 1400): Promise<string> {
   const url = URL.createObjectURL(file);
