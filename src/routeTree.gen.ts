@@ -14,10 +14,12 @@ import { Route as FamilyRouteImport } from './routes/family'
 import { Route as GrimoireRouteImport } from './routes/grimoire'
 import { Route as GroupsRouteImport } from './routes/groups'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as HouseRouteImport } from './routes/house'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StickersRouteImport } from './routes/stickers'
 import { Route as BoxIdRouteImport } from './routes/box.$id'
+import { Route as HouseSpaceRouteImport } from './routes/house.$space'
 import { Route as JoinTokenRouteImport } from './routes/join.$token'
 
 const IndexRoute = IndexRouteImport.update({
@@ -45,6 +47,11 @@ const HelpRoute = HelpRouteImport.update({
   path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HouseRoute = HouseRouteImport.update({
+  id: '/house',
+  path: '/house',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NewRoute = NewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -65,6 +72,11 @@ const BoxIdRoute = BoxIdRouteImport.update({
   path: '/box/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HouseSpaceRoute = HouseSpaceRouteImport.update({
+  id: '/$space',
+  path: '/$space',
+  getParentRoute: () => HouseRoute,
+} as any)
 const JoinTokenRoute = JoinTokenRouteImport.update({
   id: '/join/$token',
   path: '/join/$token',
@@ -77,10 +89,12 @@ export interface FileRoutesByFullPath {
   '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
   '/help': typeof HelpRoute
+  '/house': typeof HouseRouteWithChildren
   '/new': typeof NewRoute
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
   '/box/$id': typeof BoxIdRoute
+  '/house/$space': typeof HouseSpaceRoute
   '/join/$token': typeof JoinTokenRoute
 }
 export interface FileRoutesByTo {
@@ -89,10 +103,12 @@ export interface FileRoutesByTo {
   '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
   '/help': typeof HelpRoute
+  '/house': typeof HouseRouteWithChildren
   '/new': typeof NewRoute
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
   '/box/$id': typeof BoxIdRoute
+  '/house/$space': typeof HouseSpaceRoute
   '/join/$token': typeof JoinTokenRoute
 }
 export interface FileRoutesById {
@@ -102,10 +118,12 @@ export interface FileRoutesById {
   '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
   '/help': typeof HelpRoute
+  '/house': typeof HouseRouteWithChildren
   '/new': typeof NewRoute
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
   '/box/$id': typeof BoxIdRoute
+  '/house/$space': typeof HouseSpaceRoute
   '/join/$token': typeof JoinTokenRoute
 }
 export interface FileRouteTypes {
@@ -116,10 +134,12 @@ export interface FileRouteTypes {
     | '/grimoire'
     | '/groups'
     | '/help'
+    | '/house'
     | '/new'
     | '/settings'
     | '/stickers'
     | '/box/$id'
+    | '/house/$space'
     | '/join/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,10 +148,12 @@ export interface FileRouteTypes {
     | '/grimoire'
     | '/groups'
     | '/help'
+    | '/house'
     | '/new'
     | '/settings'
     | '/stickers'
     | '/box/$id'
+    | '/house/$space'
     | '/join/$token'
   id:
     | '__root__'
@@ -140,10 +162,12 @@ export interface FileRouteTypes {
     | '/grimoire'
     | '/groups'
     | '/help'
+    | '/house'
     | '/new'
     | '/settings'
     | '/stickers'
     | '/box/$id'
+    | '/house/$space'
     | '/join/$token'
   fileRoutesById: FileRoutesById
 }
@@ -153,6 +177,7 @@ export interface RootRouteChildren {
   GrimoireRoute: typeof GrimoireRoute
   GroupsRoute: typeof GroupsRoute
   HelpRoute: typeof HelpRoute
+  HouseRoute: typeof HouseRouteWithChildren
   NewRoute: typeof NewRoute
   SettingsRoute: typeof SettingsRoute
   StickersRoute: typeof StickersRoute
@@ -197,6 +222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/house': {
+      id: '/house'
+      path: '/house'
+      fullPath: '/house'
+      preLoaderRoute: typeof HouseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/new': {
       id: '/new'
       path: '/new'
@@ -225,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoxIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/house/$space': {
+      id: '/house/$space'
+      path: '/$space'
+      fullPath: '/house/$space'
+      preLoaderRoute: typeof HouseSpaceRouteImport
+      parentRoute: typeof HouseRoute
+    }
     '/join/$token': {
       id: '/join/$token'
       path: '/join/$token'
@@ -235,12 +274,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface HouseRouteChildren {
+  HouseSpaceRoute: typeof HouseSpaceRoute
+}
+
+const HouseRouteChildren: HouseRouteChildren = {
+  HouseSpaceRoute: HouseSpaceRoute,
+}
+
+const HouseRouteWithChildren = HouseRoute._addFileChildren(HouseRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FamilyRoute: FamilyRoute,
   GrimoireRoute: GrimoireRoute,
   GroupsRoute: GroupsRoute,
   HelpRoute: HelpRoute,
+  HouseRoute: HouseRouteWithChildren,
   NewRoute: NewRoute,
   SettingsRoute: SettingsRoute,
   StickersRoute: StickersRoute,
