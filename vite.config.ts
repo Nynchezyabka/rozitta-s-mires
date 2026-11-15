@@ -14,5 +14,7 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+    // STATIC_BUILD=1 bun run build → static site (for Layero etc.); data goes browser → database directly.
+    ...(process.env['STATIC_BUILD'] ? { spa: { enabled: true } } : {}),
   },
 });
