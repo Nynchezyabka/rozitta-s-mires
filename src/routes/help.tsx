@@ -4,7 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { GUIDE } from "@/lib/guide";
 
-const T = "Справка — Тайные Хроники Топей Розитты";
+const T = "Справка · Топи Розитты";
 const D = "Коротко о том, как пользоваться описью сундуков и с чего начать.";
 export const Route = createFileRoute("/help")({
   head: () => ({ meta: [

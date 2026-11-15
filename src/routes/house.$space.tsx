@@ -11,7 +11,7 @@ import { deleteThing, markThing, saveThing } from "@/lib/store";
 import { thingsQuery } from "./house";
 import { sfx } from "@/lib/rozitta";
 
-const T = "Место в доме — Тайные Хроники Топей Розитты";
+const T = "Место в доме · Топи Розитты";
 const D = "Список вещей в одном месте дома: шкаф, холодильник, книги или растения.";
 export const Route = createFileRoute("/house/$space")({
   head: () => ({ meta: [

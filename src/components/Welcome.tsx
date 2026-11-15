@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createHousehold } from "@/lib/store";
@@ -14,7 +15,7 @@ export function Welcome() {
   const join = () => {
     const m = link.trim().match(/([a-f0-9]{36})/);
     if (m?.[1]) setToken(m[1]);
-    else alert("Не похоже на ссылку-приглашение");
+    else toast.error("🐸 Не похоже на ссылку-приглашение. Скопируйте ссылку целиком.");
   };
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-8 px-6">
@@ -30,8 +31,9 @@ export function Welcome() {
         <p className="mt-2 text-muted-foreground">Сфотографируйте сундук или полку — список вещей появится сам. Без почты и паролей.</p>
       </div>
       <div className="relative z-[1] space-y-3 rounded-3xl bg-card/90 backdrop-blur p-5 shadow-sm">
-        <p className="font-semibold">Начать новый дом</p>
-        <Input value={name} onChange={(e) => setName(e.target.value)} className="h-12 text-base" />
+        <p className="font-semibold">Завести свой дом</p>
+        <label htmlFor="house-name" className="block text-sm text-muted-foreground">Как назовём дом?</label>
+        <Input id="house-name" value={name} onChange={(e) => setName(e.target.value)} className="h-12 text-base" />
         <Button
           className="h-12 w-full text-base"
           disabled={busy}
@@ -40,12 +42,14 @@ export function Welcome() {
             try {
               const r = await createHousehold({ data: { name } });
               setToken(r.token);
+            } catch (e) {
+              toast.error((e as Error).message);
             } finally {
               setBusy(false);
             }
           }}
         >
-          {busy ? "Создаю…" : "Создать"}
+          {busy ? "Завожу…" : "Завести"}
         </Button>
       </div>
       <div className="relative z-[1] space-y-3 rounded-3xl bg-secondary/80 backdrop-blur p-5">
@@ -53,7 +57,7 @@ export function Welcome() {
         <p className="text-sm text-muted-foreground">Отсканируйте QR камерой телефона или вставьте ссылку:</p>
         <Input placeholder="Ссылка-приглашение" value={link} onChange={(e) => setLink(e.target.value)} className="h-12" />
         <Button variant="outline" className="h-12 w-full" onClick={join}>
-          Войти
+          Войти по ссылке
         </Button>
       </div>
     </div>
