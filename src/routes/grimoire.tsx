@@ -47,7 +47,7 @@ function Tips() {
     setRead(n);
     localStorage.setItem(READ_KEY, JSON.stringify(n));
   };
-  const today = TIPS[new Date().getDate() % TIPS.length];
+  const today = TIPS[new Date().getDate() % TIPS.length]!;
 
   if (open)
     return (
