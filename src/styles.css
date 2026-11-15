@@ -149,3 +149,15 @@ body::after { bottom: 70px; right: 0; transform: rotate(180deg); }
 .bg-card { background-image: linear-gradient(160deg, color-mix(in oklab, var(--secondary) 35%, transparent), transparent 60%); }
 a.bg-card:hover { box-shadow: 0 0 0 2px var(--accent), 0 0 22px -4px var(--accent); }
 h1 { animation: shimmer 6s ease-in-out infinite; }
+
+/* Болотный лор: искры, пузырьки, сияние, паучки */
+.aurora { background: radial-gradient(60% 40% at 30% 10%, color-mix(in oklab, var(--accent) 35%, transparent), transparent 70%), radial-gradient(50% 35% at 80% 30%, color-mix(in oklab, var(--primary) 25%, transparent), transparent 70%); animation: aurora 14s ease-in-out infinite alternate; mix-blend-mode: screen; }
+@keyframes aurora { from { filter: hue-rotate(0deg); opacity: .6 } to { filter: hue-rotate(70deg); opacity: 1 } }
+.magic-spark { position: absolute; bottom: -20px; border-radius: 9999px; animation-name: rise; animation-iteration-count: infinite; animation-timing-function: linear; }
+.spark-0 { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+.spark-1 { background: var(--accent); box-shadow: 0 0 10px var(--accent); border-radius: 2px; transform: rotate(45deg); }
+.spark-2 { background: transparent; border: 2px solid var(--primary); box-shadow: 0 0 8px var(--primary); }
+@keyframes rise { 0% { transform: translateY(0) rotate(0); opacity: 0 } 10% { opacity: 1 } 100% { transform: translateY(-110vh) rotate(360deg); opacity: 0 } }
+.spider-sway { animation: sway 3s ease-in-out infinite; transform-origin: top center; }
+@keyframes sway { 0%,100% { transform: rotate(-6deg) } 50% { transform: rotate(6deg) } }
+@media (prefers-reduced-motion: reduce) { .magic-spark, .aurora, .spider-sway { animation: none } }

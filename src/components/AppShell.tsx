@@ -5,6 +5,7 @@ import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
 import rozitta from "@/assets/rozitta.png";
 import cabbage from "@/assets/cabbage.png";
+import { SwampDecor } from "./SwampDecor";
 
 function SessionTimer() {
   const [end, setEnd] = useState<number | null>(null);
@@ -91,8 +92,7 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
         {error && <p className="py-10 text-center text-destructive">{(error as Error).message}</p>}
         {data && children(data, token)}
       </main>
-      <img src={cabbage} alt="" aria-hidden className="pixel wobble pointer-events-none fixed bottom-20 left-2 z-0 h-14 w-14 opacity-90" />
-      <img src={cabbage} alt="" aria-hidden className="pixel wobble pointer-events-none fixed right-3 top-24 z-0 h-9 w-9 opacity-70" />
+      <SwampDecor />
       <nav className="fixed inset-x-0 bottom-0 z-10 border-t bg-card rounded-t-3xl border-t-2 border-primary/60 shadow-[0_-6px_24px_-6px_var(--primary)]">
         <div className="mx-auto flex max-w-2xl justify-around py-2">
           {nav.map(({ to, label, icon: Icon }) => (
