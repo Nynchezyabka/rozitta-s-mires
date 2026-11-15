@@ -14,7 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      boxes: {
+        Row: {
+          created_at: string
+          decide_by: string | null
+          group_id: string | null
+          household_id: string
+          id: string
+          note: string | null
+          number: number
+          photo_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          decide_by?: string | null
+          group_id?: string | null
+          household_id: string
+          id?: string
+          note?: string | null
+          number: number
+          photo_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          decide_by?: string | null
+          group_id?: string | null
+          household_id?: string
+          id?: string
+          note?: string | null
+          number?: number
+          photo_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boxes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "boxes_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          color: string
+          created_at: string
+          household_id: string
+          icon: string
+          id: string
+          name: string
+          position: number
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          household_id: string
+          icon?: string
+          id?: string
+          name: string
+          position?: number
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          household_id?: string
+          icon?: string
+          id?: string
+          name?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          token?: string
+        }
+        Relationships: []
+      }
+      items: {
+        Row: {
+          author: string | null
+          box_id: string
+          created_at: string
+          household_id: string
+          id: string
+          kind: string
+          name: string
+          needs_review: boolean
+        }
+        Insert: {
+          author?: string | null
+          box_id: string
+          created_at?: string
+          household_id: string
+          id?: string
+          kind?: string
+          name: string
+          needs_review?: boolean
+        }
+        Update: {
+          author?: string | null
+          box_id?: string
+          created_at?: string
+          household_id?: string
+          id?: string
+          kind?: string
+          name?: string
+          needs_review?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "items_box_id_fkey"
+            columns: ["box_id"]
+            isOneToOne: false
+            referencedRelation: "boxes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "items_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
