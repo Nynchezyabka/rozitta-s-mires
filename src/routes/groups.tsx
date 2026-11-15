@@ -12,10 +12,10 @@ import type { HouseholdData } from "@/lib/household";
 export const Route = createFileRoute("/groups")({
   head: () => ({
     meta: [
-      { title: "Группы — Тайные Хроники Топей Розитты" },
-      { name: "description", content: "Группы коробок с цветами и значками: кухня, детское, документы и другие." },
-      { property: "og:title", content: "Группы — Тайные Хроники Топей Розитты" },
-      { property: "og:description", content: "Группы коробок с цветами и значками." },
+      { title: "Группы · Топи Розитты" },
+      { name: "description", content: "Группы сундуков с цветами и значками: кухня, детское, документы и другие." },
+      { property: "og:title", content: "Группы · Топи Розитты" },
+      { property: "og:description", content: "Группы сундуков с цветами и значками." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -73,7 +73,7 @@ function Groups({ d, token }: { d: HouseholdData; token: string }) {
             <button
               className="flex items-center gap-1 text-sm text-destructive"
               onClick={async () => {
-                if (!confirm("Удалить группу? Коробки останутся без группы.")) return;
+                if (!confirm("Удалить группу? Сундуки останутся без группы.")) return;
                 await deleteGroup({ data: { token, id: edit.id! } });
                 await refresh();
                 setEdit(null);

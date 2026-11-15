@@ -11,7 +11,7 @@ import { CHAPTERS, TIPS, type Tip } from "@/lib/grimoire";
 import { deleteNote, saveNote } from "@/lib/store";
 import type { HouseholdData } from "@/lib/store";
 
-const T = "Гримуар — Тайные Хроники Топей Розитты";
+const T = "Гримуар · Топи Розитты";
 const D = "Советы о порядке для уставших и СДВГ-мозга глазами архитектора и общие заметки дома.";
 export const Route = createFileRoute("/grimoire")({
   head: () => ({ meta: [
@@ -60,7 +60,7 @@ function Tips() {
         <div className="rounded-xl border border-primary/50 p-3 text-sm"><b>Попробуйте:</b> {open.try}</div>
         <div className="grid grid-cols-2 gap-2">
           <Button variant="secondary" onClick={() => setOpen(null)}>Назад</Button>
-          <Button onClick={() => { mark(open.id); toast.success("🐸 Розитта поставила печать"); setOpen(null); }}>Прочитала ✓</Button>
+          <Button onClick={() => { mark(open.id); toast.success("🐸 Розитта поставила печать"); setOpen(null); }}>Прочитано ✓</Button>
         </div>
       </article>
     );
@@ -106,7 +106,7 @@ function Notes({ d, token }: { d: HouseholdData; token: string }) {
           <Button variant="secondary" onClick={() => setEdit(null)}>Отмена</Button>
           <Button disabled={busy || !(edit.title.trim() || edit.body.trim())} onClick={async () => {
             setBusy(true);
-            try { await saveNote({ data: { token, ...edit } }); await refresh(); setEdit(null); toast.success("Записала в гримуар"); }
+            try { await saveNote({ data: { token, ...edit } }); await refresh(); setEdit(null); toast.success("Записано в гримуар"); }
             catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
           }}>Сохранить</Button>
         </div>

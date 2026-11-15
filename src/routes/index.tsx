@@ -59,7 +59,7 @@ function Home({ d }: { d: HouseholdData }) {
       <RozittaBubble />
       <div className="relative">
         <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Где мои… (вещь, номер коробки)" className="h-14 rounded-2xl bg-card pl-12 text-base" />
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Где мои… (вещь, номер сундука)" className="h-14 rounded-2xl bg-card pl-12 text-base" />
       </div>
 
       {query && (
@@ -83,15 +83,15 @@ function Home({ d }: { d: HouseholdData }) {
 
       {!query && overdue.length > 0 && (
         <div className="flex items-center gap-2 rounded-2xl bg-warning/30 p-3 text-sm">
-          <AlertCircle className="h-5 w-5" /> Пора решить: коробки {overdue.map((b) => "№" + b.number).join(", ")}
+          <AlertCircle className="h-5 w-5" /> Пора решить: сундуки {overdue.map((b) => "№" + b.number).join(", ")}
         </div>
       )}
 
       {!query && d.boxes.length === 0 && (
         <Link to="/new" className="flex flex-col items-center gap-3 rounded-3xl border-2 border-dashed border-primary/40 bg-card p-10 text-center">
           <img src={rozitta} alt="" className="pixel bob h-28 w-28" />
-          <span className="font-display text-sm leading-relaxed text-primary">Первая коробка</span>
-          <span className="text-muted-foreground">Розитта ждёт: сфотографируйте открытую коробку — она сама разберёт, что внутри</span>
+          <span className="font-display text-sm leading-relaxed text-primary">Первый сундук</span>
+          <span className="text-muted-foreground">Розитта ждёт: сфотографируйте открытый сундук — она сама разберёт, что внутри</span>
         </Link>
       )}
 

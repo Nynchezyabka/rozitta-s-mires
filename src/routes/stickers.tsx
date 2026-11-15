@@ -10,10 +10,10 @@ import type { HouseholdData } from "@/lib/household";
 export const Route = createFileRoute("/stickers")({
   head: () => ({
     meta: [
-      { title: "Наклейки — Тайные Хроники Топей Розитты" },
-      { name: "description", content: "Лист наклеек с номером, цветом и группой коробки в PDF." },
-      { property: "og:title", content: "Наклейки — Тайные Хроники Топей Розитты" },
-      { property: "og:description", content: "Лист наклеек с номером, цветом и группой коробки в PDF." },
+      { title: "Наклейки · Топи Розитты" },
+      { name: "description", content: "Наклейки с номером, цветом и группой сундука в PDF." },
+      { property: "og:title", content: "Наклейки · Топи Розитты" },
+      { property: "og:description", content: "Наклейки с номером, цветом и группой сундука в PDF." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -32,7 +32,7 @@ function Stickers({ d }: { d: HouseholdData }) {
     <div className="space-y-4 pt-2">
       <h1 className="font-display text-2xl font-bold">Наклейки</h1>
       {d.boxes.length === 0 ? (
-        <p className="text-muted-foreground">Сначала добавьте коробки.</p>
+        <p className="text-muted-foreground">Сначала соберите сундуки.</p>
       ) : (
         <>
           <label className="flex items-center justify-between rounded-2xl bg-card p-3">

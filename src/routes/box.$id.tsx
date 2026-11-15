@@ -14,10 +14,10 @@ import { deleteBox, restoreBox, saveBox } from "@/lib/store";
 export const Route = createFileRoute("/box/$id")({
   head: () => ({
     meta: [
-      { title: "Коробка — Тайные Хроники Топей Розитты" },
-      { name: "description", content: "Содержимое коробки, группа и заметки." },
-      { property: "og:title", content: "Коробка — Тайные Хроники Топей Розитты" },
-      { property: "og:description", content: "Содержимое коробки, группа и заметки." },
+      { title: "Сундук · Топи Розитты" },
+      { name: "description", content: "Содержимое сундука, группа и заметки." },
+      { property: "og:title", content: "Сундук · Топи Розитты" },
+      { property: "og:description", content: "Содержимое сундука, группа и заметки." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -55,7 +55,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
     setPlace(box.location ?? "");
   }, [box?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!box) return <p className="py-10 text-center text-muted-foreground">Коробка не найдена</p>;
+  if (!box) return <p className="py-10 text-center text-muted-foreground">Сундук не найден</p>;
   const group = d.groups.find((g) => g.id === groupId);
 
   const save = async () => {
@@ -79,7 +79,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
           {box.number}
         </div>
         <div>
-          <h1 className="font-display text-2xl font-bold">Коробка №{box.number}</h1>
+          <h1 className="font-display text-2xl font-bold">Сундук №{box.number}</h1>
           <p className="text-sm text-muted-foreground">{items.length} вещей</p>
         </div>
       </div>
@@ -115,14 +115,14 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
           await deleteBox({ data: { token, id } });
           await qc.invalidateQueries({ queryKey: ["household", token] });
           nav({ to: "/" });
-          toast(`Коробка №${box.number} удалена`, {
+          toast(`Сундук №${box.number} удалён`, {
             duration: 7000,
             action: {
               label: "Вернуть",
               onClick: async () => {
                 await restoreBox({ data: { token, id } });
                 await qc.invalidateQueries({ queryKey: ["household", token] });
-                toast.success("Вернула");
+                toast.success("Возвращено");
               },
             },
           });

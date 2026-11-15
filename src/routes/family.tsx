@@ -12,9 +12,9 @@ import { renameHousehold } from "@/lib/store";
 export const Route = createFileRoute("/family")({
   head: () => ({
     meta: [
-      { title: "Семья — Тайные Хроники Топей Розитты" },
+      { title: "Семья · Топи Розитты" },
       { name: "description", content: "Пригласите родных по ссылке или QR-коду — без почты и паролей." },
-      { property: "og:title", content: "Семья — Тайные Хроники Топей Розитты" },
+      { property: "og:title", content: "Семья · Топи Розитты" },
       { property: "og:description", content: "Пригласите родных по ссылке или QR-коду." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -37,12 +37,12 @@ function Family({ d, token }: { d: HouseholdData; token: string }) {
       <div className="space-y-3 rounded-3xl bg-card p-5 text-center">
         <p className="font-semibold">Наведите камеру телефона на код</p>
         {qr && <img src={qr} alt="QR-код приглашения" className="mx-auto w-56 rounded-xl" />}
-        <p className="text-sm text-muted-foreground">Каждый, у кого есть этот код или ссылка, видит и меняет все коробки. Не публикуйте его.</p>
+        <p className="text-sm text-muted-foreground">Каждый, у кого есть этот код или ссылка, видит и меняет все сундуки. Не публикуйте его.</p>
         <Button
           variant="outline"
           className="h-12 w-full"
           onClick={async () => {
-            if (navigator.share) await navigator.share({ title: "Наши коробки", url: link }).catch(() => {});
+            if (navigator.share) await navigator.share({ title: "Наши сундуки", url: link }).catch(() => {});
             else {
               await navigator.clipboard.writeText(link);
               toast.success("Ссылка скопирована");

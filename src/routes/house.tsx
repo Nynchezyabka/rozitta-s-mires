@@ -4,7 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { SPACES } from "@/lib/spaces";
 import { getThings } from "@/lib/store";
 
-const T = "Дом — Тайные Хроники Топей Розитты";
+const T = "Дом · Топи Розитты";
 const D = "Шкаф в Нарнию, морозный ларь, библиотека и оранжерея: что где лежит и когда поливали цветы.";
 export const Route = createFileRoute("/house")({
   head: () => ({ meta: [

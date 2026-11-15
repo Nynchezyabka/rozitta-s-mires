@@ -18,10 +18,10 @@ import { getAiKey, recognizeWithKey } from "@/lib/ai-key";
 export const Route = createFileRoute("/new")({
   head: () => ({
     meta: [
-      { title: "Новая коробка — Тайные Хроники Топей Розитты" },
-      { name: "description", content: "Сфотографируйте открытую коробку или книги — список появится сам." },
-      { property: "og:title", content: "Новая коробка — Тайные Хроники Топей Розитты" },
-      { property: "og:description", content: "Сфотографируйте открытую коробку или книги — список появится сам." },
+      { title: "Новый сундук · Топи Розитты" },
+      { name: "description", content: "Сфотографируйте открытый сундук или книги — список появится сам." },
+      { property: "og:title", content: "Новый сундук · Топи Розитты" },
+      { property: "og:description", content: "Сфотографируйте открытый сундук или книги — список появится сам." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -110,7 +110,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           <div className="grid grid-cols-2 gap-2">
             {(
               [
-                ["box", "Коробка с вещами", Package],
+                ["box", "Сундук с вещами", Package],
                 ["books", "Книги", BookOpen],
               ] as const
             ).map(([m, label, Icon]) => (
@@ -121,7 +121,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
             ))}
           </div>
           <p className="text-sm text-muted-foreground">
-            {mode === "books" ? "Обложки или корешки, чтобы названия читались. Старые книги могут распознаться хуже — пометим «проверить»." : "Откройте коробку и снимите сверху, при хорошем свете."}
+            {mode === "books" ? "Обложки или корешки, чтобы названия читались. Старые книги могут распознаться хуже — пометим «проверить»." : "Откройте сундук и снимите сверху, при хорошем свете."}
           </p>
           <Button className="h-20 w-full rounded-3xl font-display text-lg" disabled={busy} onClick={() => fileRef.current?.click()}>
             <Camera className="h-6 w-6" /> {busy ? "Смотрю, что внутри…" : "Сделать фото"}

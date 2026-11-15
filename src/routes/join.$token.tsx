@@ -5,7 +5,7 @@ import { setToken } from "@/lib/household";
 export const Route = createFileRoute("/join/$token")({
   head: () => ({
     meta: [
-      { title: "Приглашение — Тайные Хроники Топей Розитты" },
+      { title: "Приглашение · Топи Розитты" },
       { name: "description", content: "Вас пригласили в общий список коробок семьи." },
       { property: "og:title", content: "Приглашение в Тайные Хроники Топей Розитты" },
       { property: "og:description", content: "Вас пригласили в общий список коробок семьи." },
@@ -23,5 +23,5 @@ function Join() {
     setToken(token);
     nav({ to: "/", replace: true });
   }, [token, nav]);
-  return <p className="py-20 text-center">Открываю коробки…</p>;
+  return <p className="py-20 text-center">Открываю сундуки…</p>;
 }
