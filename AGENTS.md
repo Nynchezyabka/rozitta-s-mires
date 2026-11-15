@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- No user accounts: each household has a secret token (stored in localStorage, shared via /join/<token> link/QR); every server function in src/lib/store.functions.ts checks the token and uses the admin client. Why: the owner asked for sign-in without email; tables have RLS on with no policies, so only server code reaches data.
+- Sticker PDFs render each sticker on a canvas and embed it as an image. Why: jsPDF's built-in fonts lack Cyrillic.
