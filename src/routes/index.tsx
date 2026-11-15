@@ -15,9 +15,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Тайные Хроники Топей Розитты — что в каком сундуке" },
-      { name: "description", content: "Фото коробки, список вещей, группы, поиск и наклейки для переезда всей семьёй." },
+      { name: "description", content: "Волшебная опись всего дома: сундуки, шкафы, книги, растения. Фото — и Розитта сама запишет, что внутри." },
       { property: "og:title", content: "Тайные Хроники Топей Розитты — что в каком сундуке" },
-      { property: "og:description", content: "Фото коробки, список вещей, группы, поиск и наклейки для переезда всей семьёй." },
+      { property: "og:description", content: "Волшебная опись всего дома: сундуки, шкафы, книги, растения. Фото — и Розитта сама запишет, что внутри." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

@@ -118,7 +118,7 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
       <header className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 bg-background/90 px-4 py-2 backdrop-blur">
         <Link to="/" className="flex min-w-0 items-center gap-2">
           <img src={rozitta} alt="Розитта" className="pixel bob h-10 w-10 shrink-0" />
-          <span className="truncate font-display text-[11px] text-primary">{data?.household.name || "Топи Розитты"}</span>
+          <span className="flex min-w-0 flex-col leading-tight"><span className="truncate font-display text-[11px] text-primary">Топи Розитты</span>{data?.household.name && <span className="truncate text-[11px] text-muted-foreground">{data.household.name}</span>}</span>
         </Link>
         <div className="flex items-center gap-2">
           <SessionTimer />
