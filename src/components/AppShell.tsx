@@ -54,7 +54,7 @@ function SessionTimer() {
           <button aria-label="Таймер уборки" className="shrink-0 rounded-full bg-secondary p-2 text-secondary-foreground"><Hourglass className="h-4 w-4" /></button>
         )}
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-64 space-y-3 border-2 border-primary/60">
+      <PopoverContent align="end" className="z-50 w-64 space-y-3 border-2 border-primary/60 bg-card">
         <p className="font-display text-[11px] leading-relaxed text-primary">Зелье-таймер</p>
         {end ? (
           <>
@@ -83,7 +83,7 @@ function MoreMenu() {
       <DropdownMenuTrigger asChild>
         <button aria-label="Меню" className="shrink-0 rounded-full bg-secondary p-2 text-secondary-foreground"><Menu className="h-4 w-4" /></button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
+      <DropdownMenuContent align="end" className="z-50 w-60 border-2 border-primary/60 bg-card">
         <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Хранители ключей</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/help"><HelpCircle className="mr-2 h-4 w-4" />Справка</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/settings"><Settings className="mr-2 h-4 w-4" />Ключ нейросети</Link></DropdownMenuItem>
