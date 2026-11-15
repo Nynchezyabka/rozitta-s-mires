@@ -94,3 +94,17 @@ export async function deleteNote({ data }: { data: Tok & { id: string } }) {
   await rpc("k_delete_note", { _token: data.token, _id: data.id });
   return { ok: true };
 }
+
+export type Thing = { id: string; space: string; title: string; note: string; watered_at: string | null; fed_at: string | null; created_at: string };
+export async function getThings({ data }: { data: Tok }) {
+  return (await rpc<Thing[]>("k_things", { _token: data.token })) ?? [];
+}
+export async function saveThing({ data }: { data: Tok & { id?: string; space: string; title: string; note?: string } }) {
+  return { id: await rpc<string>("k_save_thing", { _token: data.token, _id: data.id ?? null, _space: data.space, _title: data.title, _note: data.note ?? "" }) };
+}
+export async function markThing({ data }: { data: Tok & { id: string; kind: "water" | "feed" } }) {
+  await rpc("k_mark_thing", { _token: data.token, _id: data.id, _kind: data.kind });
+}
+export async function deleteThing({ data }: { data: Tok & { id: string } }) {
+  await rpc("k_delete_thing", { _token: data.token, _id: data.id });
+}
