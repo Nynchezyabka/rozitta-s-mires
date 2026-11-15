@@ -47,6 +47,7 @@ function Home({ d }: { d: HouseholdData }) {
 
   return (
     <div className="space-y-5 pt-2">
+      <RozittaBubble />
       <div className="relative">
         <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
         <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Где мои… (вещь, номер коробки)" className="h-14 rounded-2xl bg-card pl-12 text-base" />

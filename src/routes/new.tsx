@@ -102,6 +102,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
     <div className="space-y-5">
       <Steps n={step} />
       <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
+      {busy && step === 1 && <RozittaBubble phrases={BREWING} />}
       {step === 1 && (
         <div className="space-y-5">
           <h1 className="font-display text-2xl font-bold">Сфотографируйте</h1>

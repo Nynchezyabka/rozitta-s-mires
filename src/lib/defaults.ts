@@ -16,5 +16,5 @@ export function matchGroup<T extends { id: string; name: string }>(groups: T[], 
   const exact = groups.find((g) => g.name.toLowerCase() === s);
   if (exact) return exact;
   const partial = s ? groups.find((g) => g.name.toLowerCase().includes(s) || s.includes(g.name.toLowerCase())) : undefined;
-  return partial ?? groups.find((g) => g.name.toLowerCase().includes("позже"));
+  return partial ?? groups.find((g) => /позже|на потом/.test(g.name.toLowerCase()));
 }
