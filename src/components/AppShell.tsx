@@ -1,6 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Plus, Tags, Printer, Users, Timer, Settings, BookOpen, HelpCircle } from "lucide-react";
+import { Home, Plus, Tags, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { useXmas, setXmasMode } from "@/lib/season";
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
 import rozitta from "@/assets/rozitta.png";
@@ -8,19 +12,10 @@ import cabbage from "@/assets/cabbage.png";
 import { SwampDecor } from "./SwampDecor";
 import { sfx, soundOn, setSound } from "@/lib/rozitta";
 
-function SoundToggle() {
-  const [on, setOn] = useState(true);
-  useEffect(() => setOn(soundOn()), []);
-  return (
-    <button aria-label="Звук" onClick={() => { setSound(!on); setOn(!on); if (!on) sfx.quack(); }} className="rounded-full bg-secondary p-2 text-sm leading-none">
-      {on ? "🔊" : "🔇"}
-    </button>
-  );
-}
-
 function SessionTimer() {
   const [end, setEnd] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     const s = localStorage.getItem("korobki-timer");
     if (s) setEnd(Number(s));
@@ -44,31 +39,64 @@ function SessionTimer() {
     localStorage.setItem("korobki-timer", String(e));
     setNow(Date.now());
     setEnd(e);
+    setOpen(false);
   };
-  if (!end)
-    return (
-      <div className="flex items-center gap-1 text-sm">
-        <Timer className="h-4 w-4 text-muted-foreground" />
-        {[15, 25].map((m) => (
-          <button key={m} onClick={() => start(m)} className="rounded-full bg-secondary px-2.5 py-1 font-semibold text-secondary-foreground">
-            {m} мин
-          </button>
-        ))}
-      </div>
-    );
+  const stop = () => { localStorage.removeItem("korobki-timer"); setEnd(null); setOpen(false); };
   const mm = Math.floor(left / 60000);
   const ss = Math.floor((left % 60000) / 1000).toString().padStart(2, "0");
   return (
-    <button
-      onClick={() => {
-        localStorage.removeItem("korobki-timer");
-        setEnd(null);
-      }}
-      className="rounded-full bg-primary px-3 py-1 font-display text-sm text-primary-foreground tabular-nums"
-      title="Остановить"
-    >
-      ⏱ {mm}:{ss}
-    </button>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        {end ? (
+          <button className="shrink-0 rounded-full bg-primary px-3 py-2 font-display text-[10px] leading-none text-primary-foreground tabular-nums shadow-[0_0_12px_var(--primary)]" aria-label="Таймер уборки идёт">
+            ⏳ {mm}:{ss}
+          </button>
+        ) : (
+          <button aria-label="Таймер уборки" className="shrink-0 rounded-full bg-secondary p-2 text-secondary-foreground"><Hourglass className="h-4 w-4" /></button>
+        )}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 space-y-3 border-2 border-primary/60">
+        <p className="font-display text-[11px] leading-relaxed text-primary">Зелье-таймер</p>
+        {end ? (
+          <>
+            <p className="text-sm">Варится ещё {mm}:{ss}. Потом Розитта позовёт пить чай.</p>
+            <Button variant="secondary" className="w-full" onClick={stop}>Остановить</Button>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">Короткий забег по уборке. Когда время выйдет — отдыхаешь, даже если не доделала.</p>
+            <div className="grid grid-cols-3 gap-2">
+              {[5, 15, 25].map((m) => <Button key={m} onClick={() => start(m)}>{m} мин</Button>)}
+            </div>
+          </>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function MoreMenu() {
+  const [on, setOn] = useState(true);
+  useEffect(() => setOn(soundOn()), []);
+  const { mode } = useXmas();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button aria-label="Меню" className="shrink-0 rounded-full bg-secondary p-2 text-secondary-foreground"><Menu className="h-4 w-4" /></button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-60">
+        <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Хранители ключей</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/help"><HelpCircle className="mr-2 h-4 w-4" />Справка</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/settings"><Settings className="mr-2 h-4 w-4" />Ключ нейросети</Link></DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setSound(!on); setOn(!on); if (!on) sfx.quack(); }}>
+          {on ? "🔊 Звуки включены" : "🔇 Звуки выключены"}
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setXmasMode(mode === "auto" ? "on" : mode === "on" ? "off" : "auto"); }}>
+          🎄 Новый год: {mode === "auto" ? "сам с 15 декабря" : mode === "on" ? "включён" : "выключен"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -76,9 +104,10 @@ const nav = [
   { to: "/", label: "Сундуки", icon: Home },
   { to: "/new", label: "Собрать", icon: Plus },
   { to: "/groups", label: "Группы", icon: Tags },
+  { to: "/house", label: "Дом", icon: Sprout },
   { to: "/grimoire", label: "Гримуар", icon: BookOpen },
   { to: "/stickers", label: "Наклейки", icon: Printer },
-  { to: "/family", label: "Ключи", icon: Users },
+  
 ] as const;
 
 export function AppShell({ children }: { children: (d: NonNullable<ReturnType<typeof useHousehold>["data"]>, token: string) => ReactNode }) {
@@ -87,20 +116,14 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
   if (!token) return <Welcome />;
   return (
     <div className="mx-auto min-h-screen max-w-2xl pb-28">
-      <header className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-background/90 px-4 py-3 backdrop-blur">
-        <Link to="/" className="flex items-center gap-2 font-display text-xs leading-tight text-primary">
-          <img src={rozitta} alt="Розитта" className="pixel bob h-10 w-10" />
-          {data?.household.name ?? "Тайные Хроники Топей Розитты"}
+      <header className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 bg-background/90 px-4 py-2 backdrop-blur">
+        <Link to="/" className="flex min-w-0 items-center gap-2">
+          <img src={rozitta} alt="Розитта" className="pixel bob h-10 w-10 shrink-0" />
+          <span className="truncate font-display text-[11px] text-primary">{data?.household.name || "Топи Розитты"}</span>
         </Link>
         <div className="flex items-center gap-2">
           <SessionTimer />
-          <SoundToggle />
-          <Link to="/help" aria-label="Справка" className="rounded-full bg-secondary p-2 text-secondary-foreground">
-            <HelpCircle className="h-4 w-4" />
-          </Link>
-          <Link to="/settings" aria-label="Настройки ИИ" className="rounded-full bg-secondary p-2 text-secondary-foreground">
-            <Settings className="h-4 w-4" />
-          </Link>
+          <MoreMenu />
         </div>
       </header>
       <main className="relative z-[1] px-4">
