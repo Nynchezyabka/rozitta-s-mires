@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -72,11 +73,12 @@ function Groups({ d, token }: { d: HouseholdData; token: string }) {
           {edit.id && (
             <button
               className="flex items-center gap-1 text-sm text-destructive"
-              onClick={async () => {
-                if (!confirm("Удалить группу? Сундуки останутся без группы.")) return;
-                await deleteGroup({ data: { token, id: edit.id! } });
-                await refresh();
-                setEdit(null);
+              onClick={() => {
+                const id = edit.id!;
+                toast("Удалить группу? Сундуки останутся без группы.", {
+                  action: { label: "Удалить", onClick: async () => { await deleteGroup({ data: { token, id } }); await refresh(); setEdit(null); } },
+                  cancel: { label: "Оставить", onClick: () => {} },
+                });
               }}
             >
               <Trash2 className="h-4 w-4" /> Удалить

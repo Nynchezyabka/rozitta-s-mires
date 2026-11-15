@@ -68,7 +68,7 @@ function Family({ d, token }: { d: HouseholdData; token: string }) {
           </Button>
         </div>
       </div>
-      <button className="w-full py-2 text-sm text-muted-foreground underline" onClick={() => confirm("Выйти на этом устройстве? Вернуться можно по ссылке.") && setToken(null)}>
+      <button className="w-full py-2 text-sm text-muted-foreground underline" onClick={() => toast("Выйти на этом устройстве? Вернуться можно по ссылке-ключу.", { action: { label: "Выйти", onClick: () => setToken(null) }, cancel: { label: "Остаться", onClick: () => {} } })}>
         Выйти на этом устройстве
       </button>
     </div>

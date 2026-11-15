@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
 import { Home, Plus, Tags, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -30,10 +31,13 @@ function SessionTimer() {
       localStorage.removeItem("korobki-timer");
       setEnd(null);
       if ("vibrate" in navigator) navigator.vibrate?.(300);
-      alert("🐸 Розитта: зелье сварено! Время пить чай и отдыхать.");
+      const msg = "🐸 Розитта: зелье сварено! Время пить чай и отдыхать.";
+      if (document.hidden && "Notification" in window && Notification.permission === "granted") new Notification("Топи Розитты", { body: msg, icon: "/icon-192.png" });
+      toast.success(msg, { duration: 15000 });
     }
   }, [end, left]);
   const start = (min: number) => {
+    if ("Notification" in window && Notification.permission === "default") Notification.requestPermission().catch(() => {});
     const e = Date.now() + min * 60000;
     localStorage.setItem("korobki-timer", String(e));
     setNow(Date.now());
