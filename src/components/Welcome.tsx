@@ -25,8 +25,8 @@ export function Welcome() {
           <img src={cabbage} alt="" className="pixel absolute -right-10 bottom-0 h-14 w-14" />
           <img src={cabbage} alt="" className="pixel absolute -left-6 top-2 h-8 w-8" />
         </div>
-        <h1 className="mt-4 font-display text-xl leading-relaxed text-primary">Коробки без хаоса</h1>
-        <p className="mt-1 text-accent">Розитта, хранительница болотного склада, к вашим услугам</p>
+        <h1 className="mt-4 font-display text-xl leading-relaxed text-primary">Тайные Хроники Топей Розитты</h1>
+        <p className="mt-1 text-accent">Розитта, хранительница волшебных сундуков, к вашим услугам</p>
         <p className="mt-2 text-muted-foreground">Сфотографируйте коробку — список вещей появится сам. Без почты и паролей.</p>
       </div>
       <div className="relative z-[1] space-y-3 rounded-3xl bg-card/90 backdrop-blur p-5 shadow-sm">

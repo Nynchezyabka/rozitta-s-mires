@@ -5,9 +5,9 @@ import { setToken } from "@/lib/household";
 export const Route = createFileRoute("/join/$token")({
   head: () => ({
     meta: [
-      { title: "Приглашение — Коробки" },
+      { title: "Приглашение — Тайные Хроники Топей Розитты" },
       { name: "description", content: "Вас пригласили в общий список коробок семьи." },
-      { property: "og:title", content: "Приглашение в Коробки" },
+      { property: "og:title", content: "Приглашение в Тайные Хроники Топей Розитты" },
       { property: "og:description", content: "Вас пригласили в общий список коробок семьи." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

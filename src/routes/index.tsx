@@ -4,6 +4,7 @@ import { Search, Plus, AlertCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { GroupChip } from "@/components/GroupChip";
 import { Input } from "@/components/ui/input";
+import { RozittaBubble } from "@/components/RozittaBubble";
 import type { HouseholdData } from "@/lib/household";
 import cabbage from "@/assets/cabbage.png";
 import rozitta from "@/assets/rozitta.png";
@@ -11,9 +12,9 @@ import rozitta from "@/assets/rozitta.png";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Коробки — что в какой коробке" },
+      { title: "Тайные Хроники Топей Розитты — что в каком сундуке" },
       { name: "description", content: "Фото коробки, список вещей, группы, поиск и наклейки для переезда всей семьёй." },
-      { property: "og:title", content: "Коробки — что в какой коробке" },
+      { property: "og:title", content: "Тайные Хроники Топей Розитты — что в каком сундуке" },
       { property: "og:description", content: "Фото коробки, список вещей, группы, поиск и наклейки для переезда всей семьёй." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

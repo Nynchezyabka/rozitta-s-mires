@@ -10,9 +10,9 @@ import type { HouseholdData } from "@/lib/household";
 export const Route = createFileRoute("/stickers")({
   head: () => ({
     meta: [
-      { title: "Наклейки — Коробки" },
+      { title: "Наклейки — Тайные Хроники Топей Розитты" },
       { name: "description", content: "Лист наклеек с номером, цветом и группой коробки в PDF." },
-      { property: "og:title", content: "Наклейки — Коробки" },
+      { property: "og:title", content: "Наклейки — Тайные Хроники Топей Розитты" },
       { property: "og:description", content: "Лист наклеек с номером, цветом и группой коробки в PDF." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

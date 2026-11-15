@@ -12,9 +12,9 @@ import type { HouseholdData } from "@/lib/household";
 export const Route = createFileRoute("/groups")({
   head: () => ({
     meta: [
-      { title: "Группы — Коробки" },
+      { title: "Группы — Тайные Хроники Топей Розитты" },
       { name: "description", content: "Группы коробок с цветами и значками: кухня, детское, документы и другие." },
-      { property: "og:title", content: "Группы — Коробки" },
+      { property: "og:title", content: "Группы — Тайные Хроники Топей Розитты" },
       { property: "og:description", content: "Группы коробок с цветами и значками." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

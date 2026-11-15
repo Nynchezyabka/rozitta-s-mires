@@ -9,9 +9,9 @@ import { detectService, getAiKey, setAiKey, testKey } from "@/lib/ai-key";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Настройки ИИ — Коробки" },
+      { title: "Настройки ИИ — Тайные Хроники Топей Розитты" },
       { name: "description", content: "Подключите свой ключ ИИ для распознавания вещей на фото." },
-      { property: "og:title", content: "Настройки ИИ — Коробки" },
+      { property: "og:title", content: "Настройки ИИ — Тайные Хроники Топей Розитты" },
       { property: "og:description", content: "Подключите свой ключ ИИ для распознавания вещей на фото." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

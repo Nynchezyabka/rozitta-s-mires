@@ -82,9 +82,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Коробки" },
+      { title: "Тайные Хроники Топей Розитты" },
       { name: "description", content: "Опись коробок для переезда: фото, список, группы, наклейки." },
-            { property: "og:title", content: "Коробки" },
+            { property: "og:title", content: "Тайные Хроники Топей Розитты" },
       { property: "og:description", content: "Опись коробок для переезда: фото, список, группы, наклейки." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

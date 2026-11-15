@@ -25,6 +25,9 @@ async function drawSticker(s: Sticker, w: number, h: number) {
     await new Promise((r) => ((img.onload = r), (img.src = qr)));
     x.drawImage(img, w - h * 0.66, h * 0.34, h * 0.6, h * 0.6);
   }
+  x.fillStyle = "#6b2fa0";
+  x.font = `italic ${h * 0.065}px Onest, sans-serif`;
+  x.fillText("🗝 Заперто на волшебный ключ. Охраняется Розиттой", w * 0.05, h * 0.93);
   x.strokeStyle = "#cccccc";
   x.lineWidth = 2;
   x.strokeRect(1, 1, w - 2, h - 2);

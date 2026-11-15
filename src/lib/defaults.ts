@@ -5,12 +5,12 @@ export const DEFAULT_GROUPS = [
   { name: "Кухня", color: "#D9694A", icon: "🍳" },
   { name: "Одежда", color: "#8FB573", icon: "👕" },
   { name: "Книги", color: "#A57BC4", icon: "📚" },
-  { name: "Решить позже", color: "#B0B0B0", icon: "⏳" },
+  { name: "Тайничок на потом", color: "#B0B0B0", icon: "⏳" },
 ];
 export const GROUP_COLORS = ["#7FA7C9", "#F2B84B", "#8C7B6B", "#D9694A", "#8FB573", "#A57BC4", "#E58FB0", "#4FB3A9", "#B0B0B0"];
 export const GROUP_ICONS = ["📦", "🛏️", "🧸", "📄", "🍳", "👕", "📚", "⏳", "🔧", "🧪", "🔑", "🐸", "🕸️", "🐉", "🥬", "🌸", "🕯️", "🎄", "🏡", "🧴", "🎨", "💡"];
 
-/** Pick the suggested group by name (case-insensitive), falling back to "Решить позже". */
+/** Pick the suggested group by name (case-insensitive), falling back to "Тайничок на потом". */
 export function matchGroup<T extends { id: string; name: string }>(groups: T[], suggested: string | null | undefined): T | undefined {
   const s = (suggested ?? "").trim().toLowerCase();
   const exact = groups.find((g) => g.name.toLowerCase() === s);
