@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Plus, Tags, Printer, Users, Timer, Settings } from "lucide-react";
+import { Home, Plus, Tags, Printer, Users, Timer, Settings, BookOpen, HelpCircle } from "lucide-react";
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
 import rozitta from "@/assets/rozitta.png";
@@ -76,6 +76,7 @@ const nav = [
   { to: "/", label: "Сундуки", icon: Home },
   { to: "/new", label: "Собрать", icon: Plus },
   { to: "/groups", label: "Группы", icon: Tags },
+  { to: "/grimoire", label: "Гримуар", icon: BookOpen },
   { to: "/stickers", label: "Наклейки", icon: Printer },
   { to: "/family", label: "Ключи", icon: Users },
 ] as const;
@@ -94,6 +95,9 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
         <div className="flex items-center gap-2">
           <SessionTimer />
           <SoundToggle />
+          <Link to="/help" aria-label="Справка" className="rounded-full bg-secondary p-2 text-secondary-foreground">
+            <HelpCircle className="h-4 w-4" />
+          </Link>
           <Link to="/settings" aria-label="Настройки ИИ" className="rounded-full bg-secondary p-2 text-secondary-foreground">
             <Settings className="h-4 w-4" />
           </Link>
@@ -112,7 +116,7 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
               key={to}
               to={to}
               activeOptions={{ exact: true }}
-              className="flex flex-col items-center gap-0.5 px-2 py-1 text-xs text-muted-foreground"
+              className="flex flex-col items-center gap-0.5 px-1 py-1 text-[11px] text-muted-foreground"
               activeProps={{ className: "text-primary font-semibold drop-shadow-[0_0_6px_var(--primary)]" }}
             >
               <Icon className="h-5 w-5" />
