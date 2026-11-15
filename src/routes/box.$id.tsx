@@ -128,7 +128,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
           });
         }}
       >
-        <Trash2 className="h-4 w-4" /> Удалить коробку
+        <Trash2 className="h-4 w-4" /> Удалить сундук
       </button>
     </div>
   );

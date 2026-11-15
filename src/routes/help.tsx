@@ -19,7 +19,7 @@ function Help() {
     <div className="space-y-4 pt-2">
       <section className="space-y-3 rounded-2xl border-2 border-primary/50 bg-card p-5">
         <h1 className="font-display text-xl text-primary">Справка</h1>
-        <p className="text-sm text-muted-foreground">Сфотографировали коробку — Розитта записала, что внутри. Потом ищете вещь словом и видите номер сундука и где он стоит.</p>
+        <p className="text-sm text-muted-foreground">«Топи Розитты» — волшебная опись всего дома. Сфотографировали сундук, полку или шкаф — Розитта записала, что внутри. Потом ищете вещь словом и видите, где она.</p>
         <div className="grid grid-cols-2 gap-2">
           <Button asChild><Link to="/new">Собрать сундук</Link></Button>
           <Button asChild variant="secondary"><Link to="/grimoire">Открыть Гримуар</Link></Button>
