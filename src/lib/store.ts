@@ -23,10 +23,13 @@ export async function createHousehold({ data }: { data: { name: string } }) {
 
 export async function getHousehold({ data }: { data: Tok }): Promise<HouseholdData> {
   const r = await rpc<Omit<HouseholdData, "boxes"> & { boxes: Omit<HouseholdData["boxes"][number], "photo_url">[] }>("k_get", { _token: data.token });
-  return {
-    ...r,
-    boxes: r.boxes.map((b) => ({ ...b, photo_url: b.photo_path ? supabase.storage.from("photos").getPublicUrl(b.photo_path).data.publicUrl : null })),
-  };
+  const paths = r.boxes.map((b) => b.photo_path).filter((p): p is string => !!p);
+  const urls: Record<string, string> = {};
+  if (paths.length) {
+    const { data: signed } = await supabase.storage.from("photos").createSignedUrls(paths, 60 * 60 * 6);
+    for (const x of signed ?? []) if (x.path && x.signedUrl) urls[x.path] = x.signedUrl;
+  }
+  return { ...r, boxes: r.boxes.map((b) => ({ ...b, photo_url: b.photo_path ? urls[b.photo_path] ?? null : null })) };
 }
 
 export async function renameHousehold({ data }: { data: Tok & { name: string } }) {
