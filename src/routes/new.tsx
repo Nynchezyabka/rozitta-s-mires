@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Camera, BookOpen, Package } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { ItemsEditor, GroupPicker, isLater, type EditItem } from "@/components/BoxParts";
+import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, type EditItem } from "@/components/BoxParts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { compressImage, type HouseholdData } from "@/lib/household";
@@ -47,6 +47,8 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const [items, setItems] = useState<EditItem[]>([]);
   const [groupId, setGroupId] = useState<string | null>(null);
   const [decideBy, setDecideBy] = useState("");
+  const [kidSize, setKidSize] = useState("");
+  const [kidSeason, setKidSeason] = useState("");
 
   const onFile = async (f?: File) => {
     if (!f) return;
@@ -140,6 +142,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           <h1 className="font-display text-2xl font-bold">Какая группа?</h1>
           {group && <p className="text-sm text-muted-foreground">Предлагаю: {group.icon} {group.name}</p>}
           <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />
+          {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
           {isLater(group) && (
             <label className="block space-y-1">
               <span className="text-sm font-medium">Решить до</span>

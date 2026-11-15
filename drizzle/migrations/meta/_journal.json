@@ -8,6 +8,13 @@
       "when": 1794747266061,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794748696675,
+      "tag": "0001_box_kids_and_trash",
+      "breakpoints": true
     }
   ]
 }
