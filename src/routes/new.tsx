@@ -82,7 +82,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const save = async () => {
     setBusy(true);
     try {
-      const r = await saveBox({ data: { token, group_id: groupId, photo, items, decide_by: decideBy || null } });
+      const r = await saveBox({ data: { token, group_id: groupId, photo, items, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
       toast.success("Коробка сохранена");
       nav({ to: "/box/$id", params: { id: r.id } });
