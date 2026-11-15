@@ -106,7 +106,7 @@ function Home({ d }: { d: HouseholdData }) {
           return (
             <Link key={b.id} to="/box/$id" params={{ id: b.id }} className="overflow-hidden rounded-2xl bg-card shadow-sm">
               <div className="h-2" style={{ backgroundColor: g?.color ?? "transparent" }} />
-              {b.photo_url ? <img src={b.photo_url} alt="" className="aspect-[4/3] w-full object-cover" /> : <div className="flex aspect-[4/3] items-center justify-center bg-muted text-4xl">{g?.icon ?? "📦"}</div>}
+              {b.photo_url ? <img src={b.photo_url} alt="" className="aspect-[4/3] w-full object-cover" /> : <div className="flex aspect-[4/3] items-center justify-center bg-muted text-4xl">{g?.icon ?? "🐸"}</div>}
               <div className="space-y-1 p-3">
                 <div className="flex items-baseline justify-between">
                   <span className="font-display text-2xl font-bold">№{b.number}</span>

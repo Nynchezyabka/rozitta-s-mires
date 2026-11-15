@@ -16,7 +16,7 @@ export function Welcome() {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-8 px-6">
       <div>
-        <div className="text-6xl">📦</div>
+        <div className="text-6xl">🐸</div>
         <h1 className="mt-4 font-display text-3xl font-bold leading-tight">Коробки без хаоса</h1>
         <p className="mt-2 text-muted-foreground">Сфотографируйте коробку — список вещей появится сам. Без почты и паролей.</p>
       </div>
