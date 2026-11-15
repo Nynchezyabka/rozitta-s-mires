@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Home, Plus, Tags, Printer, Users, Timer, Settings } from "lucide-react";
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
+import rozitta from "@/assets/rozitta.png";
 
 function SessionTimer() {
   const [end, setEnd] = useState<number | null>(null);
@@ -22,7 +23,7 @@ function SessionTimer() {
       localStorage.removeItem("korobki-timer");
       setEnd(null);
       if ("vibrate" in navigator) navigator.vibrate?.(300);
-      alert("Сессия окончена. Отличная работа — сделайте перерыв!");
+      alert("🐸 Розитта: зелье сварено! Время пить чай и отдыхать.");
     }
   }, [end, left]);
   const start = (min: number) => {
@@ -73,8 +74,9 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
   return (
     <div className="mx-auto min-h-screen max-w-2xl pb-28">
       <header className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-background/90 px-4 py-3 backdrop-blur">
-        <Link to="/" className="font-display text-lg font-bold">
-          📦 {data?.household.name ?? "Коробки"}
+        <Link to="/" className="flex items-center gap-2 font-display text-xs leading-tight text-primary">
+          <img src={rozitta} alt="Розитта" className="pixel bob h-10 w-10" />
+          {data?.household.name ?? "Коробки"}
         </Link>
         <div className="flex items-center gap-2">
           <SessionTimer />
