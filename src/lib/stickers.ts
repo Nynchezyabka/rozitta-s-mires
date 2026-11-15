@@ -40,7 +40,7 @@ export async function stickersPdf(list: Sticker[]) {
   for (let i = 0; i < list.length; i++) {
     const pos = i % (cols * rows);
     if (i > 0 && pos === 0) pdf.addPage();
-    const img = await drawSticker(list[i], Math.round(sw * 10), Math.round(sh * 10));
+    const img = await drawSticker(list[i]!, Math.round(sw * 10), Math.round(sh * 10));
     pdf.addImage(img, "PNG", mx + (pos % cols) * (sw + gap), my + Math.floor(pos / cols) * (sh + gap), sw, sh);
   }
   pdf.save("naklejki-korobki.pdf");

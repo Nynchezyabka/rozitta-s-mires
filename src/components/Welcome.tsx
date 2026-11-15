@@ -10,7 +10,7 @@ export function Welcome() {
   const [busy, setBusy] = useState(false);
   const join = () => {
     const m = link.trim().match(/([a-f0-9]{36})/);
-    if (m) setToken(m[1]);
+    if (m?.[1]) setToken(m[1]);
     else alert("Не похоже на ссылку-приглашение");
   };
   return (

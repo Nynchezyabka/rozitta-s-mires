@@ -15,7 +15,7 @@ async function householdFor(token: string) {
 }
 
 type Tok = { token: string };
-const tok = (i: Tok) => {
+const tok = <T extends Tok>(i: T): T => {
   if (typeof i?.token !== "string") throw new Error("token required");
   return i;
 };

@@ -98,7 +98,7 @@ function Groups({ d, token }: { d: HouseholdData; token: string }) {
           <span className="text-sm text-muted-foreground">{count(g.id)} кор.</span>
         </button>
       ))}
-      <Button variant="outline" className="h-12 w-full rounded-2xl" onClick={() => setEdit({ name: "", color: GROUP_COLORS[0], icon: "📦" })}>
+      <Button variant="outline" className="h-12 w-full rounded-2xl" onClick={() => setEdit({ name: "", color: GROUP_COLORS[0]!, icon: "📦" })}>
         + Добавить группу
       </Button>
     </div>
