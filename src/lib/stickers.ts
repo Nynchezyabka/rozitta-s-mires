@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
 import { jsPDF } from "jspdf";
 
-export type Sticker = { number: number; groupName: string; color: string; icon: string; url?: string };
+export type Sticker = { number: number; groupName: string; color: string; icon: string; url?: string | undefined };
 
 /** Draws one sticker on a canvas (handles Cyrillic, which jsPDF's built-in fonts lack). */
 async function drawSticker(s: Sticker, w: number, h: number) {
