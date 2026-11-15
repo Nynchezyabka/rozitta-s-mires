@@ -8,7 +8,8 @@ import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, type EditItem } 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { compressImage, type HouseholdData } from "@/lib/household";
-import { recognizePhoto, saveBox } from "@/lib/store.functions";
+import { saveBox } from "@/lib/store";
+import { recognizePhoto } from "@/lib/store.functions";
 import { matchGroup } from "@/lib/defaults";
 import { getAiKey, recognizeWithKey } from "@/lib/ai-key";
 
