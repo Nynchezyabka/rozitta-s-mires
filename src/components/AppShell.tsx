@@ -4,6 +4,7 @@ import { Home, Plus, Tags, Printer, Users, Timer, Settings } from "lucide-react"
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
 import rozitta from "@/assets/rozitta.png";
+import cabbage from "@/assets/cabbage.png";
 
 function SessionTimer() {
   const [end, setEnd] = useState<number | null>(null);
@@ -85,12 +86,14 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
           </Link>
         </div>
       </header>
-      <main className="px-4">
+      <main className="relative z-[1] px-4">
         {isLoading && <p className="py-10 text-center text-muted-foreground">Загружаю…</p>}
         {error && <p className="py-10 text-center text-destructive">{(error as Error).message}</p>}
         {data && children(data, token)}
       </main>
-      <nav className="fixed inset-x-0 bottom-0 z-10 border-t bg-card rounded-t-3xl shadow-lg">
+      <img src={cabbage} alt="" aria-hidden className="pixel wobble pointer-events-none fixed bottom-20 left-2 z-0 h-14 w-14 opacity-90" />
+      <img src={cabbage} alt="" aria-hidden className="pixel wobble pointer-events-none fixed right-3 top-24 z-0 h-9 w-9 opacity-70" />
+      <nav className="fixed inset-x-0 bottom-0 z-10 border-t bg-card rounded-t-3xl border-t-2 border-primary/60 shadow-[0_-6px_24px_-6px_var(--primary)]">
         <div className="mx-auto flex max-w-2xl justify-around py-2">
           {nav.map(({ to, label, icon: Icon }) => (
             <Link
@@ -98,7 +101,7 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
               to={to}
               activeOptions={{ exact: true }}
               className="flex flex-col items-center gap-0.5 px-2 py-1 text-xs text-muted-foreground"
-              activeProps={{ className: "text-primary font-semibold" }}
+              activeProps={{ className: "text-primary font-semibold drop-shadow-[0_0_6px_var(--primary)]" }}
             >
               <Icon className="h-5 w-5" />
               {label}
