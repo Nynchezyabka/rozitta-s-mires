@@ -1,29 +1,13 @@
-# Welcome to your Lovable project
+# Коробки — опись коробок для переезда
 
-This project was built with [Lovable](https://lovable.dev).
+## Перенос на свой Supabase + Layero
 
-## Build with Lovable
+1. **Supabase.** Создайте проект на supabase.com → SQL Editor → вставьте весь файл `supabase-setup.sql` → Run.
+2. В Supabase → Project Settings → API скопируйте **Project URL** и **publishable (anon) key**.
+3. **GitHub.** Выгрузите проект в свой репозиторий.
+4. **Layero.** Подключите репозиторий и укажите:
+   - команда сборки: `STATIC_BUILD=1 bun run build` (или `npm run build` с переменной `STATIC_BUILD=1`)
+   - переменные окружения: `VITE_SUPABASE_URL` = Project URL, `VITE_SUPABASE_PUBLISHABLE_KEY` = publishable key
+5. Откройте сайт → ⚙️ → вставьте свой ключ ИИ (Gemini / Claude n Codex / OpenRouter). Без своего ключа на Layero распознавание не работает — встроенный ИИ есть только в Lovable.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+Данные дома защищены секретной ссылкой-приглашением: кто её знает, тот видит и меняет всё. Не публикуйте её.

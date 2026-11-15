@@ -30,5 +30,5 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Project rules
-- No user accounts: each household has a secret token (stored in localStorage, shared via /join/<token> link/QR); every server function in src/lib/store.functions.ts checks the token and uses the admin client. Why: the owner asked for sign-in without email; tables have RLS on with no policies, so only server code reaches data.
+- No user accounts: each household has a secret token (stored in localStorage, shared via /join/<token> link/QR); the browser calls SECURITY DEFINER database functions (k_*) that check the token (src/lib/store.ts); tables have RLS with no policies. Why: sign-in without email, and the app must run as a static site on the owner's own Supabase. Keep supabase-setup.sql in sync with drizzle/migrations.
 - Sticker PDFs render each sticker on a canvas and embed it as an image. Why: jsPDF's built-in fonts lack Cyrillic.
