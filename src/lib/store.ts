@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 /** Storage access scoped to one household: the token header is checked by storage policies. */
 const storages: Record<string, ReturnType<typeof createClient>> = {};
 function photos(token: string) {
-  storages[token] ??= createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY, {
+  storages[token] ??= createClient(import.meta.env['VITE_SUPABASE_URL'], import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'], {
     auth: { persistSession: false, autoRefreshToken: false, storageKey: `kh-${token.slice(0, 6)}` },
     global: { headers: { "x-household-token": token } },
   });
