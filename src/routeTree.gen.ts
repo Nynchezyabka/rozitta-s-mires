@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as FamilyRouteImport } from './routes/family'
 import { Route as GroupsRouteImport } from './routes/groups'
 import { Route as NewRouteImport } from './routes/new'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StickersRouteImport } from './routes/stickers'
 import { Route as BoxIdRouteImport } from './routes/box.$id'
 import { Route as JoinTokenRouteImport } from './routes/join.$token'
@@ -37,6 +38,11 @@ const NewRoute = NewRouteImport.update({
   path: '/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StickersRoute = StickersRouteImport.update({
   id: '/stickers',
   path: '/stickers',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/family': typeof FamilyRoute
   '/groups': typeof GroupsRoute
   '/new': typeof NewRoute
+  '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
   '/box/$id': typeof BoxIdRoute
   '/join/$token': typeof JoinTokenRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/family': typeof FamilyRoute
   '/groups': typeof GroupsRoute
   '/new': typeof NewRoute
+  '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
   '/box/$id': typeof BoxIdRoute
   '/join/$token': typeof JoinTokenRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/family': typeof FamilyRoute
   '/groups': typeof GroupsRoute
   '/new': typeof NewRoute
+  '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
   '/box/$id': typeof BoxIdRoute
   '/join/$token': typeof JoinTokenRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/family'
     | '/groups'
     | '/new'
+    | '/settings'
     | '/stickers'
     | '/box/$id'
     | '/join/$token'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/family'
     | '/groups'
     | '/new'
+    | '/settings'
     | '/stickers'
     | '/box/$id'
     | '/join/$token'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/family'
     | '/groups'
     | '/new'
+    | '/settings'
     | '/stickers'
     | '/box/$id'
     | '/join/$token'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   FamilyRoute: typeof FamilyRoute
   GroupsRoute: typeof GroupsRoute
   NewRoute: typeof NewRoute
+  SettingsRoute: typeof SettingsRoute
   StickersRoute: typeof StickersRoute
   BoxIdRoute: typeof BoxIdRoute
   JoinTokenRoute: typeof JoinTokenRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stickers': {
       id: '/stickers'
       path: '/stickers'
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   FamilyRoute: FamilyRoute,
   GroupsRoute: GroupsRoute,
   NewRoute: NewRoute,
+  SettingsRoute: SettingsRoute,
   StickersRoute: StickersRoute,
   BoxIdRoute: BoxIdRoute,
   JoinTokenRoute: JoinTokenRoute,

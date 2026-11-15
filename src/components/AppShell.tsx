@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Plus, Tags, Printer, Users, Timer } from "lucide-react";
+import { Home, Plus, Tags, Printer, Users, Timer, Settings } from "lucide-react";
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
 
@@ -76,14 +76,19 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
         <Link to="/" className="font-display text-lg font-bold">
           📦 {data?.household.name ?? "Коробки"}
         </Link>
-        <SessionTimer />
+        <div className="flex items-center gap-2">
+          <SessionTimer />
+          <Link to="/settings" aria-label="Настройки ИИ" className="rounded-full bg-secondary p-2 text-secondary-foreground">
+            <Settings className="h-4 w-4" />
+          </Link>
+        </div>
       </header>
       <main className="px-4">
         {isLoading && <p className="py-10 text-center text-muted-foreground">Загружаю…</p>}
         {error && <p className="py-10 text-center text-destructive">{(error as Error).message}</p>}
         {data && children(data, token)}
       </main>
-      <nav className="fixed inset-x-0 bottom-0 z-10 border-t bg-card">
+      <nav className="fixed inset-x-0 bottom-0 z-10 border-t bg-card rounded-t-3xl shadow-lg">
         <div className="mx-auto flex max-w-2xl justify-around py-2">
           {nav.map(({ to, label, icon: Icon }) => (
             <Link

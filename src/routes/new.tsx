@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { compressImage, type HouseholdData } from "@/lib/household";
 import { recognizePhoto, saveBox } from "@/lib/store.functions";
 import { matchGroup } from "@/lib/defaults";
+import { getAiKey, recognizeWithKey } from "@/lib/ai-key";
 
 export const Route = createFileRoute("/new")({
   head: () => ({
@@ -52,11 +53,20 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
     setBusy(true);
     try {
       const img = await compressImage(f);
-      setPhoto(img);
-      const r = await recognizePhoto({ data: { token, photo: img, mode } });
-      setItems(r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: mode === "books" ? "book" : "item" })));
-      setGroupId(matchGroup(d.groups, r.group)?.id ?? null);
+      const first = !photo;
+      if (first) setPhoto(img);
+      const key = getAiKey();
+      const r = key
+        ? await recognizeWithKey(key, img, mode, d.groups.map((g) => g.name))
+        : await recognizePhoto({ data: { token, photo: img, mode } });
+      const found = r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: mode === "books" ? "book" : "item" }) as EditItem);
+      setItems((prev) => {
+        const have = new Set(prev.map((p) => p.name.toLowerCase()));
+        return [...prev, ...found.filter((f) => !have.has(f.name.toLowerCase()))];
+      });
+      if (first || !groupId) setGroupId(matchGroup(d.groups, r.group)?.id ?? null);
       if (!r.items.length) toast("Ничего не нашлось — добавьте вещи вручную");
+      else if (!first) toast.success(`Добавлено из нового фото: ${found.length}`);
     } catch (e) {
       toast.error((e as Error).message);
       setItems([]);
@@ -84,6 +94,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   return (
     <div className="space-y-5">
       <Steps n={step} />
+      <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
       {step === 1 && (
         <div className="space-y-5">
           <h1 className="font-display text-2xl font-bold">Сфотографируйте</h1>
@@ -103,7 +114,6 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           <p className="text-sm text-muted-foreground">
             {mode === "books" ? "Обложки или корешки, чтобы названия читались. Старые книги могут распознаться хуже — пометим «проверить»." : "Откройте коробку и снимите сверху, при хорошем свете."}
           </p>
-          <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
           <Button className="h-20 w-full rounded-3xl font-display text-lg" disabled={busy} onClick={() => fileRef.current?.click()}>
             <Camera className="h-6 w-6" /> {busy ? "Смотрю, что внутри…" : "Сделать фото"}
           </Button>
@@ -116,6 +126,9 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
         <div className="space-y-4">
           <h1 className="font-display text-2xl font-bold">Всё верно?</h1>
           {photo && <img src={photo} alt="" className="max-h-56 w-full rounded-2xl object-cover" />}
+          <Button variant="secondary" className="h-12 w-full rounded-2xl" disabled={busy} onClick={() => fileRef.current?.click()}>
+            <Camera className="h-5 w-5" /> {busy ? "Смотрю…" : "Ещё фото (следующий слой)"}
+          </Button>
           <ItemsEditor items={items} onChange={setItems} />
           <Button className="h-14 w-full rounded-2xl text-base" onClick={() => setStep(3)}>
             Дальше
