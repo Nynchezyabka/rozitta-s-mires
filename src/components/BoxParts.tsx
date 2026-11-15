@@ -84,3 +84,22 @@ export function KidsPicker({ size, season, onSize, onSeason }: { size: string; s
     </div>
   );
 }
+
+/** "Где стоит" with suggestions from places already used in this household. */
+export function LocationInput({ value, onChange, known }: { value: string; onChange: (v: string) => void; known: (string | null)[] }) {
+  const opts = [...new Set(known.filter((x): x is string => !!x))].sort();
+  return (
+    <div className="space-y-2">
+      <input list="known-places" value={value} onChange={(e) => onChange(e.target.value)} placeholder="Балкон, шкаф в коридоре, дача…"
+        className="h-11 w-full rounded-xl border border-input bg-background px-3 text-base" />
+      <datalist id="known-places">{opts.map((o) => <option key={o} value={o} />)}</datalist>
+      {opts.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {opts.slice(0, 8).map((o) => (
+            <button type="button" key={o} onClick={() => onChange(o)} className={`rounded-full px-3 py-1 text-xs ${value === o ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>📍 {o}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -25,7 +25,8 @@ async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
 export type HouseholdData = {
   household: { id: string; name: string };
   groups: { id: string; name: string; color: string; icon: string; position: number }[];
-  boxes: { id: string; number: number; group_id: string | null; photo_path: string | null; photo_url: string | null; note: string | null; decide_by: string | null; kid_size: string | null; kid_season: string | null; created_at: string }[];
+  boxes: { id: string; number: number; group_id: string | null; photo_path: string | null; photo_url: string | null; note: string | null; decide_by: string | null; kid_size: string | null; kid_season: string | null; location: string | null; created_at: string }[];
+  notes: { id: string; title: string; body: string; updated_at: string }[];
   items: { id: string; box_id: string; name: string; kind: string; author: string | null; needs_review: boolean }[];
 };
 
@@ -42,7 +43,7 @@ export async function getHousehold({ data }: { data: Tok }): Promise<HouseholdDa
     const { data: signed } = await photos(data.token).createSignedUrls(paths, 60 * 60 * 6);
     for (const x of signed ?? []) if (x.path && x.signedUrl) urls[x.path] = x.signedUrl;
   }
-  return { ...r, boxes: r.boxes.map((b) => ({ ...b, photo_url: b.photo_path ? urls[b.photo_path] ?? null : null })) };
+  return { ...r, notes: r.notes ?? [], boxes: r.boxes.map((b) => ({ ...b, photo_url: b.photo_path ? urls[b.photo_path] ?? null : null })) };
 }
 
 export async function renameHousehold({ data }: { data: Tok & { name: string } }) {
@@ -60,7 +61,7 @@ export async function deleteGroup({ data }: { data: Tok & { id: string } }) {
   return { ok: true };
 }
 
-export async function saveBox({ data }: { data: Tok & { id?: string; group_id: string | null; note?: string; decide_by?: string | null; kid_size?: string | null; kid_season?: string | null; photo?: string | null; items: ItemIn[] } }) {
+export async function saveBox({ data }: { data: Tok & { id?: string; group_id: string | null; note?: string; decide_by?: string | null; kid_size?: string | null; kid_season?: string | null; location?: string | null; photo?: string | null; items: ItemIn[] } }) {
   let photo_path: string | null = null;
   if (data.photo?.startsWith("data:image/")) {
     const blob = await (await fetch(data.photo)).blob();
@@ -71,7 +72,7 @@ export async function saveBox({ data }: { data: Tok & { id?: string; group_id: s
   }
   const id = await rpc<string>("k_save_box", {
     _token: data.token,
-    _box: { id: data.id ?? null, group_id: data.group_id, note: data.note ?? null, decide_by: data.decide_by || null, kid_size: data.kid_size || null, kid_season: data.kid_season || null, photo_path },
+    _box: { id: data.id ?? null, group_id: data.group_id, note: data.note ?? null, decide_by: data.decide_by || null, kid_size: data.kid_size || null, kid_season: data.kid_season || null, location: data.location || null, photo_path },
     _items: data.items,
   });
   return { id };
@@ -83,5 +84,13 @@ export async function deleteBox({ data }: { data: Tok & { id: string } }) {
 }
 export async function restoreBox({ data }: { data: Tok & { id: string } }) {
   await rpc("k_trash_box", { _token: data.token, _id: data.id, _deleted: false });
+  return { ok: true };
+}
+
+export async function saveNote({ data }: { data: Tok & { id?: string; title: string; body: string } }) {
+  return { id: await rpc<string>("k_save_note", { _token: data.token, _id: data.id ?? null, _title: data.title, _body: data.body }) };
+}
+export async function deleteNote({ data }: { data: Tok & { id: string } }) {
+  await rpc("k_delete_note", { _token: data.token, _id: data.id });
   return { ok: true };
 }

@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Camera, BookOpen, Package } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, type EditItem } from "@/components/BoxParts";
+import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, LocationInput, type EditItem } from "@/components/BoxParts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { compressImage, type HouseholdData } from "@/lib/household";
@@ -52,6 +52,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const [decideBy, setDecideBy] = useState("");
   const [kidSize, setKidSize] = useState("");
   const [kidSeason, setKidSeason] = useState("");
+  const [place, setPlace] = useState("");
 
   const onFile = async (f?: File) => {
     if (!f) return;
@@ -85,7 +86,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const save = async () => {
     setBusy(true);
     try {
-      const r = await saveBox({ data: { token, group_id: groupId, photo, items, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null } });
+      const r = await saveBox({ data: { token, group_id: groupId, photo, items, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, location: place } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
       sfx.key();
       toast.success("Сундучок заперт на волшебный ключ");
@@ -149,6 +150,8 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           {group && <p className="text-sm text-muted-foreground">Предлагаю: {group.icon} {group.name}</p>}
           <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />
           {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
+        <h2 className="pt-2 font-semibold">Где стоит</h2>
+        <LocationInput value={place} onChange={setPlace} known={d.boxes.map((b) => b.location)} />
           {isLater(group) && (
             <label className="block space-y-1">
               <span className="text-sm font-medium">Решить до</span>
