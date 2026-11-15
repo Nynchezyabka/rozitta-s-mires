@@ -74,14 +74,38 @@ _«Где зимние сапоги? — В сундуке №7, на балко
 
 DeepSeek не подходит: он не видит картинки.
 
+## Как настроить под себя
+
+Всё, что говорит Розитта, лежит в одном файле **`src/lib/quotes.ts`** — программировать не нужно.
+
+1. Откройте репозиторий на github.com → `src/lib/quotes.ts`.
+2. Нажмите карандаш ✏️ (Edit this file).
+3. Допишите строку в кавычках с запятой в конце: `"Моя фраза",`
+4. Нажмите **Commit changes**. Хостинг сам пересоберёт сайт за минуту.
+
+| Что поменять | Где |
+| --- | --- |
+| Фразы в облачке на главной | `ROZITTA_QUOTES` в `src/lib/quotes.ts` |
+| Фразы, пока Розитта смотрит фото | `BREWING_QUOTES` в `src/lib/quotes.ts` |
+| Советы Гримуара | `src/lib/grimoire.ts` |
+| Разделы справки | `src/lib/guide.ts` |
+
+Если сборка упала — скорее всего, потерялась кавычка или запятая.
+
 ## Установка на свой Supabase + Layero
 
 1. **Supabase.** Создайте проект → SQL Editor → вставьте весь `supabase-setup.sql` → Run.
-2. Скопируйте **Project URL** и **publishable (anon) key** (Project Settings → API).
+2. Скопируйте **Project URL** и **anon public key** (Project Settings → API).
 3. **GitHub.** Выгрузите проект в свой репозиторий.
 4. **Layero.** Подключите репозиторий:
    - сборка: `STATIC_BUILD=1 bun run build`
-   - переменные: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - папка с сайтом: `dist`
+   - переменные окружения:
+
+   | Переменная | Значение |
+   | --- | --- |
+   | `VITE_SUPABASE_URL` | Project URL |
+   | `VITE_SUPABASE_PUBLISHABLE_KEY` | anon public key |
 5. Откройте сайт → ⚙️ → вставьте свой ключ ИИ. Без него на Layero распознавание не работает.
 
 ## Стек
