@@ -5,6 +5,8 @@ import { AppShell } from "@/components/AppShell";
 import { GroupChip } from "@/components/GroupChip";
 import { Input } from "@/components/ui/input";
 import type { HouseholdData } from "@/lib/household";
+import cabbage from "@/assets/cabbage.png";
+import rozitta from "@/assets/rozitta.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -76,10 +78,17 @@ function Home({ d }: { d: HouseholdData }) {
 
       {!query && d.boxes.length === 0 && (
         <Link to="/new" className="flex flex-col items-center gap-3 rounded-3xl border-2 border-dashed border-primary/40 bg-card p-10 text-center">
-          <Plus className="h-10 w-10 text-primary" />
-          <span className="font-display text-xl font-bold">Первая коробка</span>
-          <span className="text-muted-foreground">Один шаг: сфотографируйте открытую коробку</span>
+          <img src={rozitta} alt="" className="pixel bob h-28 w-28" />
+          <span className="font-display text-sm leading-relaxed text-primary">Первая коробка</span>
+          <span className="text-muted-foreground">Розитта ждёт: сфотографируйте открытую коробку — она сама разберёт, что внутри</span>
         </Link>
+      )}
+
+      {query && hits.length === 0 && boxes.length === 0 && (
+        <div className="flex flex-col items-center gap-2 py-6 text-center text-muted-foreground">
+          <img src={cabbage} alt="" className="pixel h-16 w-16" />
+          Розитта перерыла всё болото — такого нет
+        </div>
       )}
 
       {d.boxes.length > 0 && (

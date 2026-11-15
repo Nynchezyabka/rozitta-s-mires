@@ -8,7 +8,7 @@ export const DEFAULT_GROUPS = [
   { name: "Решить позже", color: "#B0B0B0", icon: "⏳" },
 ];
 export const GROUP_COLORS = ["#7FA7C9", "#F2B84B", "#8C7B6B", "#D9694A", "#8FB573", "#A57BC4", "#E58FB0", "#4FB3A9", "#B0B0B0"];
-export const GROUP_ICONS = ["📦", "🛏️", "🧸", "📄", "🍳", "👕", "📚", "⏳", "🔧", "🎄", "🏡", "🧴", "🎨", "💡"];
+export const GROUP_ICONS = ["📦", "🛏️", "🧸", "📄", "🍳", "👕", "📚", "⏳", "🔧", "🧪", "🔑", "🐸", "🕸️", "🐉", "🥬", "🌸", "🕯️", "🎄", "🏡", "🧴", "🎨", "💡"];
 
 /** Pick the suggested group by name (case-insensitive), falling back to "Решить позже". */
 export function matchGroup<T extends { id: string; name: string }>(groups: T[], suggested: string | null | undefined): T | undefined {
