@@ -216,6 +216,47 @@ export type Database = {
           },
         ]
       }
+      things: {
+        Row: {
+          created_at: string
+          fed_at: string | null
+          household_id: string
+          id: string
+          note: string
+          space: string
+          title: string
+          watered_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          fed_at?: string | null
+          household_id: string
+          id?: string
+          note?: string
+          space: string
+          title?: string
+          watered_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          fed_at?: string | null
+          household_id?: string
+          id?: string
+          note?: string
+          space?: string
+          title?: string
+          watered_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "things_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -230,9 +271,17 @@ export type Database = {
         Args: { _id: string; _token: string }
         Returns: undefined
       }
+      k_delete_thing: {
+        Args: { _id: string; _token: string }
+        Returns: undefined
+      }
       k_get: { Args: { _token: string }; Returns: Json }
       k_header_hid: { Args: never; Returns: string }
       k_hid: { Args: { _token: string }; Returns: string }
+      k_mark_thing: {
+        Args: { _id: string; _kind: string; _token: string }
+        Returns: undefined
+      }
       k_rename: { Args: { _name: string; _token: string }; Returns: undefined }
       k_save_box: {
         Args: { _box: Json; _items: Json; _token: string }
@@ -253,6 +302,17 @@ export type Database = {
         Args: { _body: string; _id: string; _title: string; _token: string }
         Returns: string
       }
+      k_save_thing: {
+        Args: {
+          _id: string
+          _note: string
+          _space: string
+          _title: string
+          _token: string
+        }
+        Returns: string
+      }
+      k_things: { Args: { _token: string }; Returns: Json }
       k_trash_box: {
         Args: { _deleted: boolean; _id: string; _token: string }
         Returns: undefined
