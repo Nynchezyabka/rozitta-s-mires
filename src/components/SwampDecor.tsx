@@ -30,7 +30,7 @@ function Spider({ side, len }: { side: string; len: number }) {
 export function SwampDecor() {
   return (
     <>
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
         <img src={bg} alt="" width={1024} height={1792} className="pixel h-full w-full object-cover opacity-80" />
         <div className="aurora absolute inset-0" />
       </div>
