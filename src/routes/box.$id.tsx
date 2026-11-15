@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Camera, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, type EditItem } from "@/components/BoxParts";
+import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, LocationInput, type EditItem } from "@/components/BoxParts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,6 +41,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const [decideBy, setDecideBy] = useState("");
   const [kidSize, setKidSize] = useState("");
   const [kidSeason, setKidSeason] = useState("");
+  const [place, setPlace] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -51,6 +52,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
     setDecideBy(box.decide_by ?? "");
     setKidSize(box.kid_size ?? "");
     setKidSeason(box.kid_season ?? "");
+    setPlace(box.location ?? "");
   }, [box?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!box) return <p className="py-10 text-center text-muted-foreground">Коробка не найдена</p>;
@@ -59,7 +61,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const save = async () => {
     setBusy(true);
     try {
-      await saveBox({ data: { token, id, group_id: groupId, note, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, photo, items } });
+      await saveBox({ data: { token, id, group_id: groupId, note, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, location: place, photo, items } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
       setPhoto(null);
       toast.success("Сохранено");
@@ -96,6 +98,8 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
         <h2 className="font-semibold">Группа</h2>
         <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />
           {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
+        <h2 className="pt-2 font-semibold">Где стоит</h2>
+        <LocationInput value={place} onChange={setPlace} known={d.boxes.map((b) => b.location)} />
         {isLater(group) && <Input type="date" value={decideBy} onChange={(e) => setDecideBy(e.target.value)} className="h-12" aria-label="Решить до" />}
       </section>
       <section className="space-y-2">

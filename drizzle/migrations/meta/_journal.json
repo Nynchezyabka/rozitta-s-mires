@@ -29,6 +29,13 @@
       "when": 1794750376343,
       "tag": "0003_photos_household_scoped",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794754160583,
+      "tag": "0004_box_location_and_notes",
+      "breakpoints": true
     }
   ]
 }

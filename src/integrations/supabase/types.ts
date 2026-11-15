@@ -24,6 +24,7 @@ export type Database = {
           id: string
           kid_season: string | null
           kid_size: string | null
+          location: string | null
           note: string | null
           number: number
           photo_path: string | null
@@ -37,6 +38,7 @@ export type Database = {
           id?: string
           kid_season?: string | null
           kid_size?: string | null
+          location?: string | null
           note?: string | null
           number: number
           photo_path?: string | null
@@ -50,6 +52,7 @@ export type Database = {
           id?: string
           kid_season?: string | null
           kid_size?: string | null
+          location?: string | null
           note?: string | null
           number?: number
           photo_path?: string | null
@@ -178,6 +181,41 @@ export type Database = {
           },
         ]
       }
+      notes: {
+        Row: {
+          body: string
+          created_at: string
+          household_id: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          household_id: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          household_id?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -185,6 +223,10 @@ export type Database = {
     Functions: {
       k_create_household: { Args: { _name: string }; Returns: string }
       k_delete_group: {
+        Args: { _id: string; _token: string }
+        Returns: undefined
+      }
+      k_delete_note: {
         Args: { _id: string; _token: string }
         Returns: undefined
       }
@@ -206,6 +248,10 @@ export type Database = {
           _token: string
         }
         Returns: undefined
+      }
+      k_save_note: {
+        Args: { _body: string; _id: string; _title: string; _token: string }
+        Returns: string
       }
       k_trash_box: {
         Args: { _deleted: boolean; _id: string; _token: string }

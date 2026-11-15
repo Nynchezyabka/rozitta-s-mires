@@ -39,7 +39,7 @@ function Home({ d }: { d: HouseholdData }) {
   const boxes = d.boxes.filter((b) => {
     if (groupFilter && b.group_id !== groupFilter) return false;
     if (!query) return true;
-    return String(b.number) === query || `${b.note ?? ""} ${b.kid_size ?? ""} ${b.kid_season ?? ""}`.toLowerCase().includes(query) || (gmap[b.group_id ?? ""]?.name ?? "").toLowerCase().includes(query);
+    return String(b.number) === query || `${b.note ?? ""} ${b.kid_size ?? ""} ${b.kid_season ?? ""} ${b.location ?? ""}`.toLowerCase().includes(query) || (gmap[b.group_id ?? ""]?.name ?? "").toLowerCase().includes(query);
   });
   const boxById = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
   const today = new Date().toISOString().slice(0, 10);
@@ -124,6 +124,7 @@ function Home({ d }: { d: HouseholdData }) {
                   {its.some((i) => i.needs_review) && <span className="rounded bg-warning/40 px-1.5 text-xs">проверить</span>}
                 </div>
                 <GroupChip g={g} />
+                {b.location && <p className="text-xs text-accent">📍 {b.location}</p>}
                 <p className="line-clamp-2 text-sm text-muted-foreground">{its.map((i) => i.name).join(", ") || "Пусто"}</p>
               </div>
             </Link>
