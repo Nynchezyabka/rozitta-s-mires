@@ -18,9 +18,12 @@ export type Database = {
         Row: {
           created_at: string
           decide_by: string | null
+          deleted_at: string | null
           group_id: string | null
           household_id: string
           id: string
+          kid_season: string | null
+          kid_size: string | null
           note: string | null
           number: number
           photo_path: string | null
@@ -28,9 +31,12 @@ export type Database = {
         Insert: {
           created_at?: string
           decide_by?: string | null
+          deleted_at?: string | null
           group_id?: string | null
           household_id: string
           id?: string
+          kid_season?: string | null
+          kid_size?: string | null
           note?: string | null
           number: number
           photo_path?: string | null
@@ -38,9 +44,12 @@ export type Database = {
         Update: {
           created_at?: string
           decide_by?: string | null
+          deleted_at?: string | null
           group_id?: string | null
           household_id?: string
           id?: string
+          kid_season?: string | null
+          kid_size?: string | null
           note?: string | null
           number?: number
           photo_path?: string | null

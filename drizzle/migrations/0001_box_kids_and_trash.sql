@@ -1,0 +1,1 @@
+ALTER TABLE public.boxes ADD COLUMN kid_size text, ADD COLUMN kid_season text, ADD COLUMN deleted_at timestamptz;
