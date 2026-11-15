@@ -1,5 +1,17 @@
 /** Data access straight from the browser via token-checked database functions (works on any static hosting). */
+import { createClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+
+/** Storage access scoped to one household: the token header is checked by storage policies. */
+const storages: Record<string, ReturnType<typeof createClient>> = {};
+function photos(token: string) {
+  storages[token] ??= createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, storageKey: `kh-${token.slice(0, 6)}` },
+    global: { headers: { "x-household-token": token } },
+  });
+  return storages[token].storage.from("photos");
+}
+const hids: Record<string, string> = {};
 
 type Tok = { token: string };
 type ItemIn = { name: string; kind?: string; author?: string | null; needs_review?: boolean };
@@ -23,10 +35,11 @@ export async function createHousehold({ data }: { data: { name: string } }) {
 
 export async function getHousehold({ data }: { data: Tok }): Promise<HouseholdData> {
   const r = await rpc<Omit<HouseholdData, "boxes"> & { boxes: Omit<HouseholdData["boxes"][number], "photo_url">[] }>("k_get", { _token: data.token });
+  hids[data.token] = r.household.id;
   const paths = r.boxes.map((b) => b.photo_path).filter((p): p is string => !!p);
   const urls: Record<string, string> = {};
   if (paths.length) {
-    const { data: signed } = await supabase.storage.from("photos").createSignedUrls(paths, 60 * 60 * 6);
+    const { data: signed } = await photos(data.token).createSignedUrls(paths, 60 * 60 * 6);
     for (const x of signed ?? []) if (x.path && x.signedUrl) urls[x.path] = x.signedUrl;
   }
   return { ...r, boxes: r.boxes.map((b) => ({ ...b, photo_url: b.photo_path ? urls[b.photo_path] ?? null : null })) };
@@ -51,8 +64,9 @@ export async function saveBox({ data }: { data: Tok & { id?: string; group_id: s
   let photo_path: string | null = null;
   if (data.photo?.startsWith("data:image/")) {
     const blob = await (await fetch(data.photo)).blob();
-    photo_path = `p/${crypto.randomUUID()}.jpg`;
-    const up = await supabase.storage.from("photos").upload(photo_path, blob, { contentType: "image/jpeg" });
+    const hid = hids[data.token] ?? (await getHousehold({ data: { token: data.token } })).household.id;
+    photo_path = `${hid}/${crypto.randomUUID()}.jpg`;
+    const up = await photos(data.token).upload(photo_path, blob, { contentType: "image/jpeg" });
     if (up.error) throw new Error("Фото не сохранилось");
   }
   const id = await rpc<string>("k_save_box", {
