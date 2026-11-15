@@ -161,3 +161,7 @@ h1 { animation: shimmer 6s ease-in-out infinite; }
 .spider-sway { animation: sway 3s ease-in-out infinite; transform-origin: top center; }
 @keyframes sway { 0%,100% { transform: rotate(-6deg) } 50% { transform: rotate(6deg) } }
 @media (prefers-reduced-motion: reduce) { .magic-spark, .aurora, .spider-sway { animation: none } }
+
+.snowflake { position: absolute; top: -10px; background: var(--foreground); opacity: .85; animation-name: snow; animation-iteration-count: infinite; animation-timing-function: linear; image-rendering: pixelated; }
+@keyframes snow { 0% { transform: translate(0, 0) } 50% { transform: translate(12px, 55vh) } 100% { transform: translate(-8px, 110vh) } }
+@media (prefers-reduced-motion: reduce) { .snowflake { animation: none; display: none } }

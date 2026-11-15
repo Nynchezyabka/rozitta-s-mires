@@ -36,6 +36,13 @@
       "when": 1794754160583,
       "tag": "0004_box_location_and_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794754593455,
+      "tag": "0005_home_things",
+      "breakpoints": true
     }
   ]
 }
