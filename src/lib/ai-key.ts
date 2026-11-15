@@ -33,7 +33,7 @@ async function call(key: string, prompt: string, photo?: string): Promise<string
     const content: unknown[] = [];
     if (photo) {
       const [head, data] = photo.split(",");
-      content.push({ type: "image", source: { type: "base64", media_type: head.match(/data:(.*?);/)?.[1] ?? "image/jpeg", data } });
+      content.push({ type: "image", source: { type: "base64", media_type: (head ?? "").match(/data:(.*?);/)?.[1] ?? "image/jpeg", data } });
     }
     content.push({ type: "text", text: prompt });
     const r = await fetch("https://claude-n-codex.com:8443/v1/messages", {
