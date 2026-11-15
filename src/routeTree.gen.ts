@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FamilyRouteImport } from './routes/family'
+import { Route as GrimoireRouteImport } from './routes/grimoire'
 import { Route as GroupsRouteImport } from './routes/groups'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StickersRouteImport } from './routes/stickers'
@@ -28,9 +30,19 @@ const FamilyRoute = FamilyRouteImport.update({
   path: '/family',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GrimoireRoute = GrimoireRouteImport.update({
+  id: '/grimoire',
+  path: '/grimoire',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GroupsRoute = GroupsRouteImport.update({
   id: '/groups',
   path: '/groups',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewRoute = NewRouteImport.update({
@@ -62,7 +74,9 @@ const JoinTokenRoute = JoinTokenRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/family': typeof FamilyRoute
+  '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
+  '/help': typeof HelpRoute
   '/new': typeof NewRoute
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
@@ -72,7 +86,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/family': typeof FamilyRoute
+  '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
+  '/help': typeof HelpRoute
   '/new': typeof NewRoute
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
@@ -83,7 +99,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/family': typeof FamilyRoute
+  '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
+  '/help': typeof HelpRoute
   '/new': typeof NewRoute
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
@@ -95,7 +113,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/family'
+    | '/grimoire'
     | '/groups'
+    | '/help'
     | '/new'
     | '/settings'
     | '/stickers'
@@ -105,7 +125,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/family'
+    | '/grimoire'
     | '/groups'
+    | '/help'
     | '/new'
     | '/settings'
     | '/stickers'
@@ -115,7 +137,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/family'
+    | '/grimoire'
     | '/groups'
+    | '/help'
     | '/new'
     | '/settings'
     | '/stickers'
@@ -126,7 +150,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FamilyRoute: typeof FamilyRoute
+  GrimoireRoute: typeof GrimoireRoute
   GroupsRoute: typeof GroupsRoute
+  HelpRoute: typeof HelpRoute
   NewRoute: typeof NewRoute
   SettingsRoute: typeof SettingsRoute
   StickersRoute: typeof StickersRoute
@@ -150,11 +176,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FamilyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/grimoire': {
+      id: '/grimoire'
+      path: '/grimoire'
+      fullPath: '/grimoire'
+      preLoaderRoute: typeof GrimoireRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/groups': {
       id: '/groups'
       path: '/groups'
       fullPath: '/groups'
       preLoaderRoute: typeof GroupsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/new': {
@@ -198,7 +238,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FamilyRoute: FamilyRoute,
+  GrimoireRoute: GrimoireRoute,
   GroupsRoute: GroupsRoute,
+  HelpRoute: HelpRoute,
   NewRoute: NewRoute,
   SettingsRoute: SettingsRoute,
   StickersRoute: StickersRoute,
