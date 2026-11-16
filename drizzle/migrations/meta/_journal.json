@@ -43,6 +43,13 @@
       "when": 1794754593455,
       "tag": "0005_home_things",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794900000000,
+      "tag": "0006_box_photos_restore",
+      "breakpoints": true
     }
   ]
 }
