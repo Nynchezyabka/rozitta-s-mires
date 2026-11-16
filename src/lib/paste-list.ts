@@ -11,7 +11,7 @@ export function pastePrompt(mode: "box" | "books" | "meds") {
 }
 
 /** Chat chatter around the list: "Вот список вещей:", "Если нужно, могу…", "Надеюсь, помог!". */
-const CHATTER = /^(вот|ниже|на фото|на (этой|данной) фотографии|я (вижу|нашёл|нашел|могу)|если (нужно|хотите|надо)|надеюсь|могу (также|ещё|еще|помочь)|хотите|дайте знать|обращайтесь|конечно|отлично|список вещей|итого|here (is|are)|sure|let me know|i hope)\b/i;
+const CHATTER = /^(вот|ниже|на фото|на (этой|данной) фотографии|я (вижу|нашёл|нашел|могу)|если (нужно|хотите|надо)|надеюсь|могу (также|ещё|еще|помочь)|хотите|дайте знать|обращайтесь|конечно|отлично|список вещей|итого|here (is|are)|sure|let me know|i hope)(?=[\s,.:!?—-]|$)/i;
 export const isChatter = (line: string) => CHATTER.test(line) || /:\s*$/.test(line) || (/[?!]$/.test(line) && line.split(" ").length > 4);
 
 export function parsePasted(text: string, mode: "box" | "books" | "meds"): { items: PastedItem[]; duplicates: string[] } {
