@@ -1,4 +1,4 @@
-/** Household health notes for the medicine chest: stored only in this browser, used to tune the AI prompt. */
+/** Household health notes for the medicine chest: stored in this browser, sent to the chosen AI service with the prompt. Never send them to a shared server trial. */
 const KEY = "rozitta-health";
 export const HEALTH_FLAGS = [
   { id: "pregnant", label: "🤰 Беременность" },
@@ -27,10 +27,12 @@ export function healthContext(h: Health): string {
 
 export function medsPrompt(h: Health, forPaste: boolean): string {
   const ctx = healthContext(h);
+  const sensitive = h.flags.some((f) => f === "pregnant" || f === "breastfeeding" || f === "kids");
+  const green = sensitive ? "🟢 нет известных запретов, уточните у врача или фармацевта" : "🟢 нет известных запретов по инструкции";
   const check = ctx
-    ? ` Проверь совместимость с: ${ctx}. В конце строки поставь метку: 🟢 обычно можно, 🟡 с осторожностью/по назначению врача, 🔴 нельзя — и в двух-трёх словах почему.`
+    ? ` Проверь совместимость с: ${ctx}. В конце строки поставь метку: ${green}, 🟡 с осторожностью/по назначению врача, 🔴 нельзя — и в двух-трёх словах почему.`
     : "";
-  const line = `Каждое лекарство одной строкой: "Название (действующее вещество) — от чего, простыми словами"${check} Если виден срок годности — добавь "годен до ММ.ГГГГ".`;
+  const line = `Каждое лекарство одной строкой: "Название (действующее вещество) — от чего, простыми словами"${check} Если виден срок годности — добавь "годен до ММ.ГГГГ (проверьте по упаковке)".`;
   return forPaste
     ? `На фото лекарства из домашней аптечки. ${line} По одной строке на лекарство, без нумерации и пояснений.`
     : `На фото лекарства из домашней аптечки. В поле name пиши: ${line} needs_review: true, если название читается плохо.`;

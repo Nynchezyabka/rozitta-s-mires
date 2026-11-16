@@ -1,9 +1,9 @@
-import wardrobe from "@/assets/space-wardrobe.png";
-import fridge from "@/assets/space-fridge.png";
-import library from "@/assets/space-library.png";
-import plants from "@/assets/space-plants.png";
-import rozitta from "@/assets/rozitta.png";
-import cabbage from "@/assets/cabbage.png";
+import wardrobe from "@/assets/space-wardrobe.webp";
+import fridge from "@/assets/space-fridge.webp";
+import library from "@/assets/space-library.webp";
+import plants from "@/assets/space-plants.webp";
+import rozitta from "@/assets/rozitta.webp";
+import cabbage from "@/assets/cabbage.webp";
 
 export type Space = { key: string; title: string; hint: string; img: string; plants?: boolean; starter: string[] };
 

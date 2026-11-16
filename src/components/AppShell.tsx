@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useXmas, setXmasMode } from "@/lib/season";
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
-import rozitta from "@/assets/rozitta.png";
-import gardenKey from "@/assets/garden-key.png";
+import rozitta from "@/assets/rozitta.webp";
+import gardenKey from "@/assets/garden-key.webp";
 import { SwampDecor } from "./SwampDecor";
 import { QrScanner } from "./QrScanner";
 import { sfx, soundOn, setSound } from "@/lib/rozitta";
@@ -124,7 +124,7 @@ export function AppShell({ children, garden = false }: { children: (d: NonNullab
   const boxes = data?.boxes.length;
   useEffect(() => { if (boxes !== undefined) initUpdates(boxes); }, [boxes]);
   if (token === undefined) return <div className="min-h-screen" />;
-  if (!token) return <Welcome />;
+  if (!token) return <Welcome foreignBox={window.location.pathname.startsWith("/box/")} />;
   return (
     <div className={`mx-auto min-h-screen max-w-2xl pb-28 ${garden ? "garden-shell" : ""}`}>
       <header className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 bg-background/90 px-4 py-2 backdrop-blur">

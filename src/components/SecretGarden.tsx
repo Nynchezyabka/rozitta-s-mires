@@ -8,7 +8,7 @@ import { addBloom, addGardenLog, getGarden, getGardenLog, getNight, setNightPref
 import { gardenRewardAt, type GardenId } from "@/lib/garden";
 import { sfx } from "@/lib/rozitta";
 import door from "@/assets/garden-door.jpg";
-import key from "@/assets/garden-key.png";
+import key from "@/assets/garden-key.webp";
 
 export function SecretGarden() {
   const [open, setOpen] = useState(false);

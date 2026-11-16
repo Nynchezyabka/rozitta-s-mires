@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Camera, BookOpen, Package, Pill, ClipboardPaste, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { PhotoStrip } from "@/components/PhotoStrip";
+import { MAX_PHOTOS } from "@/lib/store";
 import { AppShell } from "@/components/AppShell";
 import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, LocationInput, type EditItem } from "@/components/BoxParts";
 import { Button } from "@/components/ui/button";
@@ -49,7 +51,8 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState(1);
   const [mode, setMode] = useState<"box" | "books" | "meds">("box");
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const photo = photos[0] ?? null;
   const [busy, setBusy] = useState(false);
   const [items, setItems] = useState<EditItem[]>([]);
   const [groupId, setGroupId] = useState<string | null>(null);
@@ -88,7 +91,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
     try {
       const img = await compressImage(f, local ? 1024 : undefined);
       const first = !photo;
-      if (first) setPhoto(img);
+      setPhotos((p) => (p.length < MAX_PHOTOS ? [...p, img] : p));
       const key = getAiKey();
       const r = isAiConfigured()
         ? await recognizeWithKey(key, img, mode, d.groups.map((g) => g.name))
@@ -113,7 +116,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const save = async () => {
     setBusy(true);
     try {
-      const r = await saveBox({ data: { token, group_id: groupId, photo, items, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, location: place } });
+      const r = await saveBox({ data: { token, group_id: groupId, photos, items, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, location: place } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
       sfx.key();
       toast.success("Сундучок заперт на волшебный ключ");
@@ -197,6 +200,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
         <div className="space-y-4">
           <h1 className="font-display text-2xl font-bold">Всё верно?</h1>
           {photo && <img src={photo} alt="" className="max-h-56 w-full rounded-2xl object-cover" />}
+          <PhotoStrip value={photos} onChange={setPhotos} />
           <Button variant="secondary" className="h-12 w-full rounded-2xl" disabled={busy} onClick={() => fileRef.current?.click()}>
             <Camera className="h-5 w-5" /> {busy ? (local ? "Модель думает…" : "Смотрю…") : "Ещё фото (следующий слой)"}
           </Button>

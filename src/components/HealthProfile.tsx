@@ -12,7 +12,7 @@ export function HealthProfile() {
   return (
     <section id="health" className="space-y-3 rounded-2xl border-2 border-accent/40 bg-card p-4">
       <h2 className="font-display text-lg font-bold">💊 Профиль здоровья для аптечки</h2>
-      <p className="text-sm text-muted-foreground">Розитта сверит с этим каждое лекарство и поставит 🟢 🟡 🔴. Хранится только в этом браузере. Это подсказка, а не совет врача.</p>
+      <p className="text-sm text-muted-foreground">Розитта сверит с этим каждое лекарство и поставит 🟢 🟡 🔴. Хранится в этом браузере, но при распознавании аптечки отправляется выбранному ИИ-сервису вместе с фото, а при «Вставить список» входит в подсказку, которую вы сами копируете в чат. Это подсказка, а не совет врача.</p>
       <div className="flex flex-wrap gap-2">
         {HEALTH_FLAGS.map((f) => (
           <button key={f.id} type="button" onClick={() => toggle(f.id)} className={`rounded-full px-3 py-1.5 text-sm ${h.flags.includes(f.id) ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>

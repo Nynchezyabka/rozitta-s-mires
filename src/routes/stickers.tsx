@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Download, Printer } from "lucide-react";
+import { Download, ImageDown, Printer } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { FORMATS, drawSticker, isPreviewHost, printStickers, stickersPdf, type Format, type Sticker, type StickerStyle } from "@/lib/stickers";
+import { FORMATS, MAX_CUSTOM_MM, boxQrUrl, drawSticker, isPreviewHost, printStickers, stickersPdf, stickersPng, type Format, type Sticker, type StickerContent, type StickerStyle } from "@/lib/stickers";
 import type { HouseholdData } from "@/lib/household";
 
 export const Route = createFileRoute("/stickers")({
@@ -32,28 +32,31 @@ function Stickers({ d }: { d: HouseholdData }) {
   const [cw, setCw] = useState("60");
   const [ch, setCh] = useState("40");
   const [preview, setPreview] = useState("");
+  const [content, setContent] = useState<StickerContent>("number");
   const [host, setHost] = useState("");
   useEffect(() => setHost(location.hostname), []);
   const gmap = Object.fromEntries(d.groups.map((g) => [g.id, g]));
   const toggle = (id: string) => setSel((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const base = FORMATS.find((f) => f.id === fid)!;
-  const fmt: Format = fid === "custom" ? { id: "custom", w: Math.max(20, Number(cw) || 60), h: Math.max(15, Number(ch) || 40) } : { id: base.id, w: base.w, h: base.h };
+  const tooBig = fid === "custom" && (Number(cw) > MAX_CUSTOM_MM || Number(ch) > MAX_CUSTOM_MM);
+  const fmt: Format = fid === "custom" ? { id: "custom", w: Math.min(MAX_CUSTOM_MM, Math.max(20, Number(cw) || 60)), h: Math.min(MAX_CUSTOM_MM, Math.max(15, Number(ch) || 40)) } : { id: base.id, w: base.w, h: base.h };
   const list = (): Sticker[] =>
     d.boxes.filter((b) => sel.has(b.id)).map((b) => {
       const g = gmap[b.group_id ?? ""];
-      return { number: b.number, groupName: g?.name ?? "Без группы", color: g?.color ?? "#dddddd", icon: g?.icon ?? "📦", url: qr ? `${location.origin}/box/${b.id}` : undefined };
+      return { number: b.number, groupName: g?.name ?? "Без группы", color: g?.color ?? "#dddddd", icon: g?.icon ?? "📦", url: qr ? boxQrUrl(location.origin, b.id) : undefined, items: d.items.filter((i) => i.box_id === b.id).map((i) => i.name), photo: b.photo_url };
     });
   useEffect(() => {
     const first = list()[0];
     if (!first) return setPreview("");
     let live = true;
-    drawSticker(first, fmt.w, fmt.h, style).then((u) => live && setPreview(u));
+    drawSticker(first, fmt.w, fmt.h, style, content).then((u) => live && setPreview(u));
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fid, cw, ch, qr, sel, style]);
+  }, [fid, cw, ch, qr, sel, style, content]);
   const run = async (fn: typeof stickersPdf) => {
+    if (tooBig) { toast.error(`Слишком большая наклейка: максимум ${MAX_CUSTOM_MM}×${MAX_CUSTOM_MM} мм`); return; }
     setBusy(true);
-    try { await fn(list(), fmt, style); } catch (e) { console.error(e); toast.error("Не получилось сделать наклейки"); } finally { setBusy(false); }
+    try { await fn(list(), fmt, style, content); } catch (e) { console.error(e); toast.error("Не получилось сделать наклейки"); } finally { setBusy(false); }
   };
 
   return (
@@ -81,6 +84,7 @@ function Stickers({ d }: { d: HouseholdData }) {
                 <span className="text-sm text-muted-foreground">мм</span>
               </div>
             )}
+            {tooBig && <p className="text-sm text-destructive">Максимум {MAX_CUSTOM_MM}×{MAX_CUSTOM_MM} мм — больше принтеры наклеек не печатают.</p>}
           </div>
           <div className="space-y-2 rounded-2xl bg-card p-3">
             <p className="text-sm font-medium">Стиль</p>
@@ -91,6 +95,15 @@ function Stickers({ d }: { d: HouseholdData }) {
                 </button>
               ))}
             </div>
+          </div>
+          <div className="space-y-2 rounded-2xl bg-card p-3">
+            <p className="text-sm font-medium">Что на наклейке</p>
+            <div className="grid grid-cols-3 gap-2">
+              {([["number", "№ Номер"], ["list", "📝 Список"], ["photo", "📷 Фото"]] as const).map(([id, l]) => (
+                <button key={id} onClick={() => setContent(id)} className={`rounded-xl px-2 py-2 text-sm ${content === id ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>{l}</button>
+              ))}
+            </div>
+            {content !== "number" && <p className="text-xs text-muted-foreground">{content === "list" ? "Первые вещи сундука под номером — удобно для обуви и сезонной одежды." : "Обложка сундука под номером. Нет фото — будет только номер."}</p>}
           </div>
           <label className="flex items-center justify-between rounded-2xl bg-card p-3">
             <span>QR-код на наклейке</span>
@@ -121,6 +134,9 @@ function Stickers({ d }: { d: HouseholdData }) {
             </Button>
             <Button variant="secondary" className="h-14 rounded-2xl text-base" disabled={busy || sel.size === 0} onClick={() => run(printStickers)}>
               <Printer className="h-5 w-5" /> Напечатать
+            </Button>
+            <Button variant="outline" className="col-span-2 h-12 rounded-2xl" disabled={busy || sel.size === 0} onClick={() => run(stickersPng)}>
+              <ImageDown className="h-5 w-5" /> Скачать PNG — для приложения принтера
             </Button>
           </div>
         </>

@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createHousehold } from "@/lib/store";
 import { setToken } from "@/lib/household";
-import rozitta from "@/assets/rozitta.png";
-import cabbage from "@/assets/cabbage.png";
+import rozitta from "@/assets/rozitta.webp";
+import cabbage from "@/assets/cabbage.webp";
 import { SwampDecor } from "./SwampDecor";
 
-export function Welcome() {
+export function Welcome({ foreignBox = false }: { foreignBox?: boolean }) {
   const [name, setName] = useState("Наш дом");
   const [link, setLink] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,6 +30,13 @@ export function Welcome() {
         <p className="mt-1 text-accent">Розитта, хранительница волшебных сундуков, к вашим услугам</p>
         <p className="mt-2 text-muted-foreground">Сфотографируйте сундук или полку — список вещей появится сам. Без почты и паролей.</p>
       </div>
+      {foreignBox && (
+        <div role="alert" className="relative z-[1] space-y-3 rounded-3xl border-2 border-primary bg-card/95 p-5">
+          <p className="font-semibold">🐸 Это сундук из другого дома или другого браузера.</p>
+          <p className="text-sm text-muted-foreground">Откройте приложение и отсканируйте наклейку кнопкой сканера.</p>
+          <Button className="h-12 w-full" onClick={() => document.getElementById("invite-link")?.focus()}>Войти по ссылке-ключу</Button>
+        </div>
+      )}
       <div className="relative z-[1] space-y-3 rounded-3xl bg-card/90 backdrop-blur p-5 shadow-sm">
         <p className="font-semibold">Завести свой дом</p>
         <label htmlFor="house-name" className="block text-sm text-muted-foreground">Как назовём дом?</label>
@@ -55,7 +62,7 @@ export function Welcome() {
       <div className="relative z-[1] space-y-3 rounded-3xl bg-secondary/80 backdrop-blur p-5">
         <p className="font-semibold">Меня пригласили</p>
         <p className="text-sm text-muted-foreground">Отсканируйте QR камерой телефона или вставьте ссылку:</p>
-        <Input placeholder="Ссылка-приглашение" value={link} onChange={(e) => setLink(e.target.value)} className="h-12" />
+        <Input id="invite-link" placeholder="Ссылка-приглашение" value={link} onChange={(e) => setLink(e.target.value)} className="h-12" />
         <Button variant="outline" className="h-12 w-full" onClick={join}>
           Войти по ссылке
         </Button>

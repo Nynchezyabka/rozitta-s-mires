@@ -30,6 +30,12 @@ function Camera({ onDone }: { onDone: () => void }) {
     (async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      } catch (e) {
+        console.error(e);
+        setErr("Камера недоступна — разрешите доступ к ней в браузере.");
+        return;
+      }
+      try {
         const v = video.current!;
         v.srcObject = stream;
         await v.play();
@@ -48,14 +54,14 @@ function Camera({ onDone }: { onDone: () => void }) {
               text = jsQR!(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height)?.data ?? "";
             }
           }
-          const id = text.match(/\/box\/([0-9a-f-]{36})/i)?.[1];
+          const id = text.match(/\/(?:box|b)\/([0-9a-f-]{36})/i)?.[1];
           if (id) { onDone(); nav({ to: "/box/$id", params: { id } }); return; }
           if (text) toast("Это не наклейка сундука");
           await new Promise((r) => setTimeout(r, 250));
         }
       } catch (e) {
         console.error(e);
-        setErr("Камера недоступна — разрешите доступ к ней в браузере.");
+        if (!stop) setErr("Не получилось прочитать код, попробуйте ещё раз.");
       }
     })();
     return () => { stop = true; stream?.getTracks().forEach((t) => t.stop()); };

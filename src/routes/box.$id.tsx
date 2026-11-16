@@ -1,15 +1,16 @@
 import { DueBadge, LocationPath } from "@/components/BoxBits";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Camera, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { PhotoStrip } from "@/components/PhotoStrip";
 import { AppShell } from "@/components/AppShell";
 import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, LocationInput, type EditItem } from "@/components/BoxParts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { compressImage, type HouseholdData } from "@/lib/household";
+import { type HouseholdData } from "@/lib/household";
 import { deleteBox, restoreBox, saveBox } from "@/lib/store";
 
 export const Route = createFileRoute("/box/$id")({
@@ -35,7 +36,6 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const box = d.boxes.find((b) => b.id === id);
   const nav = useNavigate();
   const qc = useQueryClient();
-  const fileRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<EditItem[]>([]);
   const [groupId, setGroupId] = useState<string | null>(null);
   const [note, setNote] = useState("");
@@ -43,7 +43,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const [kidSize, setKidSize] = useState("");
   const [kidSeason, setKidSeason] = useState("");
   const [place, setPlace] = useState("");
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [shots, setShots] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (!box) return;
@@ -54,17 +54,17 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
     setKidSize(box.kid_size ?? "");
     setKidSeason(box.kid_season ?? "");
     setPlace(box.location ?? "");
+    setShots(box.photo_paths);
   }, [box?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!box) return <p className="py-10 text-center text-muted-foreground">Сундук не найден</p>;
+  if (!box) return <p className="py-10 text-center text-muted-foreground">Сундук не найден. Возможно, он из другого дома или удалён — отсканируйте наклейку кнопкой сканера в шапке.</p>;
   const group = d.groups.find((g) => g.id === groupId);
 
   const save = async () => {
     setBusy(true);
     try {
-      await saveBox({ data: { token, id, group_id: groupId, note, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, location: place, photo, items } });
+      await saveBox({ data: { token, id, group_id: groupId, note, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, location: place, photos: shots, items } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
-      setPhoto(null);
       toast.success("Сохранено");
     } catch (e) {
       toast.error((e as Error).message);
@@ -84,13 +84,8 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
           <p className="text-sm text-muted-foreground">{items.length} вещей</p>
         </div>
       </div>
-      <div className="relative">
-        {photo || box.photo_url ? <img src={photo ?? box.photo_url!} alt="" className="w-full rounded-2xl object-cover" /> : <div className="h-32 rounded-2xl bg-muted" />}
-        <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={async (e) => e.target.files?.[0] && setPhoto(await compressImage(e.target.files[0]))} />
-        <Button size="sm" variant="secondary" className="absolute bottom-3 right-3" onClick={() => fileRef.current?.click()}>
-          <Camera className="h-4 w-4" /> {box.photo_url ? "Переснять" : "Фото"}
-        </Button>
-      </div>
+      {shots[0] && <img src={shots[0].startsWith("data:") ? shots[0] : box.photo_urls[box.photo_paths.indexOf(shots[0])]} alt="" className="max-h-72 w-full rounded-2xl object-cover" />}
+      <PhotoStrip value={shots} onChange={setShots} urlOf={(p) => box.photo_urls[box.photo_paths.indexOf(p)]} />
       <section className="space-y-2">
         <h2 className="font-semibold">Что внутри</h2>
         <ItemsEditor items={items} onChange={setItems} />

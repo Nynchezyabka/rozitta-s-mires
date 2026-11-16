@@ -1,5 +1,5 @@
 /** Обновления и напоминания о копии. Без service worker: свежая версия приходит при перезагрузке страницы. */
-export const APP_VERSION = "1.4.0";
+export const APP_VERSION = "1.5.0";
 
 function isPreview(): boolean {
   if (!import.meta.env.PROD) return true;
@@ -8,17 +8,25 @@ function isPreview(): boolean {
   return h === "localhost" || h.startsWith("id-preview--") || h.startsWith("preview--") || h.endsWith("lovableproject.com");
 }
 
-const scripts = (list: string[]) => list.map((s) => s.match(/assets\/[^"'?]+\.js/)?.[0]).filter(Boolean).sort().join();
+/** Отпечаток сборки: все файлы assets/*.js, упомянутые в HTML (и script, и modulepreload). */
+export const fingerprint = (html: string) => [...new Set([...html.matchAll(/assets\/[^"'?\s]+\.js/g)].map((m) => m[0]))].sort().join();
 
-/** Сравнивает файлы открытой версии со свежей страницей с сервера. */
-export async function checkForUpdates(): Promise<"current" | "new" | "offline"> {
+async function fetchFingerprint(): Promise<string | null> {
   try {
     const res = await fetch("/?_v=" + Date.now(), { cache: "no-store" });
-    if (!res.ok) return "offline";
-    const fresh = scripts([...(await res.text()).matchAll(/assets\/[^"']+\.js/g)].map((m) => m[0]));
-    const now = scripts([...document.querySelectorAll("script[src]")].map((s) => (s as HTMLScriptElement).src));
-    return fresh && now && fresh !== now ? "new" : "current";
-  } catch { return "offline"; }
+    return res.ok ? fingerprint(await res.text()) || null : null;
+  } catch { return null; }
+}
+
+/** Отпечаток открытой версии берём с сервера при первой проверке (сразу после загрузки). Страницу саму не читаем: роутер на лету добавляет ссылки на файлы, и это давало ложное «новая версия». */
+let baseline: string | null = null;
+
+/** Сравнивает открытую версию со свежей страницей с сервера. */
+export async function checkForUpdates(): Promise<"current" | "new" | "offline"> {
+  const fresh = await fetchFingerprint();
+  if (!fresh) return "offline";
+  baseline ??= fresh;
+  return fresh !== baseline ? "new" : "current";
 }
 
 /** Сбрасывает сохранённые файлы сайта и перезагружает. Дом, ключи и настройки остаются. */
@@ -47,6 +55,7 @@ export function shouldRemindBackup(now: number, last: number | null, shown: numb
 }
 
 let started = false;
+const DISMISS_KEY = "rozitta-update-dismissed";
 /** Вызывать из useEffect. Мягкие тосты, ничего не перезагружает само. */
 export function initUpdates(boxes: number) {
   if (typeof window === "undefined" || started) return;
@@ -60,8 +69,15 @@ export function initUpdates(boxes: number) {
     }
     if (isPreview()) return;
     const check = async () => {
-      if ((await checkForUpdates()) === "new")
-        toast("🐸 Розитта сварила новую версию", { id: "app-update", duration: Infinity, action: { label: "Обновить", onClick: () => window.location.reload() } });
+      if ((await checkForUpdates()) !== "new") return;
+      const fp = await fetchFingerprint();
+      if (!fp || sessionStorage.getItem(DISMISS_KEY) === fp) return;
+      toast("🐸 Розитта сварила новую версию", {
+        id: "app-update", duration: 30000, closeButton: true,
+        action: { label: "Обновить", onClick: () => void hardReload() },
+        cancel: { label: "Потом", onClick: () => sessionStorage.setItem(DISMISS_KEY, fp) },
+        onDismiss: () => sessionStorage.setItem(DISMISS_KEY, fp),
+      });
     };
     void check();
     setInterval(check, 30 * 60 * 1000);

@@ -10,6 +10,10 @@ export function pastePrompt(mode: "box" | "books" | "meds") {
     : 'Перечисли вещи на фото коротко по-русски, по одной на строку, без нумерации и пояснений. Однотипные объединяй: "Полотенца, 4 шт". Не больше 25 строк.';
 }
 
+/** Chat chatter around the list: "Вот список вещей:", "Если нужно, могу…", "Надеюсь, помог!". */
+const CHATTER = /^(вот|ниже|на фото|на (этой|данной) фотографии|я (вижу|нашёл|нашел|могу)|если (нужно|хотите|надо)|надеюсь|могу (также|ещё|еще|помочь)|хотите|дайте знать|обращайтесь|конечно|отлично|список вещей|итого|here (is|are)|sure|let me know|i hope)(?=[\s,.:!?—-]|$)/i;
+export const isChatter = (line: string) => CHATTER.test(line) || /:\s*$/.test(line) || (/[?!]$/.test(line) && line.split(" ").length > 4);
+
 export function parsePasted(text: string, mode: "box" | "books" | "meds"): { items: PastedItem[]; duplicates: string[] } {
   const items: PastedItem[] = [];
   for (const raw of text.split(/\r?\n/)) {
@@ -18,7 +22,7 @@ export function parsePasted(text: string, mode: "box" | "books" | "meds"): { ite
       .replace(/\*\*/g, "")
       .replace(/\s+/g, " ")
       .trim();
-    if (!line) continue;
+    if (!line || isChatter(line)) continue;
     if (mode === "books") {
       const m = line.match(/^(.+?)\s+[—–-]\s+(.+)$/);
       items.push(m ? { name: m[1]!.trim(), author: m[2]!.trim() } : { name: line, author: null });
