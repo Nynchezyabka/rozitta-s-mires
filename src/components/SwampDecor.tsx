@@ -3,6 +3,7 @@ import bg from "@/assets/swamp-bg.jpg";
 import spider from "@/assets/spider.png";
 import peony from "@/assets/peony.png";
 import cabbage from "@/assets/cabbage.png";
+import tree from "@/assets/xmas-tree.png";
 import { useXmas } from "@/lib/season";
 
 const sparks = Array.from({ length: 22 }, (_, i) => ({
@@ -53,6 +54,7 @@ export function SwampDecor() {
             style={{ left: `${s.left}%`, width: s.size, height: s.size, animationDelay: `${s.delay}s`, animationDuration: `${s.dur}s` }}
           />
         ))}
+        {xmas && <img src={tree} alt="" width={672} height={992} className="pixel absolute -left-10 bottom-0 h-[70vh] max-h-[640px] w-auto opacity-95 drop-shadow-[0_0_24px_hsl(var(--accent)/0.5)]" />}
         <img src={peony} alt="" className="pixel absolute -left-6 bottom-16 h-32 w-32 opacity-90" />
         <img src={cabbage} alt="" className="pixel absolute -right-4 bottom-20 h-28 w-28 opacity-90" />
         <img src={peony} alt="" className="pixel absolute -right-8 top-1/3 h-24 w-24 rotate-12 opacity-60" />

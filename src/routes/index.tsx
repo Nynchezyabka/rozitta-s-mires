@@ -9,8 +9,6 @@ import { RozittaBubble } from "@/components/RozittaBubble";
 import type { HouseholdData } from "@/lib/household";
 import cabbage from "@/assets/cabbage.png";
 import rozitta from "@/assets/rozitta.png";
-import tree from "@/assets/xmas-tree.png";
-import { useXmas } from "@/lib/season";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,7 +25,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Home({ d }: { d: HouseholdData }) {
-  const { on: xmas } = useXmas();
   const [q, setQ] = useState("");
   const [groupFilter, setGroupFilter] = useState<string | null>(null);
   const gmap = useMemo(() => Object.fromEntries(d.groups.map((g) => [g.id, g])), [d.groups]);
@@ -51,12 +48,6 @@ function Home({ d }: { d: HouseholdData }) {
 
   return (
     <div className="space-y-5 pt-2">
-      {xmas && (
-        <div className="flex items-end gap-3 rounded-2xl border-2 border-accent/60 bg-card/80 p-3">
-          <img src={tree} alt="Ёлка с мухоморами и золотыми ключами" width={672} height={992} className="pixel h-36 w-auto shrink-0" />
-          <p className="pb-2 font-display text-[11px] leading-relaxed text-accent">С Новым годом, Хранители! Ёлку наряжали всем, что нашлось в сундуках 🍄🗝</p>
-        </div>
-      )}
       <RozittaBubble />
       <div className="relative">
         <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
