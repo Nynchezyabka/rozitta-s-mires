@@ -2,9 +2,9 @@
 export type CoachMode = "paws" | "workshop" | "storm";
 
 export const COACH_MODES: { id: CoachMode; icon: string; label: string; hint: string }[] = [
-  { id: "paws", icon: "🪷", label: "У меня лапки", hint: "2 минуты, бережно" },
-  { id: "workshop", icon: "🛠️", label: "Мастерская", hint: "крепёж, краски, ремонт" },
-  { id: "storm", icon: "⚡", label: "Штурм 5 минут", hint: "быстро и весело" },
+  { id: "paws", icon: "🪷", label: "Нет сил", hint: "1–2 минуты, бережно" },
+  { id: "workshop", icon: "🛠️", label: "Мастерская", hint: "инструменты, ремонт" },
+  { id: "storm", icon: "⚡", label: "Быстрый рывок", hint: "5 минут, весело" },
 ];
 
 export const COACH_TASKS: Record<CoachMode, string[]> = {
@@ -72,3 +72,19 @@ export function nextTask(mode: CoachMode, prev?: string): string {
   const list = COACH_TASKS[mode].filter((t) => t !== prev);
   return list[Math.floor(Math.random() * list.length)] ?? COACH_TASKS[mode][0] ?? "Отдохни минутку. Это тоже считается.";
 }
+
+const LOG = "rozitta-garden-log";
+export type GardenLogEntry = { at: number; what: string; plant: string };
+export function getGardenLog(): GardenLogEntry[] {
+  if (typeof localStorage === "undefined") return [];
+  try { const v = JSON.parse(localStorage.getItem(LOG) ?? "[]"); return Array.isArray(v) ? v.slice(0, 5) : []; } catch { return []; }
+}
+export function addGardenLog(entry: GardenLogEntry): GardenLogEntry[] {
+  const list = [entry, ...getGardenLog()].slice(0, 5);
+  localStorage.setItem(LOG, JSON.stringify(list));
+  return list;
+}
+
+const NIGHT = "rozitta-garden-night";
+export const getNight = () => typeof localStorage !== "undefined" && localStorage.getItem(NIGHT) === "1";
+export const setNightPref = (on: boolean) => localStorage.setItem(NIGHT, on ? "1" : "0");
