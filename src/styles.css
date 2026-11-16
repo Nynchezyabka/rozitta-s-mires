@@ -208,3 +208,9 @@ h1 { animation: shimmer 6s ease-in-out infinite; }
 .garden-night .garden-fog { background: radial-gradient(ellipse at center, color-mix(in oklab, var(--primary) 28%, transparent), transparent 68%); }
 .garden-night::after { content: ""; position: absolute; left: 55%; top: 6%; width: 7%; aspect-ratio: 1; border-radius: 50%; z-index: 20; background: var(--garden-gold); box-shadow: 0 0 30px 10px color-mix(in oklab, var(--garden-gold) 45%, transparent); }
 @media (prefers-reduced-motion: reduce) { .garden-fog, .garden-spark, .garden-light, .garden-frog-jump { animation: none; } }
+
+.garden-passage { position: absolute; z-index: 90; border: 0; background: transparent; cursor: pointer; border-radius: 40% 40% 4px 4px; }
+.garden-passage:focus-visible { outline: 2px solid var(--garden-gold); }
+.garden-passage-open { animation: garden-passage-glow 2.6s ease-in-out infinite alternate; }
+@keyframes garden-passage-glow { from { box-shadow: 0 0 0 0 transparent; } to { box-shadow: 0 0 18px 2px color-mix(in oklab, var(--garden-gold) 55%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .garden-passage-open { animation: none; } }
