@@ -23,7 +23,7 @@ import { useBlocker } from "@tanstack/react-router";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/new")({
-  validateSearch: (s: Record<string, unknown>): { place?: string } => (typeof s.place === "string" ? { place: s.place } : {}),
+  validateSearch: (s: Record<string, unknown>): { place?: string } => (typeof s['place'] === "string" ? { place: s['place'] } : {}),
   head: () => ({
     meta: [
       { title: "Новый сундук · Топи Розитты" },
