@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BackupRouteImport } from './routes/backup'
 import { Route as FamilyRouteImport } from './routes/family'
 import { Route as GrimoireRouteImport } from './routes/grimoire'
 import { Route as GroupsRouteImport } from './routes/groups'
@@ -25,6 +26,11 @@ import { Route as JoinTokenRouteImport } from './routes/join.$token'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BackupRoute = BackupRouteImport.update({
+  id: '/backup',
+  path: '/backup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FamilyRoute = FamilyRouteImport.update({
@@ -85,6 +91,7 @@ const JoinTokenRoute = JoinTokenRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/backup': typeof BackupRoute
   '/family': typeof FamilyRoute
   '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/backup': typeof BackupRoute
   '/family': typeof FamilyRoute
   '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/backup': typeof BackupRoute
   '/family': typeof FamilyRoute
   '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/backup'
     | '/family'
     | '/grimoire'
     | '/groups'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/backup'
     | '/family'
     | '/grimoire'
     | '/groups'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/backup'
     | '/family'
     | '/grimoire'
     | '/groups'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BackupRoute: typeof BackupRoute
   FamilyRoute: typeof FamilyRoute
   GrimoireRoute: typeof GrimoireRoute
   GroupsRoute: typeof GroupsRoute
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/backup': {
+      id: '/backup'
+      path: '/backup'
+      fullPath: '/backup'
+      preLoaderRoute: typeof BackupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/family': {
@@ -286,6 +306,7 @@ const HouseRouteWithChildren = HouseRoute._addFileChildren(HouseRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BackupRoute: BackupRoute,
   FamilyRoute: FamilyRoute,
   GrimoireRoute: GrimoireRoute,
   GroupsRoute: GroupsRoute,
