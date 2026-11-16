@@ -30,6 +30,12 @@ function Camera({ onDone }: { onDone: () => void }) {
     (async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      } catch (e) {
+        console.error(e);
+        setErr("Камера недоступна — разрешите доступ к ней в браузере.");
+        return;
+      }
+      try {
         const v = video.current!;
         v.srcObject = stream;
         await v.play();
@@ -55,7 +61,7 @@ function Camera({ onDone }: { onDone: () => void }) {
         }
       } catch (e) {
         console.error(e);
-        setErr("Камера недоступна — разрешите доступ к ней в браузере.");
+        if (!stop) setErr("Не получилось прочитать код, попробуйте ещё раз.");
       }
     })();
     return () => { stop = true; stream?.getTracks().forEach((t) => t.stop()); };

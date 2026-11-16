@@ -19,4 +19,8 @@ describe("parsePasted", () => {
     expect(r.items).toHaveLength(2);
     expect(r.duplicates).toEqual(["фен"]);
   });
+  it("drops chat intro and outro phrases", () => {
+    const r = parsePasted("Вот список вещей на фото:\n- Фен\n- Утюг\nЕсли нужно, могу разбить по категориям.\nНадеюсь, это поможет!", "box");
+    expect(r.items.map((i) => i.name)).toEqual(["Фен", "Утюг"]);
+  });
 });
