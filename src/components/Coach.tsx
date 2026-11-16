@@ -39,12 +39,12 @@ export function Coach() {
         <h2 className="font-display text-sm text-primary">Заводь Розитты</h2>
         <span className="text-xs text-muted-foreground">{garden ? `цветов: ${garden}` : "пока тихо"}</span>
       </div>
-      <div className="flex min-h-16 flex-wrap items-end gap-1 rounded-2xl bg-muted/50 p-2">
+      <div className="flex min-h-20 flex-wrap items-end gap-1 rounded-2xl bg-muted/50 p-2">
         {garden === 0 && <p className="p-2 text-sm text-muted-foreground">Сделай одно маленькое дело — и здесь распустится первая кувшинка.</p>}
         {Array.from({ length: garden - start }, (_, i) => {
           const n = start + i;
           const b = bloomAt(n);
-          return <img key={n} src={PICS[b.id]} alt={b.name} title={b.name} width={48} height={48} loading="lazy" className={`pixel h-12 w-12 ${n === fresh ? "animate-in zoom-in-50 duration-700" : ""}`} />;
+          return <img key={n} src={PICS[b.id]} alt={b.name} title={b.name} width={64} height={64} loading="lazy" className={`pixel h-16 w-16 ${n === fresh ? "animate-in zoom-in-50 duration-700" : ""}`} />;
         })}
       </div>
 
