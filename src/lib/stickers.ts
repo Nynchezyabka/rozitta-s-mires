@@ -1,4 +1,5 @@
 import QRCode from "qrcode";
+import frogSeal from "@/assets/rozitta.webp";
 import { jsPDF } from "jspdf";
 
 export type Sticker = { number: number; groupName: string; color: string; icon: string; url?: string | undefined; items?: string[]; photo?: string | null };
@@ -35,7 +36,14 @@ async function fontsReady() {
   }
 }
 
-export type StickerStyle = "brand" | "simple";
+export type StickerStyle = "brand" | "simple" | "emerald" | "cocoa";
+
+/** Interior presets for colour printers: tinted paper, dark ink, frog seal in the QR centre. */
+export const INTERIOR: Record<"emerald" | "cocoa", { paper: string; ink: string; band: string; bandInk: string }> = {
+  emerald: { paper: "#f6efdc", ink: "#16402f", band: "#1f5a42", bandInk: "#f6efdc" },
+  cocoa: { paper: "#efe2cc", ink: "#3b2416", band: "#5a3721", bandInk: "#f3e7d3" },
+};
+export const isInterior = (s: StickerStyle): s is "emerald" | "cocoa" => s === "emerald" || s === "cocoa";
 
 /** Dark or light text, whichever reads better on the band colour. */
 function inkOn(hex: string) {
@@ -65,7 +73,8 @@ export async function drawSticker(s: Sticker, wMm: number, hMm: number, style: S
   c.height = h;
   const x = c.getContext("2d")!;
   const pad = Math.round(Math.min(w, h) * 0.06);
-  x.fillStyle = "#ffffff";
+  const tone = isInterior(style) ? INTERIOR[style] : null;
+  x.fillStyle = tone ? tone.paper : "#ffffff";
   x.fillRect(0, 0, w, h);
   x.textBaseline = "middle";
   x.textAlign = "left";
@@ -78,6 +87,10 @@ export async function drawSticker(s: Sticker, wMm: number, hMm: number, style: S
     x.fillStyle = s.color;
     x.fillRect(0, 0, leftW, band);
     x.fillStyle = inkOn(s.color);
+  } else if (tone) {
+    x.fillStyle = tone.band;
+    x.fillRect(0, 0, leftW, band);
+    x.fillStyle = tone.bandInk;
   } else {
     x.fillStyle = "#000000";
     x.fillRect(pad, band - 3, leftW - pad * 2, 3);
@@ -91,12 +104,23 @@ export async function drawSticker(s: Sticker, wMm: number, hMm: number, style: S
   const qrSize = qrFull ? qrSize0 : s.url ? Math.min(body, w * 0.48) : 0;
   if (s.url) {
     // margin: 2 modules of quiet zone; level L on tiny labels = fewer, bigger modules
-    const qr = await QRCode.toDataURL(s.url, { margin: 2, width: Math.round(qrSize * 2), errorCorrectionLevel: small ? "L" : "M", color: { dark: "#000000", light: "#ffffff" } });
+    const qr = await QRCode.toDataURL(s.url, { margin: 2, width: Math.round(qrSize * 2), errorCorrectionLevel: tone ? "H" : small ? "L" : "M", color: { dark: tone ? tone.ink : "#000000", light: tone ? tone.paper : "#ffffff" } });
     const img = await loadImg(qr);
     x.imageSmoothingEnabled = false;
     if (qrFull) x.drawImage(img, w - qrSize - pad / 2, (h - qrSize) / 2, qrSize, qrSize);
     else x.drawImage(img, w - qrSize - pad / 2, top + (body - qrSize) / 2, qrSize, qrSize);
     x.imageSmoothingEnabled = true;
+    if (tone) {
+      // Level H tolerates ~30% loss; the seal covers ~5% of the code.
+      const qx = qrFull ? w - qrSize - pad / 2 : w - qrSize - pad / 2;
+      const qy = qrFull ? (h - qrSize) / 2 : top + (body - qrSize) / 2;
+      const seal = qrSize * 0.22, cx = qx + qrSize / 2, cy = qy + qrSize / 2;
+      x.fillStyle = tone.paper;
+      x.beginPath(); x.arc(cx, cy, seal * 0.62, 0, Math.PI * 2); x.fill();
+      x.strokeStyle = tone.ink; x.lineWidth = Math.max(1, seal * 0.06); x.stroke();
+      const frog = await loadImg(frogSeal).catch(() => null);
+      if (frog) { x.imageSmoothingEnabled = false; x.drawImage(frog, cx - seal / 2, cy - seal / 2, seal, seal); x.imageSmoothingEnabled = true; }
+    }
   }
   const numW = (qrFull ? leftW : w - qrSize) - pad * 2;
   const label = `№${s.number}`;
@@ -106,7 +130,7 @@ export async function drawSticker(s: Sticker, wMm: number, hMm: number, style: S
   let size = numH * 0.85;
   x.font = `800 ${size}px ${FONT}, sans-serif`;
   while (size > 10 && x.measureText(label).width > numW) { size *= 0.92; x.font = `800 ${size}px ${FONT}, sans-serif`; }
-  x.fillStyle = style === "brand" ? "#1f1a16" : "#000000";
+  x.fillStyle = tone ? tone.ink : style === "brand" ? "#1f1a16" : "#000000";
   x.fillText(label, pad, top + numH / 2);
   const restTop = top + numH, restH = body - numH;
   if (extra.length) {
@@ -128,8 +152,8 @@ export async function drawSticker(s: Sticker, wMm: number, hMm: number, style: S
     const f = fitText(x, "🗝 Заперто на волшебный ключ. Охраняется Розиттой", w - pad * 2, footer * 0.5, footer * 0.35, 400);
     x.fillText(f, pad, h - footer / 2);
   }
-  x.strokeStyle = style === "brand" ? "#cccccc" : "#000000";
-  x.lineWidth = style === "brand" ? 2 : 4;
+  x.strokeStyle = tone ? tone.band : style === "brand" ? "#cccccc" : "#000000";
+  x.lineWidth = style === "simple" ? 4 : 2;
   x.strokeRect(1, 1, w - 2, h - 2);
   return c.toDataURL("image/png");
 }

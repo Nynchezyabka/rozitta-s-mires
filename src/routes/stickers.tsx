@@ -89,7 +89,7 @@ function Stickers({ d }: { d: HouseholdData }) {
           <div className="space-y-2 rounded-2xl bg-card p-3">
             <p className="text-sm font-medium">Стиль</p>
             <div className="grid grid-cols-2 gap-2">
-              {([["brand", "🐸 Фирменный", "цветная плашка и печать Розитты"], ["simple", "⬜ Простой", "чёрно-белый, для термопринтера"]] as const).map(([id, l, hint]) => (
+              {([["brand", "🐸 Фирменный", "цветная плашка и печать Розитты"], ["simple", "⬜ Простой", "чёрно-белый, для термопринтера"], ["emerald", "🌿 Изумрудный крафт", "для интерьера, жабка в QR"], ["cocoa", "🍫 Тёплый шоколад", "для дерева и крафта, жабка в QR"]] as const).map(([id, l, hint]) => (
                 <button key={id} onClick={() => setStyle(id)} className={`rounded-xl px-2 py-2 text-left text-sm ${style === id ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
                   <span className="block font-medium">{l}</span><span className="block text-xs opacity-80">{hint}</span>
                 </button>

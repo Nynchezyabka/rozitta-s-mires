@@ -3,7 +3,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { MapPin, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PhotoStrip } from "@/components/PhotoStrip";
 import { CreateGroup } from "@/components/CreateGroup";
 import { AppShell } from "@/components/AppShell";
@@ -46,6 +47,8 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const [place, setPlace] = useState("");
   const [shots, setShots] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [moveTo, setMoveTo] = useState("");
   useEffect(() => {
     if (!box) return;
     setItems(d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? "book" : "item", author: i.author, needs_review: i.needs_review })));
@@ -74,6 +77,23 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
     }
   };
 
+  /** Saves only the new place, from the stored chest — unsaved edits on the page stay untouched. */
+  const move = async () => {
+    setBusy(true);
+    try {
+      const stored = d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? ("book" as const) : ("item" as const), author: i.author, needs_review: i.needs_review }));
+      await saveBox({ data: { token, id, group_id: box.group_id, note: box.note ?? "", decide_by: box.decide_by, kid_size: box.kid_size, kid_season: box.kid_season, location: moveTo.trim(), photos: box.photo_paths, items: stored } });
+      await qc.invalidateQueries({ queryKey: ["household", token] });
+      setPlace(moveTo.trim());
+      setMoveOpen(false);
+      toast.success("Сундук переставлен");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="space-y-5 pt-2">
       <div className="flex items-center gap-3">
@@ -85,6 +105,24 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
           <p className="text-sm text-muted-foreground">{items.length} вещей</p>
         </div>
       </div>
+      <div className="flex items-center gap-3 rounded-2xl bg-card p-3">
+        <MapPin className="shrink-0 text-primary" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-muted-foreground">Где стоит</p>
+          <p className="truncate font-medium">{box.location || "Место не указано"}</p>
+        </div>
+        <Button variant="outline" className="h-11" onClick={() => { setMoveTo(box.location ?? ""); setMoveOpen(true); }}>{box.location ? "Переставить" : "Указать"}</Button>
+      </div>
+      <Dialog open={moveOpen} onOpenChange={(o) => { if (!busy) setMoveOpen(o); }}>
+        <DialogContent className="w-[calc(100%-2rem)] rounded-lg bg-background">
+          <DialogHeader>
+            <DialogTitle>Куда переставить?</DialogTitle>
+            <DialogDescription>Сохранится только новое место.</DialogDescription>
+          </DialogHeader>
+          <LocationInput value={moveTo} onChange={setMoveTo} known={d.boxes.map((b) => b.location)} />
+          <Button className="h-12 w-full" disabled={busy} onClick={move}>{busy ? "Сохраняю…" : "Сохранить место"}</Button>
+        </DialogContent>
+      </Dialog>
       {shots[0] && <img src={shots[0].startsWith("data:") ? shots[0] : box.photo_urls[box.photo_paths.indexOf(shots[0])]} alt="" className="max-h-72 w-full rounded-2xl object-cover" />}
       <PhotoStrip value={shots} onChange={setShots} urlOf={(p) => box.photo_urls[box.photo_paths.indexOf(p)]} />
       <section className="space-y-2">
