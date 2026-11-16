@@ -50,13 +50,6 @@
       "when": 1794900000000,
       "tag": "0006_box_photos_restore",
       "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1794900000001,
-      "tag": "0007_box_photos_restore",
-      "breakpoints": true
     }
   ]
 }
