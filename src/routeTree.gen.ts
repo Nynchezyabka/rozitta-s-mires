@@ -20,6 +20,7 @@ import { Route as HouseRouteImport } from './routes/house'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StickersRouteImport } from './routes/stickers'
+import { Route as BIdRouteImport } from './routes/b.$id'
 import { Route as BoxIdRouteImport } from './routes/box.$id'
 import { Route as HouseSpaceRouteImport } from './routes/house.$space'
 import { Route as JoinTokenRouteImport } from './routes/join.$token'
@@ -79,6 +80,11 @@ const StickersRoute = StickersRouteImport.update({
   path: '/stickers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BIdRoute = BIdRouteImport.update({
+  id: '/b/$id',
+  path: '/b/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BoxIdRoute = BoxIdRouteImport.update({
   id: '/box/$id',
   path: '/box/$id',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/new': typeof NewRoute
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
+  '/b/$id': typeof BIdRoute
   '/box/$id': typeof BoxIdRoute
   '/house/$space': typeof HouseSpaceRoute
   '/join/$token': typeof JoinTokenRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/new': typeof NewRoute
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
+  '/b/$id': typeof BIdRoute
   '/box/$id': typeof BoxIdRoute
   '/house/$space': typeof HouseSpaceRoute
   '/join/$token': typeof JoinTokenRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/new': typeof NewRoute
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
+  '/b/$id': typeof BIdRoute
   '/box/$id': typeof BoxIdRoute
   '/house/$space': typeof HouseSpaceRoute
   '/join/$token': typeof JoinTokenRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/new'
     | '/settings'
     | '/stickers'
+    | '/b/$id'
     | '/box/$id'
     | '/house/$space'
     | '/join/$token'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/new'
     | '/settings'
     | '/stickers'
+    | '/b/$id'
     | '/box/$id'
     | '/house/$space'
     | '/join/$token'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/new'
     | '/settings'
     | '/stickers'
+    | '/b/$id'
     | '/box/$id'
     | '/house/$space'
     | '/join/$token'
@@ -207,6 +219,7 @@ export interface RootRouteChildren {
   NewRoute: typeof NewRoute
   SettingsRoute: typeof SettingsRoute
   StickersRoute: typeof StickersRoute
+  BIdRoute: typeof BIdRoute
   BoxIdRoute: typeof BoxIdRoute
   JoinTokenRoute: typeof JoinTokenRoute
 }
@@ -290,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StickersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/b/$id': {
+      id: '/b/$id'
+      path: '/b/$id'
+      fullPath: '/b/$id'
+      preLoaderRoute: typeof BIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/box/$id': {
       id: '/box/$id'
       path: '/box/$id'
@@ -336,6 +356,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewRoute: NewRoute,
   SettingsRoute: SettingsRoute,
   StickersRoute: StickersRoute,
+  BIdRoute: BIdRoute,
   BoxIdRoute: BoxIdRoute,
   JoinTokenRoute: JoinTokenRoute,
 }
