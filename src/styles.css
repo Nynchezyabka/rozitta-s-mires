@@ -188,7 +188,7 @@ h1 { animation: shimmer 6s ease-in-out infinite; }
 
 /* Willow, drifting fog, flickering sparks, frogs and the night garden. */
 .garden-willow { position: absolute; right: -3%; top: 2%; width: 34%; z-index: 30; pointer-events: none; filter: drop-shadow(0 6px 10px color-mix(in oklab, var(--background) 60%, transparent)); }
-.garden-fog { position: absolute; left: -30%; width: 160%; height: 38%; pointer-events: none; z-index: 95; border-radius: 50%; background: radial-gradient(ellipse at center, color-mix(in oklab, var(--foreground) 22%, transparent), transparent 70%); filter: blur(14px); }
+.garden-fog { position: absolute; left: -30%; width: 160%; height: 38%; pointer-events: none; z-index: 95; border-radius: 50%; background: radial-gradient(ellipse at center, color-mix(in oklab, var(--foreground) 42%, transparent), transparent 68%); filter: blur(12px); }
 .garden-fog-1 { top: 48%; animation: garden-fog 26s ease-in-out infinite alternate; }
 .garden-fog-2 { top: 66%; opacity: .7; animation: garden-fog 34s ease-in-out infinite alternate-reverse; }
 @keyframes garden-fog { from { transform: translateX(-8%); } to { transform: translateX(10%); } }
@@ -199,10 +199,11 @@ h1 { animation: shimmer 6s ease-in-out infinite; }
 .garden-frog-jump { animation: garden-hop 650ms ease-out; }
 @keyframes garden-hop { 0% { transform: translate(-50%, -80%); } 40% { transform: translate(-50%, -190%) rotate(-8deg); } 100% { transform: translate(-50%, -80%); } }
 .garden-scene > img:first-child { transition: filter 800ms ease; }
-.garden-night > img:first-child { filter: brightness(.38) saturate(1.3) hue-rotate(-18deg); }
-.garden-night .garden-plant, .garden-night .garden-willow, .garden-night .garden-frog img { filter: brightness(.6) saturate(1.2); }
+.garden-night > img:first-child { filter: brightness(.22) saturate(1.5) hue-rotate(-25deg); }
+.garden-night .garden-plant, .garden-night .garden-willow, .garden-night .garden-frog img { filter: brightness(.45) saturate(1.3); }
+.garden-night .garden-plant[aria-label*="кувшинка"] { filter: brightness(.9) drop-shadow(0 0 8px var(--primary)); }
 .garden-night .garden-mushroom { filter: brightness(1.3) drop-shadow(0 0 10px var(--chart-3)) drop-shadow(0 0 18px var(--chart-3)); }
-.garden-night .garden-spark { width: 5px; height: 5px; animation-duration: 2.6s; }
-.garden-night .garden-fog { background: radial-gradient(ellipse at center, color-mix(in oklab, var(--primary) 28%, transparent), transparent 70%); }
-.garden-night::after { content: ""; position: absolute; right: 8%; top: 7%; width: 7%; aspect-ratio: 1; border-radius: 50%; z-index: 20; background: var(--garden-gold); box-shadow: 0 0 30px 10px color-mix(in oklab, var(--garden-gold) 45%, transparent); }
+.garden-night .garden-spark { width: 6px; height: 6px; opacity: .8; animation-duration: 2.6s; }
+.garden-night .garden-fog { background: radial-gradient(ellipse at center, color-mix(in oklab, var(--primary) 28%, transparent), transparent 68%); }
+.garden-night::after { content: ""; position: absolute; left: 55%; top: 6%; width: 7%; aspect-ratio: 1; border-radius: 50%; z-index: 20; background: var(--garden-gold); box-shadow: 0 0 30px 10px color-mix(in oklab, var(--garden-gold) 45%, transparent); }
 @media (prefers-reduced-motion: reduce) { .garden-fog, .garden-spark, .garden-frog-jump { animation: none; } }
