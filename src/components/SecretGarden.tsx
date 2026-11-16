@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { DoorClosed, Moon, Sun } from "lucide-react";
+import { DoorClosed } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Coach } from "@/components/Coach";
