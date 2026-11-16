@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera, BookOpen, Package, Pill, ClipboardPaste, Copy } from "lucide-react";
+import { Camera, ClipboardPaste, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { PhotoStrip } from "@/components/PhotoStrip";
 import { CreateGroup } from "@/components/CreateGroup";
