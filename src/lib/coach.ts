@@ -54,10 +54,14 @@ export const BLOOMS = [
 export type BloomId = (typeof BLOOMS)[number]["id"];
 
 /** n-th bloom (0-based) in the garden: cycles through all kinds. */
-export const bloomAt = (n: number) => BLOOMS[n % BLOOMS.length]!;
+export const bloomAt = (n: number) => BLOOMS[((Math.trunc(n) % BLOOMS.length) + BLOOMS.length) % BLOOMS.length] ?? BLOOMS[0];
 
 const GARDEN = "rozitta-garden";
-export const getGarden = () => (typeof localStorage === "undefined" ? 0 : Number(localStorage.getItem(GARDEN) ?? 0) || 0);
+export const getGarden = () => {
+  if (typeof localStorage === "undefined") return 0;
+  const value = Number(localStorage.getItem(GARDEN) ?? 0);
+  return Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+};
 export function addBloom(): number {
   const n = getGarden() + 1;
   localStorage.setItem(GARDEN, String(n));
@@ -66,5 +70,5 @@ export function addBloom(): number {
 
 export function nextTask(mode: CoachMode, prev?: string): string {
   const list = COACH_TASKS[mode].filter((t) => t !== prev);
-  return list[Math.floor(Math.random() * list.length)]!;
+  return list[Math.floor(Math.random() * list.length)] ?? COACH_TASKS[mode][0] ?? "Отдохни минутку. Это тоже считается.";
 }

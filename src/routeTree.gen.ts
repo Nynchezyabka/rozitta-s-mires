@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BackupRouteImport } from './routes/backup'
 import { Route as FamilyRouteImport } from './routes/family'
+import { Route as GardenRouteImport } from './routes/garden'
 import { Route as GrimoireRouteImport } from './routes/grimoire'
 import { Route as GroupsRouteImport } from './routes/groups'
 import { Route as HelpRouteImport } from './routes/help'
@@ -36,6 +37,11 @@ const BackupRoute = BackupRouteImport.update({
 const FamilyRoute = FamilyRouteImport.update({
   id: '/family',
   path: '/family',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GardenRoute = GardenRouteImport.update({
+  id: '/garden',
+  path: '/garden',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GrimoireRoute = GrimoireRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/backup': typeof BackupRoute
   '/family': typeof FamilyRoute
+  '/garden': typeof GardenRoute
   '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
   '/help': typeof HelpRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/backup': typeof BackupRoute
   '/family': typeof FamilyRoute
+  '/garden': typeof GardenRoute
   '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
   '/help': typeof HelpRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/backup': typeof BackupRoute
   '/family': typeof FamilyRoute
+  '/garden': typeof GardenRoute
   '/grimoire': typeof GrimoireRoute
   '/groups': typeof GroupsRoute
   '/help': typeof HelpRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/'
     | '/backup'
     | '/family'
+    | '/garden'
     | '/grimoire'
     | '/groups'
     | '/help'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/backup'
     | '/family'
+    | '/garden'
     | '/grimoire'
     | '/groups'
     | '/help'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/'
     | '/backup'
     | '/family'
+    | '/garden'
     | '/grimoire'
     | '/groups'
     | '/help'
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BackupRoute: typeof BackupRoute
   FamilyRoute: typeof FamilyRoute
+  GardenRoute: typeof GardenRoute
   GrimoireRoute: typeof GrimoireRoute
   GroupsRoute: typeof GroupsRoute
   HelpRoute: typeof HelpRoute
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/family'
       fullPath: '/family'
       preLoaderRoute: typeof FamilyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/garden': {
+      id: '/garden'
+      path: '/garden'
+      fullPath: '/garden'
+      preLoaderRoute: typeof GardenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/grimoire': {
@@ -308,6 +328,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BackupRoute: BackupRoute,
   FamilyRoute: FamilyRoute,
+  GardenRoute: GardenRoute,
   GrimoireRoute: GrimoireRoute,
   GroupsRoute: GroupsRoute,
   HelpRoute: HelpRoute,
