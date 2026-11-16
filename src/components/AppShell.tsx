@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Plus, Tags, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout } from "lucide-react";
+import { Home, Plus, Tags, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,7 @@ function MoreMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="z-50 w-60 border-2 border-primary/60 bg-card">
         <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Хранители ключей</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/backup"><Save className="mr-2 h-4 w-4" />Сохранить копию</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/help"><HelpCircle className="mr-2 h-4 w-4" />Справка</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/settings"><Settings className="mr-2 h-4 w-4" />Ключ нейросети</Link></DropdownMenuItem>
         <DropdownMenuSeparator />
