@@ -12,7 +12,7 @@ import { deleteNote, saveNote } from "@/lib/store";
 import type { HouseholdData } from "@/lib/store";
 
 const T = "Гримуар · Топи Розитты";
-const D = "Советы о порядке для уставших и СДВГ-мозга глазами архитектора и общие заметки дома.";
+const D = "Советы о порядке для уставших глазами архитектора и общие заметки дома.";
 export const Route = createFileRoute("/grimoire")({
   head: () => ({ meta: [
     { title: T }, { name: "description", content: D }, { property: "og:title", content: T },
