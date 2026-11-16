@@ -57,7 +57,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
     setShots(box.photo_paths);
   }, [box?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!box) return <p className="py-10 text-center text-muted-foreground">Сундук не найден</p>;
+  if (!box) return <p className="py-10 text-center text-muted-foreground">Сундук не найден. Возможно, он из другого дома или удалён — отсканируйте наклейку кнопкой сканера в шапке.</p>;
   const group = d.groups.find((g) => g.id === groupId);
 
   const save = async () => {
