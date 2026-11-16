@@ -6,7 +6,9 @@ import { Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GROUP_COLORS, GROUP_ICONS } from "@/lib/defaults";
+import { GROUP_COLORS } from "@/lib/defaults";
+import { IconPicker } from "@/components/IconPicker";
+import { suggestIcons } from "@/lib/icons";
 import { deleteGroup, saveGroup } from "@/lib/store";
 import type { HouseholdData } from "@/lib/household";
 
@@ -36,7 +38,7 @@ function Groups({ d, token }: { d: HouseholdData; token: string }) {
     return (
       <div className="space-y-5 pt-2">
         <h1 className="font-display text-2xl font-bold">{edit.id ? "Группа" : "Новая группа"}</h1>
-        <Input value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} placeholder="Название, например «Дача»" className="h-12 text-base" />
+        <Input value={edit.name} onChange={(e) => { const name = e.target.value; const auto = !edit.id && (edit.icon === "📦" || suggestIcons(edit.name).includes(edit.icon)); setEdit({ ...edit, name, icon: auto ? suggestIcons(name)[0] ?? "📦" : edit.icon }); }} placeholder="Название, например «Дача»" className="h-12 text-base" />
         <div>
           <p className="mb-2 text-sm font-medium">Цвет</p>
           <div className="flex flex-wrap gap-2">
@@ -47,13 +49,7 @@ function Groups({ d, token }: { d: HouseholdData; token: string }) {
         </div>
         <div>
           <p className="mb-2 text-sm font-medium">Значок</p>
-          <div className="flex flex-wrap gap-2">
-            {GROUP_ICONS.map((i) => (
-              <button key={i} onClick={() => setEdit({ ...edit, icon: i })} className={`h-11 w-11 rounded-xl bg-card text-xl ${edit.icon === i ? "ring-2 ring-primary" : ""}`}>
-                {i}
-              </button>
-            ))}
-          </div>
+          <IconPicker name={edit.name} value={edit.icon} onChange={(icon) => setEdit({ ...edit, icon })} />
         </div>
         <Button
           className="h-14 w-full rounded-2xl text-base"

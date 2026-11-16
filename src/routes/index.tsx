@@ -1,3 +1,4 @@
+import { DueBadge, LocationPath } from "@/components/BoxBits";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, Plus, AlertCircle } from "lucide-react";
@@ -133,7 +134,8 @@ function Home({ d }: { d: HouseholdData }) {
                   {its.some((i) => i.needs_review) && <span className="rounded bg-warning/40 px-1.5 text-xs">проверить</span>}
                 </div>
                 <GroupChip g={g} />
-                {b.location && <p className="text-xs text-accent">📍 {b.location}</p>}
+                <LocationPath value={b.location} />
+                <DueBadge date={b.decide_by} />
                 <p className="line-clamp-2 text-sm text-muted-foreground">{its.map((i) => i.name).join(", ") || "Пусто"}</p>
               </div>
             </Link>

@@ -1,3 +1,4 @@
+import { DueBadge, LocationPath } from "@/components/BoxBits";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -100,7 +101,12 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
           {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
         <h2 className="pt-2 font-semibold">Где стоит</h2>
         <LocationInput value={place} onChange={setPlace} known={d.boxes.map((b) => b.location)} />
-        {isLater(group) && <Input type="date" value={decideBy} onChange={(e) => setDecideBy(e.target.value)} className="h-12" aria-label="Решить до" />}
+        <label className="block space-y-1">
+          <span className="text-sm font-medium">{isLater(group) ? "Решить до" : "Срок годности / пересмотреть до"}</span>
+          <Input type="date" value={decideBy} onChange={(e) => setDecideBy(e.target.value)} className="h-12" />
+        </label>
+        <DueBadge date={decideBy} />
+        <LocationPath value={place} />
       </section>
       <section className="space-y-2">
         <h2 className="font-semibold">Заметка</h2>
