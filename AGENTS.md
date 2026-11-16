@@ -32,3 +32,5 @@ use the editor.
 ## Project rules
 - No user accounts: each household has a secret token (stored in localStorage, shared via /join/<token> link/QR); the browser calls SECURITY DEFINER database functions (k_*) that check the token (src/lib/store.ts); tables have RLS with no policies. Why: sign-in without email, and the app must run as a static site on the owner's own Supabase. Keep supabase-setup.sql in sync with drizzle/migrations.
 - Sticker PDFs render each sticker on a canvas and embed it as an image. Why: jsPDF's built-in fonts lack Cyrillic.
+- Static build: `STATIC_BUILD=1 bun run build` → scripts/static-finish.mjs copies `_shell.html` to `dist/client/index.html` (+404.html, _redirects). Why: Layero serves one folder with index.html as SPA fallback.
+- AI models per service live in `MODELS` in src/lib/ai-key.ts (first = default, user choice in localStorage). Why: proxies like Claude n Codex reject unknown model names with 400.
