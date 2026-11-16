@@ -52,7 +52,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState(1);
-  const [mode, setMode] = useState<"box" | "books" | "meds">("box");
+  const mode = "box" as const;
   const [photos, setPhotos] = useState<string[]>([]);
   const photo = photos[0] ?? null;
   const [busy, setBusy] = useState(false);
@@ -79,7 +79,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const applyPasted = () => {
     const r = parsePasted(pasted, mode);
     if (!r.items.length) { toast("Список пустой — вставьте ответ ИИ"); return; }
-    setItems((prev) => [...prev, ...r.items.map((x) => ({ name: x.name, author: x.author, needs_review: false, kind: mode === "books" ? "book" : "item" }) as EditItem)]);
+    setItems((prev) => [...prev, ...r.items.map((x) => ({ name: x.name, author: x.author, needs_review: false, kind: "item" }) as EditItem)]);
     if (r.duplicates.length) toast(`Повторяются: ${r.duplicates.join(", ")}`);
     setPasting(false);
     setPasted("");
@@ -97,8 +97,8 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       const key = getAiKey();
       const r = isAiConfigured()
         ? await recognizeWithKey(key, img, mode, d.groups.map((g) => g.name))
-        : await recognizePhoto({ data: { token, photo: img, mode: mode === "books" ? "books" : "box" } });
-      const found = r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: mode === "books" ? "book" : "item" }) as EditItem);
+        : await recognizePhoto({ data: { token, photo: img, mode } });
+      const found = r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: x.author ? "book" : "item" }) as EditItem);
       setItems((prev) => {
         const have = new Set(prev.map((p) => p.name.toLowerCase()));
         return [...prev, ...found.filter((f) => !have.has(f.name.toLowerCase()))];
@@ -153,24 +153,8 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       {step === 1 && (
         <div className="space-y-5">
           <h1 className="font-display text-2xl font-bold">Сфотографируйте</h1>
-          <div className="grid grid-cols-3 gap-2">
-            {(
-              [
-                ["box", "Сундук с вещами", Package],
-                ["books", "Книги", BookOpen],
-                ["meds", "Аптечка", Pill],
-              ] as const
-            ).map(([m, label, Icon]) => (
-              <button key={m} onClick={() => setMode(m)} className={`flex flex-col items-center gap-2 rounded-2xl border-2 bg-card p-4 ${mode === m ? "border-primary" : "border-transparent"}`}>
-                <Icon className="h-7 w-7" />
-                <span className="text-sm font-medium">{label}</span>
-              </button>
-            ))}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {mode === "meds" ? (
-              <>Разложите упаковки названиями вверх. Розитта напишет, от чего каждое, и сверит с <Link to="/settings" className="underline">профилем здоровья</Link>. Это подсказка, а не совет врача — сверяйтесь с инструкцией.</>
-            ) : mode === "books" ? "Обложки или корешки, чтобы названия читались. Старые книги могут распознаться хуже — пометим «проверить»." : "Откройте сундук и снимите сверху, при хорошем свете."}
+          <p className="rounded-2xl bg-card/90 p-3 text-base">
+            Снимите коробку, полку или вещи сверху при хорошем свете. Розитта сама поймёт, где книги, где лекарства, а где всё остальное. Сверить лекарства с <Link to="/settings" className="underline">профилем здоровья</Link> можно в «Аптечке».
           </p>
           {!aiReady && !pasting && (
             <p className="rounded-2xl bg-card p-3 text-sm">Своего ИИ пока нет — проще всего «Вставить список»: сфотографируйте в любом ИИ-чате и вставьте ответ.</p>
@@ -179,7 +163,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
             <div className="space-y-3 rounded-2xl bg-card p-4">
               <p className="text-sm">Сфотографируйте сундук в любом ИИ-приложении (Gemini, Claude, ChatGPT, Google Lens) и попросите: перечисли вещи списком, по одной на строку. Скопируйте ответ и вставьте сюда.</p>
               <Button variant="secondary" className="w-full rounded-2xl" onClick={copyPrompt}><Copy className="h-4 w-4" /> Скопировать подсказку для ИИ</Button>
-              <Textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={10} placeholder={mode === "books" ? "Лоскутик и облако — Софья Прокофьева" : "Полотенца, 4 шт\nФен"} className="text-base" />
+              <Textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={10} placeholder={"Полотенца, 4 шт\nФен"} className="text-base" />
               <Button className="h-14 w-full rounded-2xl text-base" onClick={applyPasted}>Разобрать список</Button>
               <button className="w-full text-sm text-muted-foreground" onClick={() => setPasting(false)}>← назад</button>
             </div>
