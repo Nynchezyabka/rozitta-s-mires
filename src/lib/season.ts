@@ -1,25 +1,23 @@
 import { useEffect, useState } from "react";
 
-export type XmasMode = "auto" | "on" | "off";
-const KEY = "xmas-mode";
-const subs = new Set<(m: XmasMode) => void>();
-
 /** Auto: 15 Dec – 14 Jan. */
 export function isXmasDate(d = new Date()) {
   const m = d.getMonth(), day = d.getDate();
   return (m === 11 && day >= 15) || (m === 0 && day <= 14);
 }
-export function setXmasMode(m: XmasMode) {
-  localStorage.setItem(KEY, m);
-  subs.forEach((s) => s(m));
-}
 export function useXmas() {
-  const [mode, set] = useState<XmasMode>("auto");
+  const [on, setOn] = useState(false);
   useEffect(() => {
-    set((localStorage.getItem(KEY) as XmasMode) || "auto");
-    subs.add(set);
-    return () => void subs.delete(set);
+    const check = () => setOn(isXmasDate());
+    check();
+    const timer = setInterval(check, 60_000);
+    window.addEventListener("focus", check);
+    document.addEventListener("visibilitychange", check);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("focus", check);
+      document.removeEventListener("visibilitychange", check);
+    };
   }, []);
-  const on = mode === "on" || (mode === "auto" && isXmasDate());
-  return { mode, on };
+  return { on };
 }

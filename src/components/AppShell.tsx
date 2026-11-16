@@ -1,18 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Plus, Tags, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save } from "lucide-react";
+import { Home, Plus, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useXmas, setXmasMode } from "@/lib/season";
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
 import rozitta from "@/assets/rozitta.webp";
 import gardenKey from "@/assets/garden-key.webp";
 import { SwampDecor } from "./SwampDecor";
 import { QrScanner } from "./QrScanner";
-import { sfx, soundOn, setSound } from "@/lib/rozitta";
 import { APP_VERSION, initUpdates } from "@/lib/updates";
 
 function SessionTimer() {
@@ -82,27 +80,20 @@ function SessionTimer() {
 }
 
 function MoreMenu() {
-  const [on, setOn] = useState(true);
-  useEffect(() => setOn(soundOn()), []);
-  const { mode } = useXmas();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button aria-label="Меню" className="shrink-0 rounded-full bg-secondary p-2 text-secondary-foreground"><Menu className="h-4 w-4" /></button>
+        <Button variant="secondary" size="icon" aria-label="Меню" className="shrink-0 rounded-full"><Menu /></Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="z-50 w-60 border-2 border-primary/60 bg-card">
         <DropdownMenuItem asChild><Link to="/garden"><img src={gardenKey} alt="" width={816} height={816} className="pixel mr-2 h-6 w-6" />Таинственный сад</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/grimoire"><BookOpen className="mr-2 h-4 w-4" />Гримуар</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/stickers"><Printer className="mr-2 h-4 w-4" />Наклейки</Link></DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Хранители ключей</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/backup"><Save className="mr-2 h-4 w-4" />Копия и обновления</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/help"><HelpCircle className="mr-2 h-4 w-4" />Справка</Link></DropdownMenuItem>
-        <DropdownMenuItem asChild><Link to="/settings"><Settings className="mr-2 h-4 w-4" />Ключ нейросети</Link></DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setSound(!on); setOn(!on); if (!on) sfx.quack(); }}>
-          {on ? "🔊 Звуки включены" : "🔇 Звуки выключены"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setXmasMode(mode === "auto" ? "on" : mode === "on" ? "off" : "auto"); }}>
-          🎄 Новый год: {mode === "auto" ? "сам с 15 декабря" : mode === "on" ? "включён" : "выключен"}
-        </DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/settings"><Settings className="mr-2 h-4 w-4" />Настройки</Link></DropdownMenuItem>
         <p className="px-2 pb-1 pt-2 text-right text-[10px] text-muted-foreground">версия {APP_VERSION}</p>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -111,11 +102,8 @@ function MoreMenu() {
 
 const nav = [
   { to: "/", label: "Сундуки", icon: Home },
-  { to: "/new", label: "Собрать", icon: Plus },
-  { to: "/groups", label: "Группы", icon: Tags },
+  { to: "/new", label: "Новый сундук", icon: Plus },
   { to: "/house", label: "Дом", icon: Sprout },
-  { to: "/grimoire", label: "Гримуар", icon: BookOpen },
-  { to: "/stickers", label: "Наклейки", icon: Printer },
   
 ] as const;
 
@@ -144,14 +132,14 @@ export function AppShell({ children, garden = false }: { children: (d: NonNullab
         {data && children(data, token)}
       </main>
       {!garden && <SwampDecor />}
-      <nav className="fixed inset-x-0 bottom-0 z-10 border-t bg-card rounded-t-3xl border-t-2 border-primary/60 shadow-[0_-6px_24px_-6px_var(--primary)]">
+      <nav aria-label="Основные разделы" className="fixed inset-x-0 bottom-0 z-10 border-t bg-card rounded-t-3xl border-t-2 border-primary/60 shadow-[0_-6px_24px_-6px_var(--primary)]">
         <div className="mx-auto flex max-w-2xl justify-around py-2">
           {nav.map(({ to, label, icon: Icon }) => (
             <Link
               key={to}
               to={to}
               activeOptions={{ exact: true }}
-              className="flex flex-col items-center gap-0.5 px-1 py-1 text-[11px] text-muted-foreground"
+              className="flex min-h-12 flex-1 flex-col items-center justify-center gap-1 px-2 py-1 text-xs text-muted-foreground"
               activeProps={{ className: "text-primary font-semibold drop-shadow-[0_0_6px_var(--primary)]" }}
             >
               <Icon className="h-5 w-5" />

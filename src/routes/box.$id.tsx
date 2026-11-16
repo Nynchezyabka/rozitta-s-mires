@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { PhotoStrip } from "@/components/PhotoStrip";
+import { CreateGroup } from "@/components/CreateGroup";
 import { AppShell } from "@/components/AppShell";
 import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, LocationInput, type EditItem } from "@/components/BoxParts";
 import { Button } from "@/components/ui/button";
@@ -93,6 +94,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
       <section className="space-y-2">
         <h2 className="font-semibold">Группа</h2>
         <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />
+        <CreateGroup groups={d.groups} token={token} onCreated={setGroupId} />
           {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
         <h2 className="pt-2 font-semibold">Где стоит</h2>
         <LocationInput value={place} onChange={setPlace} known={d.boxes.map((b) => b.location)} />

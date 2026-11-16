@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Camera, BookOpen, Package, Pill, ClipboardPaste, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { PhotoStrip } from "@/components/PhotoStrip";
+import { CreateGroup } from "@/components/CreateGroup";
 import { MAX_PHOTOS } from "@/lib/store";
 import { AppShell } from "@/components/AppShell";
 import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, LocationInput, type EditItem } from "@/components/BoxParts";
@@ -202,7 +203,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           {photo && <img src={photo} alt="" className="max-h-56 w-full rounded-2xl object-cover" />}
           <PhotoStrip value={photos} onChange={setPhotos} />
           <Button variant="secondary" className="h-12 w-full rounded-2xl" disabled={busy} onClick={() => fileRef.current?.click()}>
-            <Camera className="h-5 w-5" /> {busy ? (local ? "Модель думает…" : "Смотрю…") : "Ещё фото (следующий слой)"}
+            <Camera className="h-5 w-5" /> {busy ? (local ? "Модель думает…" : "Смотрю…") : "Распознать новое фото"}
           </Button>
           <ItemsEditor items={items} onChange={setItems} />
           <Button className="h-14 w-full rounded-2xl text-base" onClick={() => setStep(3)}>
@@ -215,6 +216,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           <h1 className="font-display text-2xl font-bold">Какая группа?</h1>
           {group && <p className="text-sm text-muted-foreground">Предлагаю: {group.icon} {group.name}</p>}
           <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />
+          <CreateGroup groups={d.groups} token={token} onCreated={setGroupId} />
           {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
         <h2 className="pt-2 font-semibold">Где стоит</h2>
         <p className="text-xs text-muted-foreground">Можно путём: Спальня / Шкаф / Полка 3</p>
