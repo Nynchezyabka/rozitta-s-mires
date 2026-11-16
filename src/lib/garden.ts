@@ -79,3 +79,6 @@ export function potagerPlantings(total: number) {
     return earned ? [{ ...plant, earned, copies: Math.min(3, earned) }] : [];
   });
 }
+
+/** Night garden from 21:00 to 06:00 local device time. */
+export const isNightHour = (hour: number) => hour >= 21 || hour < 6;

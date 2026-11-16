@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { DoorClosed, Moon, Sun } from "lucide-react";
+import { DoorClosed } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Coach } from "@/components/Coach";
 import { GardenScene } from "@/components/GardenScene";
-import { addBloom, addPotager, getPotager, addGardenLog, getGarden, getGardenLog, getNight, setNightPref, type GardenLogEntry } from "@/lib/coach";
-import { gardenRewardAt, isPotagerOpen, potagerRewardAt, POTAGER_UNLOCK, type Room } from "@/lib/garden";
+import { addBloom, addPotager, getPotager, addGardenLog, getGarden, getGardenLog, type GardenLogEntry } from "@/lib/coach";
+import { gardenRewardAt, isNightHour, isPotagerOpen, potagerRewardAt, POTAGER_UNLOCK, type Room } from "@/lib/garden";
 import { sfx } from "@/lib/rozitta";
 import door from "@/assets/garden-door.jpg";
 import key from "@/assets/garden-key.webp";
@@ -20,14 +20,15 @@ export function SecretGarden() {
   const [night, setNight] = useState(false);
   const [hop, setHop] = useState(0);
   const [log, setLog] = useState<GardenLogEntry[]>([]);
-  const toggleNight = () => { setNight(!night); setNightPref(!night); };
   useEffect(() => {
-    setNight(getNight());
+    const tick = () => setNight(isNightHour(new Date().getHours()));
+    tick();
+    const timer = window.setInterval(tick, 60000);
     setLog(getGardenLog());
     const refresh = () => { setTotal(getGarden()); setPotager(getPotager()); };
     refresh();
     window.addEventListener("storage", refresh);
-    return () => window.removeEventListener("storage", refresh);
+    return () => { window.removeEventListener("storage", refresh); window.clearInterval(timer); };
   }, []);
 
   const pond = Math.max(0, total - potager);
@@ -72,7 +73,6 @@ export function SecretGarden() {
           <p className="mt-2 text-xs text-muted-foreground">Шагов к порядку: <span data-testid="garden-total">{total}</span> · каждый дарит саду растение</p>
         </div>
         <div className="flex shrink-0">
-        <Button variant="ghost" size="icon" aria-label={night ? "Дневной сад" : "Ночной сад"} title={night ? "Дневной сад" : "Ночной сад"} onClick={toggleNight}>{night ? <Sun /> : <Moon />}</Button>
         <Button variant="ghost" size="icon" aria-label="Закрыть дверь сада" title="Закрыть дверь сада" onClick={() => setOpen(false)}><DoorClosed /></Button>
         </div>
       </header>
