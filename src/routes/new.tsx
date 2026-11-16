@@ -71,7 +71,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   };
   const applyPasted = () => {
     const r = parsePasted(pasted, mode);
-    if (!r.items.length) return toast("Список пустой — вставьте ответ ИИ");
+    if (!r.items.length) { toast("Список пустой — вставьте ответ ИИ"); return; }
     setItems((prev) => [...prev, ...r.items.map((x) => ({ name: x.name, author: x.author, needs_review: false, kind: mode === "books" ? "book" : "item" }) as EditItem)]);
     if (r.duplicates.length) toast(`Повторяются: ${r.duplicates.join(", ")}`);
     setPasting(false);
