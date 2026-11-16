@@ -1,19 +1,22 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { HealthProfile } from "@/components/HealthProfile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Tags, ChevronRight } from "lucide-react";
+import { soundOn, setSound, sfx } from "@/lib/rozitta";
 import { MODELS, SERVICES, detectService, getAiKey, getLocal, getModel, getService, listLocalModels, setAiKey, setLocal, setModel, setService, testKey, type ServiceId } from "@/lib/ai-key";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Настройки ИИ · Топи Розитты" },
-      { name: "description", content: "Подключите свой ключ ИИ для распознавания вещей на фото." },
-      { property: "og:title", content: "Настройки ИИ · Топи Розитты" },
-      { property: "og:description", content: "Подключите свой ключ ИИ для распознавания вещей на фото." },
+      { title: "Настройки · Топи Розитты" },
+      { name: "description", content: "Группы сундуков, звуки, распознавание фото и профиль здоровья." },
+      { property: "og:title", content: "Настройки · Топи Розитты" },
+      { property: "og:description", content: "Группы сундуков, звуки, распознавание фото и профиль здоровья." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -29,7 +32,9 @@ function Settings() {
   const [url, setUrl] = useState("");
   const [lkey, setLkey] = useState("");
   const [found, setFound] = useState<string[]>([]);
+  const [sounds, setSounds] = useState(true);
   useEffect(() => {
+    setSounds(soundOn());
     setKey(getAiKey());
     const l = getLocal();
     setUrl(l.url); setLkey(l.key);
@@ -37,16 +42,17 @@ function Settings() {
     if (s) setSvc(s.id);
   }, []);
   useEffect(() => { setM(svc === "local" ? getLocal().model : getModel(svc)); }, [svc]);
-  const s = SERVICES.find((x) => x.id === svc)!;
+  const s = SERVICES.find((x) => x.id === svc);
   const guess = detectService(key);
 
   const check = async () => {
+    if (!s) return;
     setBusy(true);
     try {
       if (svc === "local") {
         const list = await listLocalModels({ url, key: lkey });
         setFound(list);
-        const m = model || (list.length === 1 ? list[0]! : "");
+        const m = model || (list.length === 1 ? list[0] ?? "" : "");
         setM(m);
         setLocal({ url, model: m, key: lkey });
         setService("local");
@@ -71,7 +77,15 @@ function Settings() {
 
   return (
     <div className="space-y-5 py-4">
-      <h1 className="font-display text-2xl font-bold">Ваш ИИ</h1>
+      <h1 className="font-display text-xl font-bold">Настройки</h1>
+      <Button asChild variant="outline" className="h-14 w-full justify-start text-base"><Link to="/groups"><Tags />Группы сундуков<ChevronRight className="ml-auto" /></Link></Button>
+      <div className="flex items-center justify-between gap-3 border-b border-border py-3">
+        <label htmlFor="sound-setting" className="font-medium">Звуки Розитты</label>
+        <Switch id="sound-setting" checked={sounds} onCheckedChange={(on) => { setSounds(on); setSound(on); if (on) sfx.quack(); }} />
+      </div>
+      <details className="border-b border-border pb-4">
+      <summary className="cursor-pointer py-3 text-base font-semibold">Распознавание фото · ваш ИИ</summary>
+      <div className="space-y-5 pt-3">
       <p className="text-sm text-muted-foreground">
         Выберите, кто будет смотреть на фото. Всё хранится только в этом браузере. Без настройки можно вставлять список из любого ИИ-чата.
       </p>
@@ -98,7 +112,7 @@ function Settings() {
         <>
           <Input value={key} onChange={(e) => setKey(e.target.value)} placeholder="Ключ сервиса" className="h-14 rounded-2xl text-base" />
           <div className="rounded-2xl bg-card p-4 text-sm">
-            {s.vpn ? "Из России может понадобиться VPN." : "Работает без VPN."}
+            {s?.vpn ? "Из России может понадобиться VPN." : "Работает без VPN."}
             {key && guess && guess.id !== svc && <> Похоже, это ключ от <b>{guess.name}</b> — <button className="underline" onClick={() => setSvc(guess.id)}>переключить</button>?</>}
           </div>
           <div className="space-y-2 rounded-2xl bg-card p-4">
@@ -118,6 +132,8 @@ function Settings() {
           Удалить ключ
         </button>
       )}
+      </div>
+      </details>
       <HealthProfile />
     </div>
   );
