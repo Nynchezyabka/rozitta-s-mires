@@ -1,5 +1,5 @@
 /** Обновления и напоминания о копии. Без service worker: свежая версия приходит при перезагрузке страницы. */
-export const APP_VERSION = "1.4.0";
+export const APP_VERSION = "1.5.0";
 
 function isPreview(): boolean {
   if (!import.meta.env.PROD) return true;
@@ -18,16 +18,14 @@ async function fetchFingerprint(): Promise<string | null> {
   } catch { return null; }
 }
 
-/** Отпечаток открытой версии: из самой страницы, тем же способом, что и свежий. */
-const current = () => fingerprint(document.documentElement.outerHTML) || null;
+/** Отпечаток открытой версии берём с сервера при первой проверке (сразу после загрузки). Страницу саму не читаем: роутер на лету добавляет ссылки на файлы, и это давало ложное «новая версия». */
 let baseline: string | null = null;
 
 /** Сравнивает открытую версию со свежей страницей с сервера. */
 export async function checkForUpdates(): Promise<"current" | "new" | "offline"> {
   const fresh = await fetchFingerprint();
   if (!fresh) return "offline";
-  baseline ??= current() ?? fresh;
-  if (baseline !== fresh && current() === fresh) baseline = fresh;
+  baseline ??= fresh;
   return fresh !== baseline ? "new" : "current";
 }
 
