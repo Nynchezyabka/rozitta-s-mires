@@ -9,7 +9,6 @@ import { RozittaBubble } from "@/components/RozittaBubble";
 import type { HouseholdData } from "@/lib/household";
 import cabbage from "@/assets/cabbage.png";
 import rozitta from "@/assets/rozitta.png";
-import { useXmas } from "@/lib/season";
 
 export const Route = createFileRoute("/")({
   head: () => ({
