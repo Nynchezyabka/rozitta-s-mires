@@ -73,6 +73,19 @@ export function nextTask(mode: CoachMode, prev?: string): string {
   return list[Math.floor(Math.random() * list.length)] ?? COACH_TASKS[mode][0] ?? "Отдохни минутку. Это тоже считается.";
 }
 
+const POTAGER = "rozitta-potager";
+/** Steps planted in the potager; pond steps = getGarden() - getPotager(). */
+export const getPotager = () => {
+  if (typeof localStorage === "undefined") return 0;
+  const value = Number(localStorage.getItem(POTAGER) ?? 0);
+  return Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+};
+export function addPotager(): number {
+  const n = getPotager() + 1;
+  localStorage.setItem(POTAGER, String(n));
+  return n;
+}
+
 const LOG = "rozitta-garden-log";
 export type GardenLogEntry = { at: number; what: string; plant: string };
 export function getGardenLog(): GardenLogEntry[] {

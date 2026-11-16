@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GARDEN_PLANTS, gardenPlantings, gardenRewardAt } from "./garden";
+import { GARDEN_PLANTS, gardenPlantings, gardenRewardAt, isPotagerOpen, potagerPlantings } from "./garden";
 
 describe("ярусный таинственный сад", () => {
   it("сохраняет обе кувшинки в воде", () => {
@@ -27,5 +27,13 @@ describe("ярусный таинственный сад", () => {
     expect(Array.from({ length: 8 }, (_, i) => gardenRewardAt(i).id)).toEqual([
       "lily", "kiwi", "romanesco", "eryngium", "veggie", "chrysanthemum", "lily2", "peony",
     ]);
+  });
+  it("огород потаже открывается на 16-м шаге в пруду", () => {
+    expect(isPotagerOpen(15)).toBe(false);
+    expect(isPotagerOpen(16)).toBe(true);
+  });
+  it("первый шаг в огороде сажает романеско", () => {
+    expect(potagerPlantings(0)).toEqual([]);
+    expect(potagerPlantings(1).map((p) => p.id)).toEqual(["p-romanesco"]);
   });
 });
