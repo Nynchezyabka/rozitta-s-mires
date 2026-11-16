@@ -28,6 +28,7 @@ export type Database = {
           note: string | null
           number: number
           photo_path: string | null
+          photo_paths: string[]
         }
         Insert: {
           created_at?: string
@@ -42,6 +43,7 @@ export type Database = {
           note?: string | null
           number: number
           photo_path?: string | null
+          photo_paths?: string[]
         }
         Update: {
           created_at?: string
@@ -56,6 +58,7 @@ export type Database = {
           note?: string | null
           number?: number
           photo_path?: string | null
+          photo_paths?: string[]
         }
         Relationships: [
           {
