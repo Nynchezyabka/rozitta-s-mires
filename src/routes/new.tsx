@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera, BookOpen, Package, ClipboardPaste, Copy } from "lucide-react";
+import { Camera, BookOpen, Package, Pill, ClipboardPaste, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { ItemsEditor, GroupPicker, isLater, isKids, KidsPicker, LocationInput, type EditItem } from "@/components/BoxParts";
@@ -48,7 +48,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState(1);
-  const [mode, setMode] = useState<"box" | "books">("box");
+  const [mode, setMode] = useState<"box" | "books" | "meds">("box");
   const [photo, setPhoto] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [items, setItems] = useState<EditItem[]>([]);
@@ -92,7 +92,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       const key = getAiKey();
       const r = isAiConfigured()
         ? await recognizeWithKey(key, img, mode, d.groups.map((g) => g.name))
-        : await recognizePhoto({ data: { token, photo: img, mode } });
+        : await recognizePhoto({ data: { token, photo: img, mode: mode === "books" ? "books" : "box" } });
       const found = r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: mode === "books" ? "book" : "item" }) as EditItem);
       setItems((prev) => {
         const have = new Set(prev.map((p) => p.name.toLowerCase()));
@@ -148,11 +148,12 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       {step === 1 && (
         <div className="space-y-5">
           <h1 className="font-display text-2xl font-bold">Сфотографируйте</h1>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {(
               [
                 ["box", "Сундук с вещами", Package],
                 ["books", "Книги", BookOpen],
+                ["meds", "Аптечка", Pill],
               ] as const
             ).map(([m, label, Icon]) => (
               <button key={m} onClick={() => setMode(m)} className={`flex flex-col items-center gap-2 rounded-2xl border-2 bg-card p-4 ${mode === m ? "border-primary" : "border-transparent"}`}>
@@ -162,7 +163,9 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
             ))}
           </div>
           <p className="text-sm text-muted-foreground">
-            {mode === "books" ? "Обложки или корешки, чтобы названия читались. Старые книги могут распознаться хуже — пометим «проверить»." : "Откройте сундук и снимите сверху, при хорошем свете."}
+            {mode === "meds" ? (
+              <>Разложите упаковки названиями вверх. Розитта напишет, от чего каждое, и сверит с <Link to="/settings" className="underline">профилем здоровья</Link>. Это подсказка, а не совет врача — сверяйтесь с инструкцией.</>
+            ) : mode === "books" ? "Обложки или корешки, чтобы названия читались. Старые книги могут распознаться хуже — пометим «проверить»." : "Откройте сундук и снимите сверху, при хорошем свете."}
           </p>
           {!aiReady && !pasting && (
             <p className="rounded-2xl bg-card p-3 text-sm">Своего ИИ пока нет — проще всего «Вставить список»: сфотографируйте в любом ИИ-чате и вставьте ответ.</p>

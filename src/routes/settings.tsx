@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { HealthProfile } from "@/components/HealthProfile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MODELS, SERVICES, detectService, getAiKey, getLocal, getModel, getService, listLocalModels, setAiKey, setLocal, setModel, setService, testKey, type ServiceId } from "@/lib/ai-key";
@@ -117,6 +118,7 @@ function Settings() {
           Удалить ключ
         </button>
       )}
+      <HealthProfile />
     </div>
   );
 }
