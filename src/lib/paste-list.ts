@@ -1,13 +1,16 @@
 /** "Вставить список": turn text copied from any AI chat into items. Pure, no network. */
 export type PastedItem = { name: string; author: string | null };
 
-export function pastePrompt(mode: "box" | "books") {
+import { getHealth, medsPrompt } from "./health";
+
+export function pastePrompt(mode: "box" | "books" | "meds") {
+  if (mode === "meds") return medsPrompt(getHealth(), true);
   return mode === "books"
     ? 'Перечисли книги на фото. Для каждой книги напиши "Название — Автор", по одной на строку, без нумерации и пояснений.'
     : 'Перечисли вещи на фото коротко по-русски, по одной на строку, без нумерации и пояснений. Однотипные объединяй: "Полотенца, 4 шт". Не больше 25 строк.';
 }
 
-export function parsePasted(text: string, mode: "box" | "books"): { items: PastedItem[]; duplicates: string[] } {
+export function parsePasted(text: string, mode: "box" | "books" | "meds"): { items: PastedItem[]; duplicates: string[] } {
   const items: PastedItem[] = [];
   for (const raw of text.split(/\r?\n/)) {
     const line = raw

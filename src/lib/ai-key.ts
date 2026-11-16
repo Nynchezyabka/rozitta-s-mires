@@ -1,4 +1,5 @@
 /** Own AI key: stored only in this browser; photos go straight from the browser to the chosen service. */
+import { getHealth, medsPrompt } from "./health";
 const KEY = "korobki-ai-key";
 const MODEL_KEY = "korobki-ai-model";
 
@@ -116,9 +117,11 @@ async function fail(r: Response, s: Service, model: string): Promise<never> {
   throw new Error(msg);
 }
 
-export function buildPrompt(mode: "box" | "books", groupNames: string[]) {
+export function buildPrompt(mode: "box" | "books" | "meds", groupNames: string[]) {
   const task =
-    mode === "books"
+    mode === "meds"
+      ? medsPrompt(getHealth(), false)
+      : mode === "books"
       ? `На фото обложки или корешки книг. Для каждой книги верни название (name) и автора (author). Если не уверен — needs_review: true. Старые книги без ISBN часто читаются плохо — тогда тоже needs_review: true.`
       : `На фото открытая коробка с вещами при переезде. Перечисли вещи коротко по-русски (name), объединяя однотипные ("Полотенца, 4 шт"). Не больше 25 пунктов. needs_review: true, если вещь видна плохо.`;
   return `${task}
@@ -167,7 +170,7 @@ export async function testKey(key: string, svc?: Service) {
   return t.trim().length > 0;
 }
 
-export async function recognizeWithKey(key: string, photo: string, mode: "box" | "books", groupNames: string[]): Promise<Recognized> {
+export async function recognizeWithKey(key: string, photo: string, mode: "box" | "books" | "meds", groupNames: string[]): Promise<Recognized> {
   const text = await call(key, buildPrompt(mode, groupNames), photo);
   const block = text.match(/```(?:json)?\s*([\s\S]*?)```/)?.[1] ?? text;
   let p: Partial<Recognized>;
