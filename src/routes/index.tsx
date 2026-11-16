@@ -26,7 +26,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Home({ d }: { d: HouseholdData }) {
-  const { on: xmas } = useXmas();
   const [q, setQ] = useState("");
   const [groupFilter, setGroupFilter] = useState<string | null>(null);
   const gmap = useMemo(() => Object.fromEntries(d.groups.map((g) => [g.id, g])), [d.groups]);
