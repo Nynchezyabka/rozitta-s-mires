@@ -11,5 +11,5 @@ export const Route = createFileRoute("/garden")({
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
-  component: () => <AppShell>{() => <SecretGarden />}</AppShell>,
+  component: () => <AppShell garden>{() => <SecretGarden />}</AppShell>,
 });

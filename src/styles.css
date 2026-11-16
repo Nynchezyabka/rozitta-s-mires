@@ -96,6 +96,7 @@
   --destructive-foreground: oklch(0.98 0 0);
   --warning: oklch(0.82 0.15 80);
   --garden-gold: oklch(0.84 0.13 85);
+  --garden-surface: oklch(0.2 0.035 165);
   --garden-glow: 0 0 18px color-mix(in oklab, var(--garden-gold) 24%, transparent);
   --border: oklch(0.38 0.1 300);
   --input: oklch(0.38 0.1 300);
@@ -170,6 +171,7 @@ h1 { animation: shimmer 6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .snowflake { animation: none; display: none } }
 
 /* Secret garden: stable landscape geometry; coordinates are planting locations. */
+.garden-shell { background: var(--garden-surface); }
 .garden-entrance { position: relative; height: min(640px, 76svh); min-height: 390px; overflow: hidden; }
 .garden-door-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, color-mix(in oklab, var(--background) 80%, transparent), transparent 25%, transparent 60%, color-mix(in oklab, var(--background) 85%, transparent)); }
 .garden-unlock { box-shadow: var(--garden-glow); }
