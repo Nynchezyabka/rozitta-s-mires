@@ -23,6 +23,7 @@ import { useBlocker } from "@tanstack/react-router";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/new")({
+  validateSearch: (s: Record<string, unknown>): { place?: string } => (typeof s.place === "string" ? { place: s.place } : {}),
   head: () => ({
     meta: [
       { title: "Новый сундук · Топи Розитты" },
@@ -60,7 +61,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const [decideBy, setDecideBy] = useState("");
   const [kidSize, setKidSize] = useState("");
   const [kidSeason, setKidSeason] = useState("");
-  const [place, setPlace] = useState("");
+  const [place, setPlace] = useState(Route.useSearch().place ?? "");
   const [pasting, setPasting] = useState(false);
   const [pasted, setPasted] = useState("");
   const [aiReady, setAiReady] = useState(false);
