@@ -37,3 +37,13 @@ describe("ярусный таинственный сад", () => {
     expect(potagerPlantings(1).map((p) => p.id)).toEqual(["p-romanesco"]);
   });
 });
+
+import { isNightHour } from "./garden";
+describe("night by clock", () => {
+  it("night 21:00–06:00", () => {
+    expect(isNightHour(21)).toBe(true);
+    expect(isNightHour(5)).toBe(true);
+    expect(isNightHour(6)).toBe(false);
+    expect(isNightHour(20)).toBe(false);
+  });
+});
