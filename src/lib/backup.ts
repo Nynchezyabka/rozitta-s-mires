@@ -19,9 +19,14 @@ export function toCsv(d: HouseholdData): string {
   return "\uFEFF" + rows.map((r) => r.map(cell).join(",")).join("\r\n");
 }
 
-export function toJson(d: HouseholdData): string {
-  const boxes = d.boxes.map(({ photo_url: _u, ...b }) => b);
-  return JSON.stringify({ app: "rozittas-mires", exported_at: new Date().toISOString(), household: d.household, groups: d.groups, boxes, items: d.items, notes: d.notes }, null, 2);
+/** Settings on this device that may travel with the copy. The AI key never does. */
+export const DEVICE_KEYS = ["rozitta-garden", "rozitta-garden-log", "rozitta-health"] as const;
+export const readDevice = (): Record<string, string> =>
+  Object.fromEntries(DEVICE_KEYS.map((k) => [k, localStorage.getItem(k)]).filter((e): e is [string, string] => e[1] != null));
+
+export function toJson(d: HouseholdData, device?: Record<string, string>): string {
+  const boxes = d.boxes.map(({ photo_url: _u, photo_urls: _us, ...b }) => b);
+  return JSON.stringify({ app: "rozittas-mires", exported_at: new Date().toISOString(), household: d.household, groups: d.groups, boxes, items: d.items, notes: d.notes, ...(device ? { device } : {}) }, null, 2);
 }
 
 export function download(name: string, text: string, type: string) {

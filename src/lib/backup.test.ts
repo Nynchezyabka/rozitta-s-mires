@@ -5,7 +5,7 @@ import type { HouseholdData } from "./store";
 const d: HouseholdData = {
   household: { id: "h", name: "Дом" },
   groups: [{ id: "g1", name: "Кухня", color: "#fff", icon: "🧪", position: 0 }],
-  boxes: [{ id: "b1", number: 5, group_id: "g1", photo_path: null, photo_url: "https://x", note: null, decide_by: null, kid_size: null, kid_season: null, location: "Балкон", created_at: "" }],
+  boxes: [{ id: "b1", number: 5, group_id: "g1", photo_path: null, photo_url: "https://x", photo_paths: [], photo_urls: [], note: null, decide_by: null, kid_size: null, kid_season: null, location: "Балкон", created_at: "" }],
   notes: [{ id: "n", title: "t", body: "b", updated_at: "" }],
   items: [
     { id: "i1", box_id: "b1", name: "Чашки, 4 шт", kind: "item", author: null, needs_review: false },
