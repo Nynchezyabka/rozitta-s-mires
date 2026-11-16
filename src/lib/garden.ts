@@ -1,18 +1,20 @@
 import { BLOOMS, type BloomId } from "./coach";
 
 export type GardenId = BloomId | "mushroom" | "fern" | "copper-fern" | "ajuga" | "veronica" | "moneywort" | "dogwood" | "hosta";
-export type Habitat = "pond" | "woodland" | "edge" | "meadow";
+export type Habitat = "pond" | "woodland" | "edge" | "meadow" | "potager";
+export type PotagerId = "p-romanesco" | "p-cabbage" | "chard" | "artichoke" | "kale" | "herbs" | "calendula" | "strawberry";
+export type Room = "pond" | "potager";
 export type Layer = "structure" | "perennial" | "groundcover" | "water";
 
 export const HABITATS: Record<Habitat, string> = {
-  pond: "Вода", woodland: "Лесная тень", edge: "Влажная опушка", meadow: "Солнечная поляна",
+  pond: "Вода", woodland: "Лесная тень", edge: "Влажная опушка", meadow: "Солнечная поляна", potager: "Огород потаже",
 };
 export const LAYERS: Record<Layer, string> = {
   structure: "Каркас сада", perennial: "Средний ярус", groundcover: "Живой ковёр", water: "Водный ярус",
 };
 
 export type GardenPlant = {
-  id: GardenId; name: string; botanical: string; habitat: Habitat; layer: Layer;
+  id: GardenId | PotagerId; name: string; botanical: string; habitat: Habitat; layer: Layer;
   x: number; y: number; size: number;
 };
 
@@ -46,6 +48,34 @@ export function gardenPlantings(total: number) {
   const count = Number.isFinite(total) ? Math.max(0, Math.trunc(total)) : 0;
   return GARDEN_PLANTS.flatMap((plant, index) => {
     const earned = count <= index ? 0 : Math.ceil((count - index) / GARDEN_PLANTS.length);
+    return earned ? [{ ...plant, earned, copies: Math.min(3, earned) }] : [];
+  });
+}
+/** Second garden room: opens through the arch once the pond has this many steps. */
+export const POTAGER_UNLOCK = 16;
+export const isPotagerOpen = (pondSteps: number) => pondSteps >= POTAGER_UNLOCK;
+
+// Coordinates sit on the empty soil of the raised beds in potager.webp.
+export const POTAGER_PLANTS: GardenPlant[] = [
+  { id: "p-romanesco", name: "Романеско", botanical: "Brassica oleracea · Romanesco", habitat: "potager", layer: "perennial", x: 26, y: 46, size: 10 },
+  { id: "calendula", name: "Календула", botanical: "Calendula officinalis", habitat: "potager", layer: "groundcover", x: 46, y: 60, size: 9 },
+  { id: "chard", name: "Мангольд", botanical: "Beta vulgaris · Rainbow", habitat: "potager", layer: "perennial", x: 58, y: 38, size: 10 },
+  { id: "herbs", name: "Пряные травы", botanical: "Salvia · Thymus · Rosmarinus", habitat: "potager", layer: "groundcover", x: 85, y: 44, size: 9 },
+  { id: "p-cabbage", name: "Капустная роза", botanical: "Brassica oleracea · декоративная", habitat: "potager", layer: "perennial", x: 78, y: 74, size: 10 },
+  { id: "artichoke", name: "Артишок", botanical: "Cynara scolymus", habitat: "potager", layer: "structure", x: 40, y: 32, size: 12 },
+  { id: "kale", name: "Кейл Неро ди Тоскана", botanical: "Brassica oleracea · Cavolo nero", habitat: "potager", layer: "perennial", x: 17, y: 42, size: 10 },
+  { id: "strawberry", name: "Земляника", botanical: "Fragaria vesca", habitat: "potager", layer: "groundcover", x: 88, y: 66, size: 8 },
+];
+
+export const potagerRewardAt = (index: number): GardenPlant => {
+  const i = ((Math.trunc(index) % POTAGER_PLANTS.length) + POTAGER_PLANTS.length) % POTAGER_PLANTS.length;
+  return POTAGER_PLANTS[i] ?? POTAGER_PLANTS[0]!;
+};
+
+export function potagerPlantings(total: number) {
+  const count = Number.isFinite(total) ? Math.max(0, Math.trunc(total)) : 0;
+  return POTAGER_PLANTS.flatMap((plant, index) => {
+    const earned = count <= index ? 0 : Math.ceil((count - index) / POTAGER_PLANTS.length);
     return earned ? [{ ...plant, earned, copies: Math.min(3, earned) }] : [];
   });
 }

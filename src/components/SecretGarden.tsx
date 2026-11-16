@@ -4,8 +4,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Coach } from "@/components/Coach";
 import { GardenScene } from "@/components/GardenScene";
-import { addBloom, addGardenLog, getGarden, getGardenLog, getNight, setNightPref, type GardenLogEntry } from "@/lib/coach";
-import { gardenRewardAt, type GardenId } from "@/lib/garden";
+import { addBloom, addPotager, getPotager, addGardenLog, getGarden, getGardenLog, getNight, setNightPref, type GardenLogEntry } from "@/lib/coach";
+import { gardenRewardAt, isPotagerOpen, potagerRewardAt, POTAGER_UNLOCK, type Room } from "@/lib/garden";
 import { sfx } from "@/lib/rozitta";
 import door from "@/assets/garden-door.jpg";
 import key from "@/assets/garden-key.webp";
@@ -13,7 +13,9 @@ import key from "@/assets/garden-key.webp";
 export function SecretGarden() {
   const [open, setOpen] = useState(false);
   const [total, setTotal] = useState(0);
-  const [fresh, setFresh] = useState<GardenId | null>(null);
+  const [fresh, setFresh] = useState<string | null>(null);
+  const [potager, setPotager] = useState(0);
+  const [room, setRoom] = useState<Room>("pond");
   const [earned, setEarned] = useState("");
   const [night, setNight] = useState(false);
   const [hop, setHop] = useState(0);
@@ -22,15 +24,22 @@ export function SecretGarden() {
   useEffect(() => {
     setNight(getNight());
     setLog(getGardenLog());
-    const refresh = () => setTotal(getGarden());
+    const refresh = () => { setTotal(getGarden()); setPotager(getPotager()); };
     refresh();
     window.addEventListener("storage", refresh);
     return () => window.removeEventListener("storage", refresh);
   }, []);
 
+  const pond = Math.max(0, total - potager);
+  const pass = () => {
+    if (!isPotagerOpen(pond)) { toast(`Тропинка за аркой заросла плющом. Ещё ${POTAGER_UNLOCK - pond} шагов к порядку — и путь расчистится.`); return; }
+    setRoom(room === "pond" ? "potager" : "pond"); setFresh(null); setEarned(""); sfx.key();
+  };
   const done = (what: string) => {
     const count = addBloom();
-    const plant = gardenRewardAt(count - 1);
+    let plant;
+    if (room === "potager") { const n = addPotager(); setPotager(n); plant = potagerRewardAt(n - 1); }
+    else plant = gardenRewardAt(count - 1 - potager);
     setTotal(count);
     setFresh(plant.id);
     setEarned(plant.name);
@@ -67,7 +76,13 @@ export function SecretGarden() {
         <Button variant="ghost" size="icon" aria-label="Закрыть дверь сада" title="Закрыть дверь сада" onClick={() => setOpen(false)}><DoorClosed /></Button>
         </div>
       </header>
-      <div className="-mx-4"><GardenScene total={total} fresh={fresh} night={night} hop={hop} /></div>
+      <div className="-mx-4"><GardenScene room={room} count={room === "pond" ? pond : potager} fresh={fresh} night={night} hop={hop} unlocked={isPotagerOpen(pond)} onPass={pass} /></div>
+      <div className="mt-2 flex items-center justify-between gap-2 text-xs">
+        <span className="text-muted-foreground">{room === "pond" ? "Лесной пруд" : "Огород потаже"}</span>
+        {isPotagerOpen(pond)
+          ? <Button variant="outline" size="sm" onClick={pass}>{room === "pond" ? "Через арку в огород →" : "← К лесному пруду"}</Button>
+          : <span className="text-muted-foreground">Огород за аркой: ещё {POTAGER_UNLOCK - pond}</span>}
+      </div>
       {earned && <p className="mt-3 text-sm text-primary" role="status">Выросло: {earned}</p>}
       <Coach onDone={done} />
       {log.length > 0 && (
