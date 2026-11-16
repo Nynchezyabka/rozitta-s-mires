@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import { gardenPlantings, HABITATS, LAYERS, type GardenId, type GardenPlant } from "@/lib/garden";
-import landscape from "@/assets/garden-landscape.jpg";
+import landscape from "@/assets/garden-woodland.jpg";
 import lily from "@/assets/bloom-lily.png";
 import lily2 from "@/assets/bloom-lily2.png";
 import kiwi from "@/assets/bloom-kiwi.png";
@@ -18,11 +18,11 @@ import veronica from "@/assets/garden-veronica.png";
 import moneywort from "@/assets/garden-moneywort.png";
 import dogwood from "@/assets/garden-dogwood.png";
 import hosta from "@/assets/garden-hosta.png";
-import willow from "@/assets/garden-willow.png";
 import frog from "@/assets/garden-frog.png";
 import { sfx } from "@/lib/rozitta";
 
-const FROGS = [{ x: 70, y: 63 }, { x: 88, y: 79 }, { x: 58, y: 90 }];
+const FROGS = [{ x: 52, y: 62 }, { x: 66, y: 66 }, { x: 86, y: 70 }];
+const LIGHTS = [{ x: 10, y: 19, s: 9 }, { x: 91, y: 25, s: 8 }, { x: 89, y: 60, s: 10 }, { x: 22, y: 18, s: 14 }, { x: 25, y: 30, s: 10 }];
 const SPARKS = Array.from({ length: 14 }, (_, i) => ({ x: (i * 37 + 11) % 96 + 2, y: (i * 53 + 17) % 80 + 10, d: (i % 5) * 0.9 }));
 
 const PICS: Record<GardenId, string> = {
@@ -38,8 +38,7 @@ export function GardenScene({ total, fresh, night, hop }: { total: number; fresh
   return (
     <>
       <div className={`garden-scene ${night ? "garden-night" : ""}`} role="group" aria-label="Ярусный сад Розитты">
-        <img src={landscape} alt="Таинственный сад: красные ветви дёрена на опушке, папоротники в тени, цветочная поляна и пруд" width={1536} height={1024} className="pixel h-full w-full object-cover" />
-        <img src={willow} alt="Плакучая ива над прудом" width={351} height={360} className="pixel garden-willow" />
+        <img src={landscape} alt="Лесной теневой сад: ива на берегу склоняется над прудом с кувшинками, арка с огоньками, скамья и тропинка" width={1536} height={1024} className="pixel h-full w-full object-cover" />
         {plantings.map((plant) => (
           <Button key={plant.id} variant="ghost" aria-label={plant.name} title={plant.name}
             onClick={() => setSelected(plant)}
@@ -51,6 +50,7 @@ export function GardenScene({ total, fresh, night, hop }: { total: number; fresh
             ))}
           </Button>
         ))}
+        {night && LIGHTS.map((l, i) => <span key={`l${i}`} aria-hidden className="garden-light" style={{ left: `${l.x}%`, top: `${l.y}%`, width: `${l.s}%`, animationDelay: `${i * 0.7}s` } as CSSProperties} />)}
         <div className="garden-fog garden-fog-1" aria-hidden />
         <div className="garden-fog garden-fog-2" aria-hidden />
         {SPARKS.map((p, i) => <span key={i} aria-hidden className="garden-spark" style={{ left: `${p.x}%`, top: `${p.y}%`, animationDelay: `${p.d}s` } as CSSProperties} />)}
