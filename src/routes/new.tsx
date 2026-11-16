@@ -16,6 +16,8 @@ import { BREWING, sfx } from "@/lib/rozitta";
 import { getAiKey, getService, isAiConfigured, recognizeWithKey } from "@/lib/ai-key";
 import { parsePasted, pastePrompt } from "@/lib/paste-list";
 import { Textarea } from "@/components/ui/textarea";
+import { useBlocker } from "@tanstack/react-router";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/new")({
   head: () => ({
@@ -123,10 +125,24 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   };
 
   const group = d.groups.find((g) => g.id === groupId);
+  const dirty = !busy && (!!photo || items.some((i) => i.name.trim()) || !!pasted.trim());
+  const blocker = useBlocker({ shouldBlockFn: () => dirty, enableBeforeUnload: () => dirty, withResolver: true });
 
   return (
     <div className="space-y-5">
       <Steps n={step} />
+      <AlertDialog open={blocker.status === "blocked"}>
+        <AlertDialogContent className="border-2 border-primary/60 bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Закрыть без сохранения?</AlertDialogTitle>
+            <AlertDialogDescription>Сундук ещё не заперт — фото и список вещей пропадут.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => blocker.reset?.()}>Остаться</AlertDialogCancel>
+            <AlertDialogAction onClick={() => blocker.proceed?.()}>Закрыть</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
       {busy && step === 1 && <RozittaBubble phrases={BREWING} />}
       {step === 1 && (
@@ -194,13 +210,12 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />
           {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
         <h2 className="pt-2 font-semibold">Где стоит</h2>
+        <p className="text-xs text-muted-foreground">Можно путём: Спальня / Шкаф / Полка 3</p>
         <LocationInput value={place} onChange={setPlace} known={d.boxes.map((b) => b.location)} />
-          {isLater(group) && (
-            <label className="block space-y-1">
-              <span className="text-sm font-medium">Решить до</span>
+          <label className="block space-y-1">
+              <span className="text-sm font-medium">{isLater(group) ? "Решить до" : "Срок годности / пересмотреть до (необязательно)"}</span>
               <Input type="date" value={decideBy} onChange={(e) => setDecideBy(e.target.value)} className="h-12" />
             </label>
-          )}
           <Button className="h-14 w-full rounded-2xl text-base" disabled={busy} onClick={save}>
             {busy ? "Сохраняю…" : "Запереть сундучок"}
           </Button>

@@ -10,6 +10,7 @@ import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
 import rozitta from "@/assets/rozitta.png";
 import { SwampDecor } from "./SwampDecor";
+import { QrScanner } from "./QrScanner";
 import { sfx, soundOn, setSound } from "@/lib/rozitta";
 
 function SessionTimer() {
@@ -126,6 +127,7 @@ export function AppShell({ children }: { children: (d: NonNullable<ReturnType<ty
           <span className="flex min-w-0 flex-col leading-tight"><span className="truncate font-display text-[11px] text-primary">Топи Розитты</span>{data?.household.name && <span className="truncate text-[11px] text-muted-foreground">{data.household.name}</span>}</span>
         </Link>
         <div className="flex items-center gap-2">
+          <QrScanner />
           <SessionTimer />
           <MoreMenu />
         </div>

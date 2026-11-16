@@ -23,8 +23,28 @@ async function fontsReady() {
   }
 }
 
+export type StickerStyle = "brand" | "simple";
+
+/** Dark or light text, whichever reads better on the band colour. */
+function inkOn(hex: string) {
+  const n = parseInt(hex.replace("#", "").padEnd(6, "0").slice(0, 6), 16);
+  const l = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+  return l > 0.55 ? "#1f1a16" : "#ffffff";
+}
+
+/** Fits text into maxW: shrinks the font down to minSize, then truncates with "…". */
+function fitText(x: CanvasRenderingContext2D, text: string, maxW: number, size: number, minSize: number, weight = 700) {
+  let s = size;
+  const set = () => (x.font = `${weight} ${s}px ${FONT}, sans-serif`);
+  set();
+  while (s > minSize && x.measureText(text).width > maxW) { s *= 0.92; set(); }
+  let t = text;
+  while (t.length > 2 && x.measureText(t).width > maxW) t = t.slice(0, -2) + "…";
+  return t;
+}
+
 /** Draws one sticker on a canvas (handles Cyrillic, which jsPDF's built-in fonts lack). Sizes scale with the label. */
-export async function drawSticker(s: Sticker, wMm: number, hMm: number) {
+export async function drawSticker(s: Sticker, wMm: number, hMm: number, style: StickerStyle = "brand") {
   await fontsReady();
   const w = Math.round(wMm * PX_PER_MM), h = Math.round(hMm * PX_PER_MM);
   const small = hMm < 40 || wMm < 55;
@@ -32,48 +52,54 @@ export async function drawSticker(s: Sticker, wMm: number, hMm: number) {
   c.width = w;
   c.height = h;
   const x = c.getContext("2d")!;
+  const pad = Math.round(Math.min(w, h) * 0.06);
   x.fillStyle = "#ffffff";
   x.fillRect(0, 0, w, h);
-  const band = h * 0.26;
-  x.fillStyle = s.color;
-  x.fillRect(0, 0, w, band);
-  x.fillStyle = "#1f1a16";
   x.textBaseline = "middle";
-  const pad = Math.min(w, h) * 0.06;
-  x.font = `700 ${band * 0.55}px ${FONT}, sans-serif`;
-  let title = `${s.icon} ${s.groupName}`;
-  while (title.length > 3 && x.measureText(title).width > w - pad * 2) title = title.slice(0, -2) + "…";
+  x.textAlign = "left";
+  const band = Math.round(h * (small ? 0.3 : 0.26));
+  if (style === "brand") {
+    x.fillStyle = s.color;
+    x.fillRect(0, 0, w, band);
+    x.fillStyle = inkOn(s.color);
+  } else {
+    x.fillStyle = "#000000";
+    x.fillRect(pad, band - 3, w - pad * 2, 3);
+  }
+  if (style === "simple") x.fillStyle = "#000000";
+  const title = fitText(x, `${s.icon} ${s.groupName}`, w - pad * 2, band * 0.55, band * 0.32);
   x.fillText(title, pad, band / 2);
-  const footer = small ? 0 : h * 0.1;
-  const body = h - band - footer;
-  const qrSize = s.url ? Math.min(body - pad, w * 0.5) : 0;
+  const footer = style === "brand" && !small ? Math.round(h * 0.1) : 0;
+  const top = band + pad / 2, bottom = h - footer - pad / 2;
+  const body = bottom - top;
+  const qrSize = s.url ? Math.min(body, w * 0.48) : 0;
   if (s.url) {
     // margin: 2 modules of white quiet zone around the code
-    const qr = await QRCode.toDataURL(s.url, { margin: 2, width: Math.round(qrSize), errorCorrectionLevel: "M" });
+    const qr = await QRCode.toDataURL(s.url, { margin: 2, width: Math.round(qrSize * 2), errorCorrectionLevel: "M", color: { dark: "#000000", light: "#ffffff" } });
     const img = new Image();
     await new Promise((r) => ((img.onload = r), (img.src = qr)));
-    x.drawImage(img, w - qrSize - pad / 2, band + (body - qrSize) / 2, qrSize, qrSize);
+    x.imageSmoothingEnabled = false;
+    x.drawImage(img, w - qrSize - pad / 2, top + (body - qrSize) / 2, qrSize, qrSize);
   }
   const numW = w - qrSize - pad * 2;
-  let size = body * 0.8;
-  x.font = `700 ${size}px ${FONT}, sans-serif`;
-  while (size > 10 && x.measureText(String(s.number)).width > numW) {
-    size *= 0.9;
-    x.font = `700 ${size}px ${FONT}, sans-serif`;
-  }
-  x.fillText(String(s.number), pad, band + body / 2);
-  if (!small) {
+  const label = `№${s.number}`;
+  let size = body * 0.85;
+  x.font = `800 ${size}px ${FONT}, sans-serif`;
+  while (size > 10 && x.measureText(label).width > numW) { size *= 0.92; x.font = `800 ${size}px ${FONT}, sans-serif`; }
+  x.fillStyle = style === "brand" ? "#1f1a16" : "#000000";
+  x.fillText(label, pad, top + body / 2);
+  if (footer) {
     x.fillStyle = "#6b2fa0";
-    x.font = `italic 400 ${footer * 0.5}px ${FONT}, sans-serif`;
-    x.fillText("🗝 Заперто на волшебный ключ. Охраняется Розиттой", pad, h - footer / 2, w - pad * 2);
+    const f = fitText(x, "🗝 Заперто на волшебный ключ. Охраняется Розиттой", w - pad * 2, footer * 0.5, footer * 0.35, 400);
+    x.fillText(f, pad, h - footer / 2);
   }
-  x.strokeStyle = "#cccccc";
-  x.lineWidth = 2;
+  x.strokeStyle = style === "brand" ? "#cccccc" : "#000000";
+  x.lineWidth = style === "brand" ? 2 : 4;
   x.strokeRect(1, 1, w - 2, h - 2);
   return c.toDataURL("image/png");
 }
 
-export async function buildPdf(list: Sticker[], f: Format) {
+export async function buildPdf(list: Sticker[], f: Format, style: StickerStyle = "brand") {
   if (f.id === "a4") {
     const pdf = new jsPDF({ unit: "mm", format: "a4" });
     const cols = 2, rows = 4, mx = 10, my = 12, gap = 6;
@@ -82,7 +108,7 @@ export async function buildPdf(list: Sticker[], f: Format) {
     for (let i = 0; i < list.length; i++) {
       const pos = i % (cols * rows);
       if (i > 0 && pos === 0) pdf.addPage();
-      const img = await drawSticker(list[i]!, sw, sh);
+      const img = await drawSticker(list[i]!, sw, sh, style);
       pdf.addImage(img, "PNG", mx + (pos % cols) * (sw + gap), my + Math.floor(pos / cols) * (sh + gap), sw, sh);
     }
     return pdf;
@@ -91,19 +117,19 @@ export async function buildPdf(list: Sticker[], f: Format) {
   const pdf = new jsPDF({ unit: "mm", format: [f.w, f.h], orientation: orient });
   for (let i = 0; i < list.length; i++) {
     if (i > 0) pdf.addPage([f.w, f.h], orient);
-    pdf.addImage(await drawSticker(list[i]!, f.w, f.h), "PNG", 0, 0, f.w, f.h);
+    pdf.addImage(await drawSticker(list[i]!, f.w, f.h, style), "PNG", 0, 0, f.w, f.h);
   }
   return pdf;
 }
 
-export async function stickersPdf(list: Sticker[], f: Format) {
-  (await buildPdf(list, f)).save("naklejki-sunduki.pdf");
+export async function stickersPdf(list: Sticker[], f: Format, style: StickerStyle = "brand") {
+  (await buildPdf(list, f, style)).save("naklejki-sunduki.pdf");
 }
 
 /** Opens the PDF in a new tab and asks the browser to print it. */
-export async function printStickers(list: Sticker[], f: Format) {
+export async function printStickers(list: Sticker[], f: Format, style: StickerStyle = "brand") {
   const win = window.open("", "_blank");
-  const pdf = await buildPdf(list, f);
+  const pdf = await buildPdf(list, f, style);
   pdf.autoPrint();
   const url = URL.createObjectURL(pdf.output("blob"));
   if (win) win.location.href = url;

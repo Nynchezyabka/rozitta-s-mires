@@ -6,7 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { FORMATS, drawSticker, isPreviewHost, printStickers, stickersPdf, type Format, type Sticker } from "@/lib/stickers";
+import { FORMATS, drawSticker, isPreviewHost, printStickers, stickersPdf, type Format, type Sticker, type StickerStyle } from "@/lib/stickers";
 import type { HouseholdData } from "@/lib/household";
 
 export const Route = createFileRoute("/stickers")({
@@ -26,6 +26,7 @@ export const Route = createFileRoute("/stickers")({
 function Stickers({ d }: { d: HouseholdData }) {
   const [sel, setSel] = useState<Set<string>>(() => new Set(d.boxes.map((b) => b.id)));
   const [qr, setQr] = useState(true);
+  const [style, setStyle] = useState<StickerStyle>("brand");
   const [busy, setBusy] = useState(false);
   const [fid, setFid] = useState<Format["id"]>("a4");
   const [cw, setCw] = useState("60");
@@ -46,13 +47,13 @@ function Stickers({ d }: { d: HouseholdData }) {
     const first = list()[0];
     if (!first) return setPreview("");
     let live = true;
-    drawSticker(first, fmt.w, fmt.h).then((u) => live && setPreview(u));
+    drawSticker(first, fmt.w, fmt.h, style).then((u) => live && setPreview(u));
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fid, cw, ch, qr, sel]);
+  }, [fid, cw, ch, qr, sel, style]);
   const run = async (fn: typeof stickersPdf) => {
     setBusy(true);
-    try { await fn(list(), fmt); } catch (e) { console.error(e); toast.error("Не получилось сделать наклейки"); } finally { setBusy(false); }
+    try { await fn(list(), fmt, style); } catch (e) { console.error(e); toast.error("Не получилось сделать наклейки"); } finally { setBusy(false); }
   };
 
   return (
@@ -80,6 +81,16 @@ function Stickers({ d }: { d: HouseholdData }) {
                 <span className="text-sm text-muted-foreground">мм</span>
               </div>
             )}
+          </div>
+          <div className="space-y-2 rounded-2xl bg-card p-3">
+            <p className="text-sm font-medium">Стиль</p>
+            <div className="grid grid-cols-2 gap-2">
+              {([["brand", "🐸 Фирменный", "цветная плашка и печать Розитты"], ["simple", "⬜ Простой", "чёрно-белый, для термопринтера"]] as const).map(([id, l, hint]) => (
+                <button key={id} onClick={() => setStyle(id)} className={`rounded-xl px-2 py-2 text-left text-sm ${style === id ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
+                  <span className="block font-medium">{l}</span><span className="block text-xs opacity-80">{hint}</span>
+                </button>
+              ))}
+            </div>
           </div>
           <label className="flex items-center justify-between rounded-2xl bg-card p-3">
             <span>QR-код на наклейке</span>
