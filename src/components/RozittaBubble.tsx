@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import rozitta from "@/assets/rozitta.png";
+import rozitta from "@/assets/rozitta.webp";
 import { PHRASES, pick, sfx } from "@/lib/rozitta";
 
 /** Rozitta with a thought bubble; click for a quack and a new phrase. */

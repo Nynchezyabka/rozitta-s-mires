@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createHousehold } from "@/lib/store";
 import { setToken } from "@/lib/household";
-import rozitta from "@/assets/rozitta.png";
-import cabbage from "@/assets/cabbage.png";
+import rozitta from "@/assets/rozitta.webp";
+import cabbage from "@/assets/cabbage.webp";
 import { SwampDecor } from "./SwampDecor";
 
 export function Welcome({ foreignBox = false }: { foreignBox?: boolean }) {

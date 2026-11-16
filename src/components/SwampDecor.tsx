@@ -1,9 +1,9 @@
 import { useState } from "react";
 import bg from "@/assets/swamp-bg.jpg";
-import spider from "@/assets/spider.png";
-import peony from "@/assets/peony.png";
-import cabbage from "@/assets/cabbage.png";
-import tree from "@/assets/xmas-tree.png";
+import spider from "@/assets/spider.webp";
+import peony from "@/assets/peony.webp";
+import cabbage from "@/assets/cabbage.webp";
+import tree from "@/assets/xmas-tree.webp";
 import { useXmas } from "@/lib/season";
 
 const sparks = Array.from({ length: 22 }, (_, i) => ({

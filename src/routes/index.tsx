@@ -7,8 +7,8 @@ import { GroupChip } from "@/components/GroupChip";
 import { Input } from "@/components/ui/input";
 import { RozittaBubble } from "@/components/RozittaBubble";
 import type { HouseholdData } from "@/lib/household";
-import cabbage from "@/assets/cabbage.png";
-import rozitta from "@/assets/rozitta.png";
+import cabbage from "@/assets/cabbage.webp";
+import rozitta from "@/assets/rozitta.webp";
 
 export const Route = createFileRoute("/")({
   head: () => ({
