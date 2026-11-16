@@ -18,7 +18,13 @@ type ItemIn = { name: string; kind?: string; author?: string | null; needs_revie
 
 async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   const { data, error } = await (supabase.rpc as unknown as (f: string, a: unknown) => Promise<{ data: T; error: { message: string } | null }>)(fn, args);
-  if (error) throw new Error(error.message.includes("Дом") ? error.message : "Не получилось — проверьте интернет");
+  if (error) {
+    console.error(`[база] ${fn}:`, error);
+    const m = error.message ?? "";
+    if (/failed to fetch|networkerror|load failed|network request failed|fetch/i.test(m)) throw new Error("Не получилось — проверьте интернет");
+    if (m.includes("Дом")) throw new Error(m);
+    throw new Error(`Розитта не смогла записать в свиток: ${m.slice(0, 120) || "ошибка базы"}`);
+  }
   return data;
 }
 
