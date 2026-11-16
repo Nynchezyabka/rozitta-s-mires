@@ -7,12 +7,15 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { spaceByKey, ago, type Space } from "@/lib/spaces";
+import { roomByKey, inRoom, type Room } from "@/lib/rooms";
+import type { HouseholdData } from "@/lib/household";
+import { Plus } from "lucide-react";
 import { deleteThing, markThing, saveThing } from "@/lib/store";
 import { thingsQuery } from "./house";
 import { sfx } from "@/lib/rozitta";
 
 const T = "Место в доме · Топи Розитты";
-const D = "Список вещей в одном месте дома: шкаф, холодильник, книги или растения.";
+const D = "Сундуки в одной комнате дома и быстрые заметки.";
 export const Route = createFileRoute("/house/$space")({
   head: () => ({ meta: [
     { title: T }, { name: "description", content: D }, { property: "og:title", content: T },
@@ -20,10 +23,40 @@ export const Route = createFileRoute("/house/$space")({
   ] }),
   component: () => {
     const { space } = Route.useParams();
-    const s = spaceByKey(space);
-    return <AppShell>{(_, t) => (s ? <SpacePage s={s} token={t} /> : <p className="py-10 text-center">Такого места нет 🐸</p>)}</AppShell>;
+    const r = roomByKey(space);
+    return <AppShell>{(d, t) => (r ? <RoomPage r={r} d={d} token={t} /> : <p className="py-10 text-center">Такого места нет 🐸</p>)}</AppShell>;
   },
 });
+
+function RoomPage({ r, d, token }: { r: Room; d: HouseholdData; token: string }) {
+  const boxes = inRoom(r, d.boxes);
+  const notes = r.notes ? spaceByKey(r.notes) : undefined;
+  const group = (id: string | null) => d.groups.find((g) => g.id === id);
+  return (
+    <div className="space-y-4 pt-2">
+      <Link to="/house" className="inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" />Все комнаты</Link>
+      <div className="flex items-center gap-3">
+        {r.img ? <img src={r.img} alt="" className="pixel h-20 w-20 shrink-0 object-contain" /> : <span className="text-5xl" aria-hidden>{r.icon}</span>}
+        <div className="min-w-0">
+          <h1 className="font-display text-base leading-snug text-primary">{r.title}</h1>
+          <p className="text-sm text-muted-foreground">{r.hint}</p>
+        </div>
+      </div>
+      <section className="space-y-2">
+        <h2 className="font-semibold">Сундуки здесь</h2>
+        {boxes.map((b) => (
+          <Link key={b.id} to="/box/$id" params={{ id: b.id }} className="flex items-center gap-3 rounded-2xl bg-card p-3">
+            <span className="text-2xl" aria-hidden>{group(b.group_id)?.icon ?? "📦"}</span>
+            <span className="min-w-0 flex-1"><span className="block font-semibold">№{b.number} · {group(b.group_id)?.name ?? "Без группы"}</span><span className="block truncate text-xs text-muted-foreground">{b.location || "место не указано"}</span></span>
+          </Link>
+        ))}
+        {!boxes.length && <p className="text-sm text-muted-foreground">Пока нет. {r.words[0] ? `Напишите в «Где стоит», например, «${r.title}».` : ""}</p>}
+        {r.key !== "other" && <Button asChild variant="outline" className="h-11 w-full"><Link to="/new" search={{ place: r.title }}><Plus />Новый сундук сюда</Link></Button>}
+      </section>
+      {notes && <section className="space-y-2 border-t border-border pt-4"><h2 className="font-semibold">Быстрые заметки без сундука</h2><SpacePage s={notes} token={token} /></section>}
+    </div>
+  );
+}
 
 function SpacePage({ s, token }: { s: Space; token: string }) {
   const qc = useQueryClient();
@@ -43,15 +76,7 @@ function SpacePage({ s, token }: { s: Space; token: string }) {
   const del = async (id: string) => { await deleteThing({ data: { token, id } }); refresh(); };
   const unused = s.starter.filter((x) => !list.some((l) => l.title.toLowerCase() === x.toLowerCase()));
   return (
-    <div className="space-y-4 pt-2">
-      <Link to="/house" className="inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" />Весь дом</Link>
-      <div className="flex items-center gap-3">
-        <img src={s.img} alt="" className="pixel h-20 w-20 shrink-0 object-contain" />
-        <div className="min-w-0">
-          <h1 className="font-display text-base leading-snug text-primary">{s.title}</h1>
-          <p className="text-sm text-muted-foreground">{s.hint}</p>
-        </div>
-      </div>
+    <div className="space-y-4">
       <form onSubmit={(e) => { e.preventDefault(); add(title); }} className="flex gap-2">
         <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={s.plants ? "Название растения" : "Что здесь лежит?"} />
         <Button type="submit">Добавить</Button>
