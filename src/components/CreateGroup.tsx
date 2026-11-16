@@ -62,10 +62,10 @@ export function CreateGroup({ groups, token, onCreated }: { groups: HouseholdDat
               {GROUP_COLORS.map((c, i) => <Button key={c} type="button" variant="ghost" size="icon" className={`group-swatch h-10 w-10 rounded-full ${color === c ? "ring-2 ring-foreground ring-offset-2 ring-offset-background" : ""}`} style={{ "--group-swatch": c } as CSSProperties} aria-label={`Цвет ${i + 1}`} aria-pressed={color === c} onClick={() => setColor(c)} />)}
             </div>
           </fieldset>
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Значок</p>
+          <details className="space-y-2 border-y border-border py-3">
+            <summary className="cursor-pointer text-sm font-medium"><span className="mr-2 text-xl">{icon}</span> Изменить значок</summary>
             <IconPicker name={name} value={icon} onChange={(value) => { setIcon(value); setManualIcon(true); }} />
-          </div>
+          </details>
           <Button type="submit" className="h-12 w-full" disabled={!name.trim() || busy}>{busy ? "Добавляю…" : "Добавить и выбрать"}</Button>
         </form>
       </DialogContent>
