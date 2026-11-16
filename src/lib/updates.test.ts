@@ -12,7 +12,7 @@ describe("чтение копии", () => {
   it("отвергает чужой файл", () => expect(() => parseBackup('{"a":1}')).toThrow("Это не копия"));
   it("читает свою копию", () => {
     const b = parseBackup(JSON.stringify({ app: "rozittas-mires", groups: [{ id: "g", name: "Зима", color: "#000", icon: "❄️" }], boxes: [{ id: "b", number: 1, group_id: "g" }], items: [{ box_id: "b", name: "Сапоги" }], notes: [] }));
-    expect(b.groupNames.g).toBe("Зима");
+    expect(b.groupNames["g"]).toBe("Зима");
     expect(b.items).toHaveLength(1);
   });
 });

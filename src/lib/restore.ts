@@ -35,7 +35,7 @@ export async function applyBackup(token: string, b: Backup, onStep?: (done: numb
   for (const box of [...b.boxes].sort((x, y) => x.number - y.number)) {
     const gname = box.group_id ? b.groupNames[box.group_id] : undefined;
     await saveBox({ data: {
-      token, group_id: gname ? byName[gname.toLowerCase()] ?? null : null, note: box.note ?? undefined, decide_by: box.decide_by,
+      token, group_id: gname ? byName[gname.toLowerCase()] ?? null : null, ...(box.note ? { note: box.note } : {}), decide_by: box.decide_by,
       kid_size: box.kid_size, kid_season: box.kid_season, location: box.location,
       items: b.items.filter((i) => i.box_id === box.id).map(({ name, kind, author, needs_review }) => ({ name, kind, author, needs_review })),
     } });
