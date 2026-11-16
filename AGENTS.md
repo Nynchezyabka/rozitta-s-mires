@@ -35,3 +35,5 @@ use the editor.
 - Static build: `STATIC_BUILD=1 bun run build` → scripts/static-finish.mjs copies `_shell.html` to `dist/client/index.html` (+404.html, _redirects). Why: Layero serves one folder with index.html as SPA fallback.
 - AI models per service live in `MODELS` in src/lib/ai-key.ts (first = default, user choice in localStorage). Why: proxies like Claude n Codex reject unknown model names with 400.
 - The AI service is chosen explicitly in settings (the key prefix only gives a hint); "Вставить список" (src/lib/paste-list.ts) works with no AI and no server. Why: the app must stay usable without any key, including on someone else's Supabase.
+- The optional garden has its own `/garden` route, entered from the menu through an illustrated door; coach rewards retain the existing local browser counter. Why: inventory stays uncluttered and existing progress survives without schema changes.
+- Garden rewards and permanent planting drifts are defined in `src/lib/garden.ts` with habitat and layer metadata, separate from coach tasks. Why: additions compose into a landscape rather than a scrolling collection and can be tested without rendering.

@@ -9,6 +9,7 @@ import { useXmas, setXmasMode } from "@/lib/season";
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
 import rozitta from "@/assets/rozitta.png";
+import gardenKey from "@/assets/garden-key.png";
 import { SwampDecor } from "./SwampDecor";
 import { QrScanner } from "./QrScanner";
 import { sfx, soundOn, setSound } from "@/lib/rozitta";
@@ -90,6 +91,7 @@ function MoreMenu() {
         <button aria-label="Меню" className="shrink-0 rounded-full bg-secondary p-2 text-secondary-foreground"><Menu className="h-4 w-4" /></button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="z-50 w-60 border-2 border-primary/60 bg-card">
+        <DropdownMenuItem asChild><Link to="/garden"><img src={gardenKey} alt="" width={816} height={816} className="pixel mr-2 h-6 w-6" />Таинственный сад</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Хранители ключей</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/backup"><Save className="mr-2 h-4 w-4" />Копия и обновления</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/help"><HelpCircle className="mr-2 h-4 w-4" />Справка</Link></DropdownMenuItem>

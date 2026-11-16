@@ -6,7 +6,6 @@ import { AppShell } from "@/components/AppShell";
 import { GroupChip } from "@/components/GroupChip";
 import { Input } from "@/components/ui/input";
 import { RozittaBubble } from "@/components/RozittaBubble";
-import { Coach } from "@/components/Coach";
 import type { HouseholdData } from "@/lib/household";
 import cabbage from "@/assets/cabbage.png";
 import rozitta from "@/assets/rozitta.png";
@@ -59,7 +58,6 @@ function Home({ d }: { d: HouseholdData }) {
         </div>
       )}
       <RozittaBubble />
-      {!q && <Coach />}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
         <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Где мои… (вещь, номер сундука)" className="h-14 rounded-2xl bg-card pl-12 text-base" />
