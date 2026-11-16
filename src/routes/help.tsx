@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ArrowRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { GUIDE } from "@/lib/guide";
@@ -14,21 +14,40 @@ export const Route = createFileRoute("/help")({
   component: () => <AppShell>{() => <Help />}</AppShell>,
 });
 
+const slug = (t: string) => "g-" + GUIDE.findIndex((g) => g.title === t);
+
 function Help() {
+  const tiles = GUIDE.filter((g) => g.to);
   return (
     <div className="space-y-4 pt-2">
       <section className="space-y-3 rounded-2xl border-2 border-primary/50 bg-card p-5">
         <h1 className="font-display text-xl text-primary">Справка</h1>
-        <p className="text-sm text-muted-foreground">«Топи Розитты» — волшебная опись всего дома. Сфотографировали сундук, полку или шкаф — Розитта записала, что внутри. Потом ищете вещь словом и видите, где она.</p>
-        <div className="grid grid-cols-2 gap-2">
-          <Button asChild><Link to="/new">Собрать сундук</Link></Button>
-          <Button asChild variant="secondary"><Link to="/grimoire">Открыть Гримуар</Link></Button>
+        <p className="text-sm text-muted-foreground">«Топи Розитты» — волшебная опись всего дома. Сфотографировали сундук — Розитта записала, что внутри. Потом ищете вещь словом и видите, где она.</p>
+        <Button asChild className="w-full"><Link to="/new">Собрать первый сундук</Link></Button>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="font-display text-lg text-foreground">Перейти в раздел</h2>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {tiles.map((g) => (
+            <Link key={g.title} to={g.to!} className="flex flex-col gap-1 rounded-2xl bg-card p-3 transition hover:bg-secondary">
+              <span className="text-2xl">{g.icon}</span>
+              <span className="text-sm font-semibold leading-tight">{g.title}</span>
+            </Link>
+          ))}
         </div>
       </section>
-      <div className="space-y-2">
+
+      <section className="space-y-2">
+        <h2 className="font-display text-lg text-foreground">Вопросы и ответы</h2>
+        <nav className="flex flex-wrap gap-1.5">
+          {GUIDE.map((g) => (
+            <a key={g.title} href={`#${slug(g.title)}`} className="rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground">{g.icon} {g.title}</a>
+          ))}
+        </nav>
         {GUIDE.map((g, i) => (
-          <details key={g.title} open={i === 1} className="group rounded-2xl bg-card p-4">
-            <summary className="flex cursor-pointer list-none items-center gap-3 font-semibold">
+          <details key={g.title} id={slug(g.title)} open={i === 1} className="group scroll-mt-20 rounded-2xl bg-card p-4">
+            <summary className="flex cursor-pointer list-none items-center gap-3 font-semibold [&::-webkit-details-marker]:hidden">
               <span className="text-xl">{g.icon}</span>
               <span className="flex-1">{g.title}</span>
               <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
@@ -36,9 +55,19 @@ function Help() {
             <ul className="mt-3 space-y-1.5 pl-9 text-sm text-muted-foreground">
               {g.text.map((t) => <li key={t}>{t}</li>)}
             </ul>
+            {g.to && (
+              <Button asChild size="sm" variant="secondary" className="ml-9 mt-3">
+                <Link to={g.to}>{g.cta} <ArrowRight className="h-4 w-4" /></Link>
+              </Button>
+            )}
           </details>
         ))}
-      </div>
+      </section>
+
+      <blockquote className="rounded-2xl bg-card p-5">
+        <p className="text-xs font-medium uppercase tracking-wide text-primary">Главный принцип</p>
+        <p className="mt-2 font-display text-lg">«Не нужно разбирать всё сразу. Один сундук — уже порядок.» — Розитта</p>
+      </blockquote>
     </div>
   );
 }
