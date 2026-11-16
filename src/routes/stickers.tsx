@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Download, Printer } from "lucide-react";
+import { Download, ImageDown, Printer } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { FORMATS, drawSticker, isPreviewHost, printStickers, stickersPdf, type Format, type Sticker, type StickerStyle } from "@/lib/stickers";
+import { FORMATS, MAX_CUSTOM_MM, boxQrUrl, drawSticker, isPreviewHost, printStickers, stickersPdf, stickersPng, type Format, type Sticker, type StickerContent, type StickerStyle } from "@/lib/stickers";
 import type { HouseholdData } from "@/lib/household";
 
 export const Route = createFileRoute("/stickers")({

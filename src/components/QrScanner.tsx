@@ -54,7 +54,7 @@ function Camera({ onDone }: { onDone: () => void }) {
               text = jsQR!(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height)?.data ?? "";
             }
           }
-          const id = text.match(/\/box\/([0-9a-f-]{36})/i)?.[1];
+          const id = text.match(/\/(?:box|b)\/([0-9a-f-]{36})/i)?.[1];
           if (id) { onDone(); nav({ to: "/box/$id", params: { id } }); return; }
           if (text) toast("Это не наклейка сундука");
           await new Promise((r) => setTimeout(r, 250));
