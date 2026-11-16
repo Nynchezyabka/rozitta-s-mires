@@ -12,6 +12,7 @@ import rozitta from "@/assets/rozitta.png";
 import { SwampDecor } from "./SwampDecor";
 import { QrScanner } from "./QrScanner";
 import { sfx, soundOn, setSound } from "@/lib/rozitta";
+import { APP_VERSION, initUpdates } from "@/lib/updates";
 
 function SessionTimer() {
   const [end, setEnd] = useState<number | null>(null);
@@ -90,7 +91,7 @@ function MoreMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="z-50 w-60 border-2 border-primary/60 bg-card">
         <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Хранители ключей</Link></DropdownMenuItem>
-        <DropdownMenuItem asChild><Link to="/backup"><Save className="mr-2 h-4 w-4" />Сохранить копию</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/backup"><Save className="mr-2 h-4 w-4" />Копия и обновления</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/help"><HelpCircle className="mr-2 h-4 w-4" />Справка</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/settings"><Settings className="mr-2 h-4 w-4" />Ключ нейросети</Link></DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -100,6 +101,7 @@ function MoreMenu() {
         <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setXmasMode(mode === "auto" ? "on" : mode === "on" ? "off" : "auto"); }}>
           🎄 Новый год: {mode === "auto" ? "сам с 15 декабря" : mode === "on" ? "включён" : "выключен"}
         </DropdownMenuItem>
+        <p className="px-2 pb-1 pt-2 text-right text-[10px] text-muted-foreground">версия {APP_VERSION}</p>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -117,6 +119,8 @@ const nav = [
 
 export function AppShell({ children }: { children: (d: NonNullable<ReturnType<typeof useHousehold>["data"]>, token: string) => ReactNode }) {
   const { token, data, isLoading, error } = useHousehold();
+  const boxes = data?.boxes.length;
+  useEffect(() => { if (boxes !== undefined) initUpdates(boxes); }, [boxes]);
   if (token === undefined) return <div className="min-h-screen" />;
   if (!token) return <Welcome />;
   return (
