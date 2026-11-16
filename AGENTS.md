@@ -37,3 +37,5 @@ use the editor.
 - The AI service is chosen explicitly in settings (the key prefix only gives a hint); "Вставить список" (src/lib/paste-list.ts) works with no AI and no server. Why: the app must stay usable without any key, including on someone else's Supabase.
 - The optional garden has its own `/garden` route, entered from the menu through an illustrated door; coach rewards retain the existing local browser counter. Why: inventory stays uncluttered and existing progress survives without schema changes.
 - Garden rewards and permanent planting drifts are defined in `src/lib/garden.ts` with habitat and layer metadata, separate from coach tasks. Why: additions compose into a landscape rather than a scrolling collection and can be tested without rendering.
+- Keep in-place group creation in a shared dialog for both chest forms, refreshing the household cache without navigation. Why: creating a category must not discard a chest draft.
+- Read seasonal decoration from the device calendar after hydration and refresh on focus and each minute. Why: long-open static pages should change seasons without reload or stored overrides.

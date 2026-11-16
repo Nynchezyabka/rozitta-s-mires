@@ -137,6 +137,7 @@ body {
 h1, h2 { text-shadow: 0 0 12px color-mix(in oklab, var(--primary) 40%, transparent); }
 .bg-primary { box-shadow: var(--glow); }
 .pixel { image-rendering: pixelated; }
+.group-swatch, .group-swatch:hover { background-color: var(--group-swatch); }
 @keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
 .bob { animation: bob 2.4s ease-in-out infinite; }
 
