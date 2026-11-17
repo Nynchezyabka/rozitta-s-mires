@@ -18,7 +18,7 @@ export const SERVICES: Service[] = [
   { id: "gemini", name: "Google Gemini", vpn: true },
   { id: "cnc", name: "Claude n Codex", vpn: false },
   { id: "openrouter", name: "OpenRouter", vpn: false },
-  { id: "local", name: "Своя модель", vpn: false },
+  { id: "local", name: "Локальная модель", vpn: false },
 ];
 const SERVICE_KEY = "korobki-ai-service";
 const LOCAL_KEY = "korobki-ai-local";
@@ -105,7 +105,7 @@ async function callLocal(prompt: string, photo?: string): Promise<string> {
     headers: { "content-type": "application/json", ...authH(c.key) },
     body: JSON.stringify({ model: c.model, messages: [{ role: "user", content }] }),
   }, 300000);
-  if (!r.ok) await fail(r, { id: "local", name: "Своя модель", vpn: false }, c.model);
+  if (!r.ok) await fail(r, { id: "local", name: "Локальная модель", vpn: false }, c.model);
   const j = await r.json();
   return stripThinking(j.choices?.[0]?.message?.content ?? "");
 }
