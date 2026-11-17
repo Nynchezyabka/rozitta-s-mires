@@ -114,6 +114,13 @@ function Home({ d }: { d: HouseholdData }) {
       )}
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+        {!query && d.boxes.length > 0 && (
+          <Link to="/new" className="flex min-h-48 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary/50 bg-card/70 p-4 text-center">
+            <Plus className="h-10 w-10 text-primary" />
+            <span className="font-display text-xs leading-relaxed text-primary">Новый сундук</span>
+            <span className="text-xs text-muted-foreground">сфотографировать и записать</span>
+          </Link>
+        )}
         {boxes.map((b) => {
           const g = gmap[b.group_id ?? ""];
           const its = itemsByBox[b.id] ?? [];

@@ -1,7 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Plus, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag } from "lucide-react";
+import { Home, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -102,9 +102,8 @@ function MoreMenu() {
 
 const nav = [
   { to: "/", label: "Сундуки", icon: Home },
-  { to: "/new", label: "Новый сундук", icon: Plus },
   { to: "/house", label: "Дом", icon: Sprout },
-  { to: "/tags", label: "Метки", icon: Tag },
+  { to: "/tags", label: "Вещи", icon: Tag },
 ] as const;
 
 const more = [
@@ -120,7 +119,7 @@ const more = [
 function BackButton() {
   const router = useRouter();
   const path = useRouterState({ select: (s) => s.location.pathname });
-  if (path === "/" || path === "/new" || path === "/house" || path === "/tags") return null;
+  if (path === "/" || path === "/house" || path === "/tags") return null;
   return (
     <button
       aria-label="Назад"
@@ -194,8 +193,8 @@ export function AppShell({ children, garden = false }: { children: (d: NonNullab
               className="flex min-h-12 flex-1 flex-col items-center justify-center gap-1 px-2 py-1 text-xs text-muted-foreground"
               activeProps={{ className: "text-primary font-semibold drop-shadow-[0_0_6px_var(--primary)]" }}
             >
-              <Icon className="h-5 w-5" />
-              {label}
+              <Icon className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap">{label}</span>
             </Link>
           ))}
         </div>
