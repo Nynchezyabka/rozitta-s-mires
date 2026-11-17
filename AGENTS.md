@@ -41,3 +41,4 @@ use the editor.
 - Keep in-place group creation in a shared dialog for both chest forms, refreshing the household cache without navigation. Why: creating a category must not discard a chest draft.
 - Read seasonal decoration from the device calendar after hydration and refresh on focus and each minute. Why: long-open static pages should change seasons without reload or stored overrides.
 - Item tags live in `items.category` (one free-form tag per thing, set by AI, editable); colours are auto from a name hash in src/lib/tags.ts with per-device overrides. Why: tags must cover any topic without a fixed list and need no extra table.
+- App version comes from the top entry of `src/lib/changelog.ts`; bump it with package.json and the README badge on notable releases. Why: one source for the in-app «Что нового» and the version label.

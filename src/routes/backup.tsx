@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { download, readDevice, toCsv, toJson } from "@/lib/backup";
 import { applyBackup, parseBackup, planRestore, type Backup } from "@/lib/restore";
 import { Switch } from "@/components/ui/switch";
+import { CHANGELOG } from "@/lib/changelog";
 import { APP_VERSION, checkForUpdates, hardReload, lastBackup, markBackup } from "@/lib/updates";
 import type { HouseholdData } from "@/lib/store";
 
@@ -85,6 +86,17 @@ function BackupPage({ d, token }: { d: HouseholdData; token: string }) {
           }}>{checking ? "Смотрю…" : "Проверить"}</Button>
           <Button variant="secondary" onClick={() => setAskReload(true)}>Начисто</Button>
         </div>
+        <details className="rounded-xl border border-border p-3">
+          <summary className="cursor-pointer font-medium">📜 Что нового</summary>
+          <div className="mt-2 space-y-3">
+            {CHANGELOG.map((r) => (
+              <div key={r.version}>
+                <p className="font-medium text-primary">{r.version} · {r.title}</p>
+                <ul className="list-disc pl-5 text-muted-foreground">{r.notes.map((n) => <li key={n}>{n}</li>)}</ul>
+              </div>
+            ))}
+          </div>
+        </details>
       </section>
 
       <AlertDialog open={!!pending} onOpenChange={(o) => !o && setPending(null)}>
