@@ -17,8 +17,8 @@ describe("backup", () => {
   it("CSV has one row per item with box number, group, location, name, author", () => {
     const lines = toCsv(d).replace("\uFEFF", "").split("\r\n");
     expect(lines).toHaveLength(3);
-    expect(lines[1]).toBe('5,Кухня,Балкон,"Чашки, 4 шт",');
-    expect(lines[2]).toBe("5,Кухня,Балкон,Лоскутик и облако,Прокофьева");
+    expect(lines[1]).toBe('5,Кухня,Балкон,"Чашки, 4 шт",,');
+    expect(lines[2]).toBe("5,Кухня,Балкон,Лоскутик и облако,Прокофьева,");
   });
   it("JSON contains boxes, items, groups and notes without temporary photo links", () => {
     const j = JSON.parse(toJson(d));
