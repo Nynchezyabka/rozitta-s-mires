@@ -1,7 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Plus, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft } from "lucide-react";
+import { Home, Plus, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -104,7 +104,7 @@ const nav = [
   { to: "/", label: "Сундуки", icon: Home },
   { to: "/new", label: "Новый сундук", icon: Plus },
   { to: "/house", label: "Дом", icon: Sprout },
-  
+  { to: "/tags", label: "Метки", icon: Tag },
 ] as const;
 
 const more = [
@@ -120,7 +120,7 @@ const more = [
 function BackButton() {
   const router = useRouter();
   const path = useRouterState({ select: (s) => s.location.pathname });
-  if (path === "/" || path === "/new" || path === "/house") return null;
+  if (path === "/" || path === "/new" || path === "/house" || path === "/tags") return null;
   return (
     <button
       aria-label="Назад"

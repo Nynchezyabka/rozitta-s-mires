@@ -19,7 +19,7 @@ import room_dacha from "@/assets/space-dacha.webp";
 export type Room = { key: string; title: string; icon: string; hint: string; img?: string; words: string[]; notes?: string };
 
 export const ROOMS: Room[] = [
-  { key: "wardrobe", title: "Шкаф и кладовая", icon: "🚪", hint: "Одежда, пледы, сезонное", img: wardrobe, words: ["шкаф", "кладов", "гардероб", "антресол", "коридор"], notes: "wardrobe" },
+  { key: "wardrobe", title: "Гардеробная и шкафы", icon: "🚪", hint: "Одежда, пледы, сезонное", img: wardrobe, words: ["шкаф", "кладов", "гардероб", "антресол", "коридор"], notes: "wardrobe" },
   { key: "kitchen", title: "Кухня и морозный ларь", icon: "❄️", hint: "Посуда, запасы, морозилка", img: fridge, words: ["кухн", "холодил", "морозил", "кладовк", "буфет"], notes: "fridge" },
   { key: "library", title: "Библиотека фолиантов", icon: "📚", hint: "Книги, журналы, комиксы", img: library, words: ["библиот", "книж", "кабинет"], notes: "library" },
   { key: "music", img: room_music, title: "Фонотека и граммофон", icon: "📻", hint: "Винил, кассеты, диафильмы, видео", words: ["фонотек", "винил", "пластин", "граммоф", "проигрыв", "стеллаж с музык"] },
@@ -29,7 +29,7 @@ export const ROOMS: Room[] = [
   { key: "kids", img: room_kids, title: "Детская", icon: "🧸", hint: "Игрушки, одежда на вырост", words: ["детск"] },
   { key: "garage", img: room_garage, title: "Гараж", icon: "🚗", hint: "Колёса, лыжи, сноуборд", words: ["гараж"] },
   { key: "sport", img: room_sport, title: "Спорт и колёса", icon: "🚲", hint: "Велосипеды, лыжи, походное", words: ["спорт", "велосип", "тренаж", "походн"] },
-  { key: "beauty", img: room_beauty, title: "Будуар и ванная", icon: "🪞", hint: "Косметика, украшения, сумки", words: ["будуар", "ванн", "туалетн", "трюмо", "комод", "косметич", "шкатулк", "гардеробн"] },
+  { key: "beauty", img: room_beauty, title: "Будуар и ванная", icon: "🪞", hint: "Косметика, украшения, сумки", words: ["будуар", "ванн", "туалетн", "трюмо", "комод", "косметич", "шкатулк"] },
   { key: "balcony", img: room_balcony, title: "Балкон и лоджия", icon: "🪴", hint: "Сезонное, банки, ящики", words: ["балкон", "лоджи"] },
   { key: "dacha", img: room_dacha, title: "Дача и сарай", icon: "🏡", hint: "Садовое, удобрения", words: ["дач", "сара", "погреб", "подвал"] },
   { key: "plants", title: "Оранжерея", icon: "🌿", hint: "Растения: полив и подкормка", img: plants, words: ["оранжер", "подоконник"], notes: "plants" },
