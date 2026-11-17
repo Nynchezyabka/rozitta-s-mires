@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { type HouseholdData } from "@/lib/household";
+import { suggestTag } from "@/lib/tags";
 import { deleteBox, restoreBox, saveBox } from "@/lib/store";
 
 export const Route = createFileRoute("/box/$id")({
@@ -51,7 +52,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const [moveTo, setMoveTo] = useState("");
   useEffect(() => {
     if (!box) return;
-    setItems(d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? "book" : "item", author: i.author, needs_review: i.needs_review, category: i.category ?? null })));
+    setItems(d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? "book" : "item", author: i.author, needs_review: i.needs_review, category: i.category ?? suggestTag(i.name) ?? (i.kind === "book" ? "Книги" : null) })));
     setGroupId(box.group_id);
     setNote(box.note ?? "");
     setDecideBy(box.decide_by ?? "");

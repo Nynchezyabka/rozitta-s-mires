@@ -4,6 +4,16 @@ import library from "@/assets/space-library.webp";
 import plants from "@/assets/space-plants.webp";
 import rozitta from "@/assets/rozitta.webp";
 import cabbage from "@/assets/cabbage.webp";
+import room_music from "@/assets/space-music.webp";
+import room_memory from "@/assets/space-memory.webp";
+import room_workshop from "@/assets/space-workshop.webp";
+import room_art from "@/assets/space-art.webp";
+import room_kids from "@/assets/space-kids.webp";
+import room_garage from "@/assets/space-garage.webp";
+import room_sport from "@/assets/space-sport.webp";
+import room_beauty from "@/assets/space-beauty.webp";
+import room_balcony from "@/assets/space-balcony.webp";
+import room_dacha from "@/assets/space-dacha.webp";
 
 /** A room groups chests by words found in their "Где стоит" text. `notes` links the old quick list. */
 export type Room = { key: string; title: string; icon: string; hint: string; img?: string; words: string[]; notes?: string };
@@ -12,16 +22,16 @@ export const ROOMS: Room[] = [
   { key: "wardrobe", title: "Шкаф и кладовая", icon: "🚪", hint: "Одежда, пледы, сезонное", img: wardrobe, words: ["шкаф", "кладов", "гардероб", "антресол", "коридор"], notes: "wardrobe" },
   { key: "kitchen", title: "Кухня и морозный ларь", icon: "❄️", hint: "Посуда, запасы, морозилка", img: fridge, words: ["кухн", "холодил", "морозил", "кладовк", "буфет"], notes: "fridge" },
   { key: "library", title: "Библиотека фолиантов", icon: "📚", hint: "Книги, журналы, комиксы", img: library, words: ["библиот", "книж", "кабинет"], notes: "library" },
-  { key: "music", title: "Фонотека и граммофон", icon: "📻", hint: "Винил, кассеты, диафильмы, видео", words: ["фонотек", "винил", "пластин", "граммоф", "проигрыв", "стеллаж с музык"] },
-  { key: "memory", title: "Память и архив", icon: "🎞️", hint: "Фото, плёнки, письма, VHS", words: ["архив", "памят", "альбом"] },
-  { key: "workshop", title: "Мастерская", icon: "🛠️", hint: "Инструменты, ремонт, запчасти", words: ["мастерск", "инструмент", "верстак"] },
-  { key: "art", title: "Для художеств", icon: "🎨", hint: "Краски, холсты, рукоделие", words: ["художеств", "творч", "мольберт", "рукодел", "студи"] },
-  { key: "kids", title: "Детская", icon: "🧸", hint: "Игрушки, одежда на вырост", words: ["детск"] },
-  { key: "garage", title: "Гараж", icon: "🚗", hint: "Колёса, лыжи, сноуборд", words: ["гараж"] },
-  { key: "sport", title: "Спорт и колёса", icon: "🚲", hint: "Велосипеды, лыжи, походное", words: ["спорт", "велосип", "тренаж", "походн"] },
-  { key: "beauty", title: "Будуар и ванная", icon: "🪞", hint: "Косметика, украшения, сумки", words: ["будуар", "ванн", "туалетн", "трюмо", "комод", "косметич", "шкатулк", "гардеробн"] },
-  { key: "balcony", title: "Балкон и лоджия", icon: "🪴", hint: "Сезонное, банки, ящики", words: ["балкон", "лоджи"] },
-  { key: "dacha", title: "Дача и сарай", icon: "🏡", hint: "Садовое, удобрения", words: ["дач", "сара", "погреб", "подвал"] },
+  { key: "music", img: room_music, title: "Фонотека и граммофон", icon: "📻", hint: "Винил, кассеты, диафильмы, видео", words: ["фонотек", "винил", "пластин", "граммоф", "проигрыв", "стеллаж с музык"] },
+  { key: "memory", img: room_memory, title: "Память и архив", icon: "🎞️", hint: "Фото, плёнки, письма, VHS", words: ["архив", "памят", "альбом"] },
+  { key: "workshop", img: room_workshop, title: "Мастерская", icon: "🛠️", hint: "Инструменты, ремонт, запчасти", words: ["мастерск", "инструмент", "верстак"] },
+  { key: "art", img: room_art, title: "Для художеств", icon: "🎨", hint: "Краски, холсты, рукоделие", words: ["художеств", "творч", "мольберт", "рукодел", "студи"] },
+  { key: "kids", img: room_kids, title: "Детская", icon: "🧸", hint: "Игрушки, одежда на вырост", words: ["детск"] },
+  { key: "garage", img: room_garage, title: "Гараж", icon: "🚗", hint: "Колёса, лыжи, сноуборд", words: ["гараж"] },
+  { key: "sport", img: room_sport, title: "Спорт и колёса", icon: "🚲", hint: "Велосипеды, лыжи, походное", words: ["спорт", "велосип", "тренаж", "походн"] },
+  { key: "beauty", img: room_beauty, title: "Будуар и ванная", icon: "🪞", hint: "Косметика, украшения, сумки", words: ["будуар", "ванн", "туалетн", "трюмо", "комод", "косметич", "шкатулк", "гардеробн"] },
+  { key: "balcony", img: room_balcony, title: "Балкон и лоджия", icon: "🪴", hint: "Сезонное, банки, ящики", words: ["балкон", "лоджи"] },
+  { key: "dacha", img: room_dacha, title: "Дача и сарай", icon: "🏡", hint: "Садовое, удобрения", words: ["дач", "сара", "погреб", "подвал"] },
   { key: "plants", title: "Оранжерея", icon: "🌿", hint: "Растения: полив и подкормка", img: plants, words: ["оранжер", "подоконник"], notes: "plants" },
   { key: "aid", title: "Зельеварня-аптечка", icon: "💊", hint: "Лекарства и пластыри", img: rozitta, words: ["аптечк", "лекарств"], notes: "aid" },
   { key: "other", title: "Всё остальное", icon: "🥬", hint: "Без комнаты", img: cabbage, words: [], notes: "home" },
