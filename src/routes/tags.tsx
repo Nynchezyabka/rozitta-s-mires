@@ -67,7 +67,6 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
   return (
     <div className="space-y-4 pt-2">
       <h1 className="font-display text-xl text-primary">📋 Вещи</h1>
-      <p className="text-base">Все вещи дома и где они лежат. Нажмите категорию, чтобы оставить только её.</p>
       {d.items.length === 0 ? (
         <p className="rounded-2xl bg-card p-4 text-muted-foreground">Вещей пока нет. Добавьте сундук — и список появится здесь.</p>
       ) : (
