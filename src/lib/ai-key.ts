@@ -64,7 +64,6 @@ let localCtl: AbortController | null = null;
 export function cancelLocal() { localCtl?.abort("cancel"); }
 /** Remove <think>…</think> reasoning that some local models print before the answer. */
 export const stripThinking = (t: string) => t.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/^[\s\S]*<\/think>/i, "").trim();
-const NO_THINK = "\n\nОтвечай сразу JSON, без рассуждений и без тегов <think>. /no_think";
 
 async function localFetch(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
   if (typeof location !== "undefined" && location.protocol === "https:" && url.startsWith("http:"))
@@ -99,17 +98,12 @@ export async function listLocalModels(c: Pick<LocalCfg, "url" | "key">): Promise
 
 async function callLocal(prompt: string, photo?: string): Promise<string> {
   const c = getLocal();
-  const content: unknown[] = [{ type: "text", text: prompt + NO_THINK }];
+  const content: unknown[] = [{ type: "text", text: prompt }];
   if (photo) content.push({ type: "image_url", image_url: { url: photo } });
   const r = await localFetch(`${c.url}/v1/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", ...authH(c.key) },
-    body: JSON.stringify({
-      model: c.model,
-      messages: [{ role: "system", content: "Ты отвечаешь сразу, без рассуждений. /no_think" }, { role: "user", content }],
-      temperature: 0.2,
-      chat_template_kwargs: { enable_thinking: false },
-    }),
+    body: JSON.stringify({ model: c.model, messages: [{ role: "user", content }] }),
   }, 300000);
   if (!r.ok) await fail(r, { id: "local", name: "Своя модель", vpn: false }, c.model);
   const j = await r.json();
@@ -131,6 +125,11 @@ async function fail(r: Response, s: Service, model: string): Promise<never> {
   throw new Error(msg);
 }
 
+/** Each thing gets its own short tag; any topic is fine, no fixed list. */
+export const TAG_LINE = 'Каждой вещи дай метку category: 1–2 слова, к чему она относится (например "Электроника", "Аквариум", "Косметика", "Инструменты"). Подойдёт любая тема, придумай сама.';
+export const groupLine = (names: string[]) =>
+  `group — общая группа для всего фото. Если подходит одна из групп дома (${names.join(", ")}), напиши её. Если нет — придумай короткое название новой группы. Если вещи совсем разные — "Разное".`;
+
 export function buildPrompt(mode: "box" | "books" | "meds", groupNames: string[]) {
   const task =
     mode === "meds"
@@ -139,11 +138,12 @@ export function buildPrompt(mode: "box" | "books" | "meds", groupNames: string[]
       ? `На фото обложки или корешки книг. Для каждой книги верни название (name) и автора (author). Если не уверен — needs_review: true. Старые книги без ISBN часто читаются плохо — тогда тоже needs_review: true.`
       : `На фото могут быть любые вещи: содержимое коробки или шкафа, книги, лекарства. Перечисли всё коротко по-русски (name), объединяя однотипные ("Полотенца, 4 шт"). Для книги укажи автора (author), если читается. Для лекарства добавь к названию коротко, от чего оно ("Нурофен — от боли и жара"). Не больше 25 пунктов. needs_review: true, если вещь видна плохо.${healthCheckLine(getHealth())}`;
   return `${task}
-Предложи одну группу из списка: ${groupNames.join(", ")}. Если не подходит ни одна — "Тайничок на потом" (или "Решить позже").
-Верни только JSON без пояснений: {"items":[{"name":"...","author":null,"needs_review":false}],"group":"..."}`;
+${TAG_LINE}
+${groupLine(groupNames)}
+Верни только JSON без пояснений: {"items":[{"name":"...","category":"...","author":null,"needs_review":false}],"group":"..."}`;
 }
 
-export type Recognized = { items: { name: string; author?: string | null; needs_review?: boolean }[]; group: string | null };
+export type Recognized = { items: { name: string; author?: string | null; needs_review?: boolean; category?: string | null }[]; group: string | null };
 
 async function call(key: string, prompt: string, photo?: string, svc?: Service | null): Promise<string> {
   const s = svc ?? getService() ?? detectService(key);
@@ -195,7 +195,7 @@ export async function recognizeWithKey(key: string, photo: string, mode: "box" |
     throw new Error("Модель ответила непонятно — добавьте вещи вручную");
   }
   return {
-    items: Array.isArray(p.items) ? p.items.filter((x) => x && typeof x.name === "string") : [],
+    items: Array.isArray(p.items) ? p.items.filter((x) => x && typeof x.name === "string").map((x) => ({ ...x, category: typeof x.category === "string" ? x.category : null })) : [],
     group: typeof p.group === "string" ? p.group : null,
   };
 }

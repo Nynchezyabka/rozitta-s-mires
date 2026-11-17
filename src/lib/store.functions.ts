@@ -21,7 +21,7 @@ const tok = <T extends Tok>(i: T): T => {
 };
 
 export type Recognized = {
-  items: { name: string; author?: string | null; needs_review?: boolean }[];
+  items: { name: string; author?: string | null; needs_review?: boolean; category?: string | null }[];
   group: string | null;
 };
 
@@ -37,8 +37,9 @@ export const recognizePhoto = createServerFn({ method: "POST" })
         ? `На фото обложки или корешки книг. Для каждой книги верни название (name) и автора (author). Если не уверен в названии или авторе — поставь needs_review: true. Старые книги без ISBN часто читаются плохо — тогда тоже needs_review: true.`
         : `На фото могут быть любые вещи: содержимое коробки или шкафа, книги, лекарства. Перечисли всё коротко по-русски (name), объединяя однотипные ("Полотенца, 4 шт"). Для книги укажи автора (author), если читается. Для лекарства добавь к названию коротко, от чего оно ("Нурофен — от боли и жара"). Не больше 25 пунктов. needs_review: true, если вещь видна плохо.`;
     const prompt = `${task}
-Предложи одну группу из списка: ${names}. Если не подходит ни одна — "Тайничок на потом" (или "Решить позже").
-Верни только JSON: {"items":[{"name":"...","author":null,"needs_review":false}],"group":"..."}`;
+Каждой вещи дай метку category: 1–2 слова, к чему она относится (например "Электроника", "Аквариум", "Косметика"). Подойдёт любая тема.
+group — общая группа для всего фото. Если подходит одна из групп дома (${names}), напиши её. Если нет — придумай короткое название новой группы. Если вещи совсем разные — "Разное".
+Верни только JSON: {"items":[{"name":"...","category":"...","author":null,"needs_review":false}],"group":"..."}`;
     try {
       const res = await generateResponse({
         model: "openai/gpt-6-astra",

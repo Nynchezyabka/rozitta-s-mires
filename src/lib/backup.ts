@@ -14,7 +14,7 @@ export function toCsv(d: HouseholdData): string {
   for (const it of items) {
     const b = boxes[it.box_id];
     if (!b) continue;
-    rows.push([String(b.number), groups[b.group_id ?? ""] ?? "", b.location ?? "", it.name, it.author ?? ""]);
+    rows.push([String(b.number), groups[b.group_id ?? ""] ?? "", b.location ?? "", it.name, it.author ?? "", it.category ?? ""]);
   }
   return "\uFEFF" + rows.map((r) => r.map(cell).join(",")).join("\r\n");
 }

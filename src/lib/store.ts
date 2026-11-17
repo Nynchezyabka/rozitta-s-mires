@@ -14,7 +14,7 @@ function photos(token: string) {
 const hids: Record<string, string> = {};
 
 type Tok = { token: string };
-type ItemIn = { name: string; kind?: string; author?: string | null; needs_review?: boolean };
+type ItemIn = { name: string; kind?: string; author?: string | null; needs_review?: boolean; category?: string | null };
 
 async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   const { data, error } = await (supabase.rpc as unknown as (f: string, a: unknown) => Promise<{ data: T; error: { message: string } | null }>)(fn, args);
@@ -33,7 +33,7 @@ export type HouseholdData = {
   groups: { id: string; name: string; color: string; icon: string; position: number }[];
   boxes: { id: string; number: number; group_id: string | null; photo_path: string | null; photo_url: string | null; photo_paths: string[]; photo_urls: string[]; note: string | null; decide_by: string | null; kid_size: string | null; kid_season: string | null; location: string | null; created_at: string }[];
   notes: { id: string; title: string; body: string; updated_at: string }[];
-  items: { id: string; box_id: string; name: string; kind: string; author: string | null; needs_review: boolean }[];
+  items: { id: string; box_id: string; name: string; kind: string; author: string | null; needs_review: boolean; category: string | null }[];
 };
 
 export async function createHousehold({ data }: { data: { name: string } }) {
