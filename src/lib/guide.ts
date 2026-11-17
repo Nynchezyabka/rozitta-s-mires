@@ -1,5 +1,5 @@
 /** Справка: короткие разделы, каждый раскрывается отдельно. */
-export type GuideLink = "/new" | "/stickers" | "/family" | "/grimoire" | "/garden" | "/settings" | "/backup" | "/house" | "/groups";
+export type GuideLink = "/new" | "/stickers" | "/family" | "/grimoire" | "/garden" | "/settings" | "/backup" | "/house" | "/groups" | "/tags";
 export const GUIDE: { icon: string; title: string; text: string[]; to?: GuideLink; cta?: string }[] = [
   { icon: "🐸", title: "Что это за приложение", text: [
     "«Топи Розитты» (полностью — «Тайные Хроники Топей Розитты») — опись всего дома: сундуки, шкафы, книги, морозилка, растения.",
