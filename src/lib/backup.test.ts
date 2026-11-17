@@ -8,8 +8,8 @@ const d: HouseholdData = {
   boxes: [{ id: "b1", number: 5, group_id: "g1", photo_path: null, photo_url: "https://x", photo_paths: [], photo_urls: [], note: null, decide_by: null, kid_size: null, kid_season: null, location: "Балкон", created_at: "" }],
   notes: [{ id: "n", title: "t", body: "b", updated_at: "" }],
   items: [
-    { id: "i1", box_id: "b1", name: "Чашки, 4 шт", kind: "item", author: null, needs_review: false },
-    { id: "i2", box_id: "b1", name: "Лоскутик и облако", kind: "book", author: "Прокофьева", needs_review: false },
+    { id: "i1", box_id: "b1", name: "Чашки, 4 шт", kind: "item", author: null, needs_review: false, category: null },
+    { id: "i2", box_id: "b1", name: "Лоскутик и облако", kind: "book", author: "Прокофьева", needs_review: false, category: null },
   ],
 };
 

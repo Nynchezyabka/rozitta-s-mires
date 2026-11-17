@@ -2,8 +2,9 @@ import { X, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { HouseholdData } from "@/lib/household";
+import { normTag, tagColor } from "@/lib/tags";
 
-export type EditItem = { name: string; kind: "item" | "book"; author: string | null; needs_review: boolean };
+export type EditItem = { name: string; kind: "item" | "book"; author: string | null; needs_review: boolean; category: string | null };
 
 export function ItemsEditor({ items, onChange }: { items: EditItem[]; onChange: (i: EditItem[]) => void }) {
   const set = (i: number, patch: Partial<EditItem>) => onChange(items.map((it, j) => (j === i ? { ...it, ...patch } : it)));
@@ -21,6 +22,10 @@ export function ItemsEditor({ items, onChange }: { items: EditItem[]; onChange: 
           {it.kind === "book" && (
             <Input value={it.author ?? ""} onChange={(e) => set(i, { author: e.target.value })} placeholder="Автор" className="ml-8 h-9 w-[calc(100%-2rem)] border-0 bg-muted/60 text-sm shadow-none" />
           )}
+          <label className="ml-8 mt-1 flex w-[calc(100%-2rem)] items-center gap-2">
+            <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tagColor(normTag(it.category) ?? "—") , opacity: it.category ? 1 : 0.3 }} aria-hidden />
+            <Input value={it.category ?? ""} onChange={(e) => set(i, { category: e.target.value || null })} placeholder="метка, например «Электроника»" aria-label="Метка вещи" className="h-8 border-0 bg-muted/60 text-sm shadow-none" />
+          </label>
           {it.needs_review && (
             <button onClick={() => set(i, { needs_review: false })} className="ml-8 mt-1 rounded-full bg-warning/40 px-2.5 py-0.5 text-xs">
               проверить · нажмите, если всё верно
@@ -29,10 +34,10 @@ export function ItemsEditor({ items, onChange }: { items: EditItem[]; onChange: 
         </div>
       ))}
       <div className="flex gap-2">
-        <Button variant="outline" className="h-11 flex-1" onClick={() => onChange([...items, { name: "", kind: "item", author: null, needs_review: false }])}>
+        <Button variant="outline" className="h-11 flex-1" onClick={() => onChange([...items, { name: "", kind: "item", author: null, needs_review: false, category: null }])}>
           <Plus className="h-4 w-4" /> Вещь
         </Button>
-        <Button variant="outline" className="h-11 flex-1" onClick={() => onChange([...items, { name: "", kind: "book", author: "", needs_review: false }])}>
+        <Button variant="outline" className="h-11 flex-1" onClick={() => onChange([...items, { name: "", kind: "book", author: "", needs_review: false, category: "Книги" }])}>
           <Plus className="h-4 w-4" /> Книга
         </Button>
       </div>

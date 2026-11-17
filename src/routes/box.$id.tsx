@@ -51,7 +51,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const [moveTo, setMoveTo] = useState("");
   useEffect(() => {
     if (!box) return;
-    setItems(d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? "book" : "item", author: i.author, needs_review: i.needs_review })));
+    setItems(d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? "book" : "item", author: i.author, needs_review: i.needs_review, category: i.category ?? null })));
     setGroupId(box.group_id);
     setNote(box.note ?? "");
     setDecideBy(box.decide_by ?? "");
@@ -81,7 +81,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const move = async () => {
     setBusy(true);
     try {
-      const stored = d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? ("book" as const) : ("item" as const), author: i.author, needs_review: i.needs_review }));
+      const stored = d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? ("book" as const) : ("item" as const), author: i.author, needs_review: i.needs_review, category: i.category ?? null }));
       await saveBox({ data: { token, id, group_id: box.group_id, note: box.note ?? "", decide_by: box.decide_by, kid_size: box.kid_size, kid_season: box.kid_season, location: moveTo.trim(), photos: box.photo_paths, items: stored } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
       setPlace(moveTo.trim());
