@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { suggestTag } from "@/lib/tags";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Camera, ClipboardPaste, Copy } from "lucide-react";
@@ -115,7 +116,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const applyPasted = () => {
     const r = parsePasted(pasted, mode);
     if (!r.items.length) { toast("Список пустой — вставьте ответ ИИ"); return; }
-    setItems((prev) => [...prev, ...r.items.map((x) => ({ name: x.name, author: x.author, needs_review: false, kind: "item", category: null }) as EditItem)]);
+    setItems((prev) => [...prev, ...r.items.map((x) => ({ name: x.name, author: x.author, needs_review: false, kind: "item", category: suggestTag(x.name) }) as EditItem)]);
     if (r.duplicates.length) toast(`Повторяются: ${r.duplicates.join(", ")}`);
     setPasting(false);
     setPasted("");
@@ -134,7 +135,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       const r = isAiConfigured()
         ? await recognizeWithKey(key, img, mode, d.groups.map((g) => g.name))
         : await recognizePhoto({ data: { token, photo: img, mode } });
-      const found = r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: x.author ? "book" : "item", category: normTag(x.category) }) as EditItem);
+      const found = r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: x.author ? "book" : "item", category: normTag(x.category) ?? suggestTag(x.name) }) as EditItem);
       setItems((prev) => {
         const have = new Set(prev.map((p) => p.name.toLowerCase()));
         return [...prev, ...found.filter((f) => !have.has(f.name.toLowerCase()))];

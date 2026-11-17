@@ -2,7 +2,7 @@ import { X, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { HouseholdData } from "@/lib/household";
-import { normTag, tagColor } from "@/lib/tags";
+import { normTag, suggestTag, tagColor } from "@/lib/tags";
 
 export type EditItem = { name: string; kind: "item" | "book"; author: string | null; needs_review: boolean; category: string | null };
 
@@ -14,7 +14,7 @@ export function ItemsEditor({ items, onChange }: { items: EditItem[]; onChange: 
         <div key={i} className={`rounded-2xl bg-card p-2 ${it.needs_review ? "ring-2 ring-warning" : ""}`}>
           <div className="flex items-center gap-2">
             <span className="w-6 text-center">{it.kind === "book" ? "📖" : "•"}</span>
-            <Input value={it.name} onChange={(e) => set(i, { name: e.target.value })} className="h-11 border-0 bg-transparent text-base shadow-none" placeholder={it.kind === "book" ? "Название" : "Вещь"} />
+            <Input value={it.name} onChange={(e) => { const name = e.target.value; const auto = !it.category || it.category === suggestTag(it.name); set(i, auto ? { name, category: suggestTag(name) ?? (it.kind === "book" ? "Книги" : null) } : { name }); }} className="h-11 border-0 bg-transparent text-base shadow-none" placeholder={it.kind === "book" ? "Название" : "Вещь"} />
             <button onClick={() => onChange(items.filter((_, j) => j !== i))} className="p-2 text-muted-foreground" aria-label="Удалить">
               <X className="h-5 w-5" />
             </button>
@@ -24,7 +24,7 @@ export function ItemsEditor({ items, onChange }: { items: EditItem[]; onChange: 
           )}
           <label className="ml-8 mt-1 flex w-[calc(100%-2rem)] items-center gap-2">
             <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tagColor(normTag(it.category) ?? "—") , opacity: it.category ? 1 : 0.3 }} aria-hidden />
-            <Input value={it.category ?? ""} onChange={(e) => set(i, { category: e.target.value || null })} placeholder="метка, например «Электроника»" aria-label="Метка вещи" className="h-8 border-0 bg-muted/60 text-sm shadow-none" />
+            <Input value={it.category ?? ""} onChange={(e) => set(i, { category: e.target.value || null })} placeholder="метка подберётся сама по названию" aria-label="Метка вещи" className="h-8 border-0 bg-muted/60 text-sm shadow-none" />
           </label>
           {it.needs_review && (
             <button onClick={() => set(i, { needs_review: false })} className="ml-8 mt-1 rounded-full bg-warning/40 px-2.5 py-0.5 text-xs">
