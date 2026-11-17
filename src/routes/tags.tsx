@@ -3,7 +3,10 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import type { HouseholdData } from "@/lib/store";
-import { autoTagColor, normTag, setTagColor, TAG_COLORS, tagColor, tagCounts } from "@/lib/tags";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { saveBox } from "@/lib/store";
+import { suggestTag, autoTagColor, normTag, setTagColor, TAG_COLORS, tagColor, tagCounts } from "@/lib/tags";
 
 const T = "Метки вещей · Топи Розитты";
 const D = "Облако меток: чего в доме больше, чего меньше и в каких сундуках это лежит.";
@@ -12,10 +15,28 @@ export const Route = createFileRoute("/tags")({
     { title: T }, { name: "description", content: D }, { property: "og:title", content: T },
     { property: "og:description", content: D }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
-  component: () => <AppShell>{(d) => <Tags d={d} />}</AppShell>,
+  component: () => <AppShell>{(d, t) => <Tags d={d} token={t} />}</AppShell>,
 });
 
-function Tags({ d }: { d: HouseholdData }) {
+function Tags({ d, token }: { d: HouseholdData; token: string }) {
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState(false);
+  const guessable = d.items.filter((i) => !normTag(i.category) && (suggestTag(i.name) || i.kind === "book"));
+  /** Fills empty tags in every chest from the thing's name; other fields are saved unchanged. */
+  const autoTag = async () => {
+    setBusy(true);
+    try {
+      const ids = [...new Set(guessable.map((i) => i.box_id))];
+      for (const id of ids) {
+        const b = d.boxes.find((x) => x.id === id);
+        if (!b) continue;
+        const items = d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind, author: i.author, needs_review: i.needs_review, category: normTag(i.category) ?? suggestTag(i.name) ?? (i.kind === "book" ? "Книги" : null) }));
+        await saveBox({ data: { token, id, group_id: b.group_id, note: b.note ?? "", decide_by: b.decide_by, kid_size: b.kid_size, kid_season: b.kid_season, location: b.location, photos: b.photo_paths, items } });
+      }
+      await qc.invalidateQueries({ queryKey: ["household", token] });
+      toast.success(`🪄 Метки расставлены: ${guessable.length}`);
+    } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
+  };
   const cloud = useMemo(() => tagCounts(d.items), [d.items]);
   const [open, setOpen] = useState<string | null>(null);
   const [, bump] = useState(0);
@@ -33,7 +54,7 @@ function Tags({ d }: { d: HouseholdData }) {
       <h1 className="font-display text-xl text-primary">🏷️ Метки вещей</h1>
       <p className="text-base">Розитта сама ставит метку каждой вещи. Нажмите на метку — покажу, где такие вещи лежат.</p>
       {cloud.length === 0 ? (
-        <p className="rounded-2xl bg-card p-4 text-muted-foreground">Меток пока нет. Они появятся у новых распознанных вещей, а старым можно вписать метку в сундуке.</p>
+        <p className="rounded-2xl bg-card p-4 text-muted-foreground">Меток пока нет. Они появятся у новых распознанных вещей, а старым Розитта подберёт метку сама.</p>
       ) : (
         <div className="flex flex-wrap gap-2 rounded-3xl bg-card p-4">
           {cloud.map(({ tag, count }) => (
@@ -46,6 +67,7 @@ function Tags({ d }: { d: HouseholdData }) {
         </div>
       )}
       {untagged > 0 && <p className="text-sm text-muted-foreground">Без метки: {untagged} вещ.</p>}
+      {guessable.length > 0 && <Button className="h-11 w-full" disabled={busy} onClick={autoTag}>🪄 {busy ? "Расставляю…" : `Расставить метки сама (${guessable.length})`}</Button>}
 
       {open && (
         <section className="space-y-3">
