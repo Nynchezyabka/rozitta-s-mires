@@ -33,6 +33,10 @@ function House({ d }: { d: HouseholdData }) {
   const rooms = edit ? ROOMS : ROOMS.filter((r) => shown.includes(r.key) || r.key === "other");
   return (
     <div className="space-y-4 pt-2">
+      <Link to="/tags" className="flex items-center gap-3 rounded-2xl border-2 border-accent/50 bg-card p-3">
+        <span className="text-3xl" aria-hidden>🏷️</span>
+        <span className="flex-1"><span className="block font-semibold">Метки вещей</span><span className="text-sm text-muted-foreground">Чего в доме больше и где оно лежит</span></span>
+      </Link>
       <h1 className="font-display text-xl text-primary">🏚 Комнаты дома</h1>
       <p className="text-base text-foreground">{edit ? "Отметьте комнаты, которые есть у вас. Лишние спрячутся." : "Сундук попадает в комнату по полю «Где стоит»."}</p>
       <Button variant={edit ? "default" : "outline"} className="h-11 w-full" onClick={() => setEdit(!edit)}><Settings2 />{edit ? "Готово" : "Мои комнаты: выбрать"}</Button>

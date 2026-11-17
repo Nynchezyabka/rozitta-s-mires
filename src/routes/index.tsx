@@ -35,7 +35,7 @@ function Home({ d }: { d: HouseholdData }) {
   }, [d.items]);
   const query = q.trim().toLowerCase();
   const hits = query
-    ? d.items.filter((it) => it.name.toLowerCase().includes(query) || (it.author ?? "").toLowerCase().includes(query))
+    ? d.items.filter((it) => it.name.toLowerCase().includes(query) || (it.author ?? "").toLowerCase().includes(query) || (it.category ?? "").toLowerCase().includes(query))
     : [];
   const boxes = d.boxes.filter((b) => {
     if (groupFilter && b.group_id !== groupFilter) return false;

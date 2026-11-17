@@ -195,7 +195,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
         <div className="space-y-5">
           <h1 className="font-display text-2xl font-bold">Сфотографируйте</h1>
           <p className="rounded-2xl bg-card/90 p-3 text-base">
-            Снимите коробку, полку или вещи сверху при хорошем свете. Розитта сама поймёт, где книги, где лекарства, а где всё остальное. Если заполнен <Link to="/settings" className="underline">профиль здоровья</Link>, лекарства получат метку 🟢🟡🔴.
+            Снимите коробку, полку или вещи сверху при хорошем свете. Лучше до 10–15 вещей на одном фото — так всё видно и быстрее. Розитта сама поймёт, где книги, где лекарства, а где всё остальное. Если заполнен <Link to="/settings" className="underline">профиль здоровья</Link>, лекарства получат метку 🟢🟡🔴.
           </p>
           {localWait}
           {!aiReady && !pasting && (
