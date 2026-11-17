@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { saveBox } from "@/lib/store";
 import { categorizeItems } from "@/lib/store.functions";
 import { categorizeWithKey, getAiKey, isAiConfigured } from "@/lib/ai-key";
+import { TagChip } from "@/components/TagChip";
 import { suggestTag, autoTagColor, normTag, setTagColor, TAG_COLORS, tagColor, tagCounts } from "@/lib/tags";
 
 const T = "Вещи дома · Топи Розитты";
@@ -57,7 +58,6 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
   const color = (t: string) => (ready ? tagColor(t) : autoTagColor(t));
-  const max = cloud[0]?.count ?? 1;
   const boxes = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
   const groups = Object.fromEntries(d.groups.map((g) => [g.id, g]));
   const NONE = "__none";
@@ -85,20 +85,16 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
       ) : (
         <div className="flex flex-wrap gap-2 rounded-3xl bg-card p-4">
           <button type="button" onClick={() => setOpen(ALL)} aria-pressed={sel === ALL}
-            className={`rounded-full px-3 py-1 text-sm font-semibold ${sel === ALL ? "bg-foreground text-background" : "bg-secondary text-secondary-foreground"}`}>
-            Все вещи · {d.items.length}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition ${sel === ALL ? "border-primary bg-primary/20 text-foreground shadow-[0_0_12px_var(--primary)]" : "border-border bg-secondary text-secondary-foreground"}`}>
+            ✨ Все вещи <span className="rounded-full bg-background/60 px-1.5 text-[0.7rem] text-muted-foreground">{d.items.length}</span>
           </button>
           {cloud.map(({ tag, count }) => (
-            <button key={tag} type="button" onClick={() => setOpen(tag)} aria-pressed={sel === tag}
-              className={`rounded-full px-3 py-1 font-semibold text-background transition ${sel === tag ? "ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}
-              style={{ backgroundColor: color(tag), fontSize: `${0.85 + (count / max) * 0.4}rem` }}>
-              {tag} · {count}
-            </button>
+            <TagChip key={tag} tag={tag} color={color(tag)} count={count} active={sel === tag} onClick={() => setOpen(tag)} />
           ))}
           {untagged.length > 0 && (
             <button type="button" onClick={() => setOpen(NONE)} aria-pressed={sel === NONE}
-              className={`rounded-full border-2 border-dashed border-muted-foreground px-3 py-1 text-sm font-semibold ${sel === NONE ? "ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}>
-              ❔ Без категории · {untagged.length}
+              className={`inline-flex items-center gap-1.5 rounded-full border border-dashed border-muted-foreground px-3 py-1.5 text-sm font-medium ${sel === NONE ? "bg-muted text-foreground" : "text-muted-foreground"}`}>
+              ❔ Без категории <span className="rounded-full bg-background/60 px-1.5 text-[0.7rem]">{untagged.length}</span>
             </button>
           )}
         </div>
@@ -123,7 +119,7 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
             return (
               <div key={it.id} className="rounded-2xl bg-card p-3">
                 <Link to="/box/$id" params={{ id: it.box_id }} className="block">
-                  <span className="flex flex-wrap items-center gap-2 text-base">{it.kind === "book" ? "📖 " : ""}{it.name}{it.author && <span className="text-sm text-muted-foreground">— {it.author}</span>}{normTag(it.category) && <span className="rounded-full px-2 py-0.5 text-xs font-semibold text-background" style={{ backgroundColor: color(normTag(it.category)!) }}>{normTag(it.category)}</span>}</span>
+                  <span className="flex flex-wrap items-center gap-2 text-base">{it.kind === "book" ? "📖 " : ""}{it.name}{it.author && <span className="text-sm text-muted-foreground">— {it.author}</span>}{normTag(it.category) && <TagChip size="sm" tag={normTag(it.category)!} color={color(normTag(it.category)!)} />}</span>
                   <span className="block text-sm text-muted-foreground">
                     📍 {b?.location || "место не указано"} → сундук №{b?.number}{g ? ` (${g.icon} ${g.name})` : ""}
                   </span>
@@ -131,7 +127,7 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
                 {!normTag(it.category) && cloud.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {cloud.slice(0, 10).map(({ tag }) => (
-                      <button key={tag} type="button" onClick={() => setTag(it.id, tag)} className="rounded-full px-2.5 py-1 text-xs font-semibold text-background" style={{ backgroundColor: color(tag) }}>{tag}</button>
+                      <TagChip key={tag} size="sm" tag={tag} color={color(tag)} onClick={() => setTag(it.id, tag)} />
                     ))}
                   </div>
                 )}

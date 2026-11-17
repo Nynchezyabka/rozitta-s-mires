@@ -116,7 +116,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const applyPasted = () => {
     const r = parsePasted(pasted, mode);
     if (!r.items.length) { toast("Список пустой — вставьте ответ ИИ"); return; }
-    setItems((prev) => [...prev, ...r.items.map((x) => ({ name: x.name, author: x.author, needs_review: false, kind: "item", category: suggestTag(x.name) }) as EditItem)]);
+    setItems((prev) => [...prev, ...r.items.map((x) => ({ name: x.name, author: x.author, needs_review: false, kind: "item", category: null }) as EditItem)]);
     if (r.duplicates.length) toast(`Повторяются: ${r.duplicates.join(", ")}`);
     setPasting(false);
     setPasted("");
