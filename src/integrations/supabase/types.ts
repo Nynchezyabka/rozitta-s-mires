@@ -140,6 +140,7 @@ export type Database = {
         Row: {
           author: string | null
           box_id: string
+          category: string | null
           created_at: string
           household_id: string
           id: string
@@ -150,6 +151,7 @@ export type Database = {
         Insert: {
           author?: string | null
           box_id: string
+          category?: string | null
           created_at?: string
           household_id: string
           id?: string
@@ -160,6 +162,7 @@ export type Database = {
         Update: {
           author?: string | null
           box_id?: string
+          category?: string | null
           created_at?: string
           household_id?: string
           id?: string
