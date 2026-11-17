@@ -47,7 +47,7 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
   const boxes = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
   const groups = Object.fromEntries(d.groups.map((g) => [g.id, g]));
   const NONE = "__none";
-  const sel = open ?? (cloud.length ? cloud[0].tag : d.items.some((i) => !normTag(i.category)) ? NONE : null);
+  const sel = open ?? (cloud[0] ? cloud[0].tag : d.items.some((i) => !normTag(i.category)) ? NONE : null);
   const things = sel === NONE ? d.items.filter((i) => !normTag(i.category)) : sel ? d.items.filter((i) => normTag(i.category)?.toLowerCase() === sel.toLowerCase()) : [];
   const untagged = d.items.filter((i) => !normTag(i.category)).length;
   /** Sets one thing's tag by re-saving its chest with everything else unchanged. */
