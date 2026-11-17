@@ -110,6 +110,7 @@ function Home({ d }: { d: HouseholdData }) {
               </button>
             );
           })}
+          <Link to="/groups" aria-label="Изменить группы" className="shrink-0 rounded-full bg-card px-3 py-1 text-sm text-muted-foreground">✏️ группы</Link>
         </div>
       )}
 

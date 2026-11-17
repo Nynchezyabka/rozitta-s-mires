@@ -92,7 +92,6 @@ function MoreMenu() {
         <DropdownMenuSeparator />
         <p className="px-2 pb-1 pt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Семья и сундуки</p>
         <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Подключить телефон</Link></DropdownMenuItem>
-        <DropdownMenuItem asChild><Link to="/groups"><FolderTree className="mr-2 h-4 w-4" />Группы сундуков</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/stickers"><Printer className="mr-2 h-4 w-4" />Наклейки</Link></DropdownMenuItem>
         <DropdownMenuSeparator />
         <p className="px-2 pb-1 pt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Система</p>
@@ -115,7 +114,6 @@ const more = [
   { to: "/garden", label: "Таинственный сад", icon: Sprout },
   { to: "/grimoire", label: "Гримуар", icon: BookOpen },
   { to: "/family", label: "Подключить телефон", icon: Users },
-  { to: "/groups", label: "Группы сундуков", icon: FolderTree },
   { to: "/stickers", label: "Наклейки", icon: Printer },
   { to: "/backup", label: "Копия и обновления", icon: Save },
   { to: "/help", label: "Справка", icon: HelpCircle },
