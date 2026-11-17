@@ -4,7 +4,7 @@ import { DEVICE_KEYS } from "./backup";
 export type Backup = {
   groups: { name: string; color: string; icon: string }[];
   boxes: { id: string; number: number; group_id: string | null; note: string | null; decide_by: string | null; kid_size: string | null; kid_season: string | null; location: string | null }[];
-  items: { box_id: string; name: string; kind: string; author: string | null; needs_review: boolean }[];
+  items: { box_id: string; name: string; kind: string; author: string | null; needs_review: boolean; category?: string | null }[];
   notes: { title: string; body: string }[];
   groupNames: Record<string, string>;
   device?: Record<string, string>;
@@ -69,7 +69,7 @@ export async function applyBackup(token: string, b: Backup, onStep?: (done: numb
       token, id: box.id, number: box.number, restore: true,
       group_id: gname ? byName[gname.toLowerCase()] ?? null : null, ...(box.note ? { note: box.note } : {}), decide_by: box.decide_by,
       kid_size: box.kid_size, kid_season: box.kid_season, location: box.location,
-      items: b.items.filter((i) => i.box_id === box.id).map(({ name, kind, author, needs_review }) => ({ name, kind, author, needs_review })),
+      items: b.items.filter((i) => i.box_id === box.id).map(({ name, kind, author, needs_review, category }) => ({ name, kind, author, needs_review, category: category ?? null })),
     } }); } catch (e) { if (/занят/.test((e as Error).message)) skipped.push(box.number); else throw e; }
     onStep?.(++done, total);
   }

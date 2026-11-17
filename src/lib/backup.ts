@@ -5,16 +5,16 @@ const cell = (v: unknown) => {
   return /[",;\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
-/** One row per item: box number, group, location, item name, author. */
+/** One row per item: box number, group, location, item name, author, tag. */
 export function toCsv(d: HouseholdData): string {
   const boxes = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
   const groups = Object.fromEntries(d.groups.map((g) => [g.id, g.name]));
-  const rows = [["Сундук", "Группа", "Где стоит", "Название", "Автор"]];
+  const rows = [["Сундук", "Группа", "Где стоит", "Название", "Автор", "Метка"]];
   const items = [...d.items].sort((a, b) => (boxes[a.box_id]?.number ?? 0) - (boxes[b.box_id]?.number ?? 0));
   for (const it of items) {
     const b = boxes[it.box_id];
     if (!b) continue;
-    rows.push([String(b.number), groups[b.group_id ?? ""] ?? "", b.location ?? "", it.name, it.author ?? ""]);
+    rows.push([String(b.number), groups[b.group_id ?? ""] ?? "", b.location ?? "", it.name, it.author ?? "", it.category ?? ""]);
   }
   return "\uFEFF" + rows.map((r) => r.map(cell).join(",")).join("\r\n");
 }

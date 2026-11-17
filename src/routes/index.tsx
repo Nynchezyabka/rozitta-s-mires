@@ -1,3 +1,4 @@
+import { tagColor } from "@/lib/tags";
 import { DueBadge, LocationPath } from "@/components/BoxBits";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -35,7 +36,7 @@ function Home({ d }: { d: HouseholdData }) {
   }, [d.items]);
   const query = q.trim().toLowerCase();
   const hits = query
-    ? d.items.filter((it) => it.name.toLowerCase().includes(query) || (it.author ?? "").toLowerCase().includes(query))
+    ? d.items.filter((it) => it.name.toLowerCase().includes(query) || (it.author ?? "").toLowerCase().includes(query) || (it.category ?? "").toLowerCase().includes(query))
     : [];
   const boxes = d.boxes.filter((b) => {
     if (groupFilter && b.group_id !== groupFilter) return false;
@@ -65,6 +66,7 @@ function Home({ d }: { d: HouseholdData }) {
                   {it.kind === "book" ? "📖 " : ""}
                   {it.name}
                   {it.author && <span className="text-muted-foreground"> — {it.author}</span>}
+                  {it.category && <span className="ml-2 rounded-full px-2 py-0.5 text-xs text-background" style={{ backgroundColor: tagColor(it.category) }}>{it.category}</span>}
                 </span>
                 <span className="font-display text-lg font-bold">№{b?.number}</span>
               </Link>

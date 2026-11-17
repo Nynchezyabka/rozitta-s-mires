@@ -1,0 +1,1 @@
+COMMENT ON TABLE public.items IS 'Вещи в сундуках; category — метка-категория вещи';

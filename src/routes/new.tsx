@@ -13,7 +13,10 @@ import { Input } from "@/components/ui/input";
 import { compressImage, type HouseholdData } from "@/lib/household";
 import { saveBox } from "@/lib/store";
 import { recognizePhoto } from "@/lib/store.functions";
-import { matchGroup } from "@/lib/defaults";
+import { matchGroup, GROUP_COLORS } from "@/lib/defaults";
+import { normTag } from "@/lib/tags";
+import { suggestIcons } from "@/lib/icons";
+import { getHousehold, saveGroup } from "@/lib/store";
 import { RozittaBubble } from "@/components/RozittaBubble";
 import { BREWING, sfx } from "@/lib/rozitta";
 import { cancelLocal, getAiKey, getService, isAiConfigured, recognizeWithKey } from "@/lib/ai-key";
@@ -63,6 +66,24 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const [kidSeason, setKidSeason] = useState("");
   const [place, setPlace] = useState(Route.useSearch().place ?? "");
   const [pasting, setPasting] = useState(false);
+  const [newGroup, setNewGroup] = useState<string | null>(null);
+  const createSuggested = async () => {
+    if (!newGroup) return;
+    setBusy(true);
+    try {
+      await saveGroup({ data: { token, name: newGroup, color: GROUP_COLORS[d.groups.length % GROUP_COLORS.length]!, icon: suggestIcons(newGroup)[0] ?? "📦", position: d.groups.length } });
+      const fresh = await getHousehold({ data: { token } });
+      qc.setQueryData(["household", token], fresh);
+      const g = fresh.groups.find((x) => x.name === newGroup);
+      if (g) setGroupId(g.id);
+      setNewGroup(null);
+      toast.success(`Группа «${newGroup}» готова`);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
   const [pasted, setPasted] = useState("");
   const [aiReady, setAiReady] = useState(false);
   const [local, setLocalMode] = useState(false);
@@ -94,7 +115,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const applyPasted = () => {
     const r = parsePasted(pasted, mode);
     if (!r.items.length) { toast("Список пустой — вставьте ответ ИИ"); return; }
-    setItems((prev) => [...prev, ...r.items.map((x) => ({ name: x.name, author: x.author, needs_review: false, kind: "item" }) as EditItem)]);
+    setItems((prev) => [...prev, ...r.items.map((x) => ({ name: x.name, author: x.author, needs_review: false, kind: "item", category: null }) as EditItem)]);
     if (r.duplicates.length) toast(`Повторяются: ${r.duplicates.join(", ")}`);
     setPasting(false);
     setPasted("");
@@ -113,12 +134,17 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       const r = isAiConfigured()
         ? await recognizeWithKey(key, img, mode, d.groups.map((g) => g.name))
         : await recognizePhoto({ data: { token, photo: img, mode } });
-      const found = r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: x.author ? "book" : "item" }) as EditItem);
+      const found = r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: x.author ? "book" : "item", category: normTag(x.category) }) as EditItem);
       setItems((prev) => {
         const have = new Set(prev.map((p) => p.name.toLowerCase()));
         return [...prev, ...found.filter((f) => !have.has(f.name.toLowerCase()))];
       });
-      if (first || !groupId) setGroupId(matchGroup(d.groups, r.group)?.id ?? null);
+      if (first || !groupId) {
+        setGroupId(matchGroup(d.groups, r.group)?.id ?? null);
+        const s = normTag(r.group);
+        const known = s && d.groups.some((g) => g.name.toLowerCase() === s.toLowerCase() || g.name.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(g.name.toLowerCase()));
+        setNewGroup(s && !known && !/^разное$/i.test(s) ? s : null);
+      }
       if (!r.items.length) toast("Ничего не нашлось — добавьте вещи вручную");
       else if (!first) toast.success(`Добавлено из нового фото: ${found.length}`);
     } catch (e) {
@@ -169,7 +195,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
         <div className="space-y-5">
           <h1 className="font-display text-2xl font-bold">Сфотографируйте</h1>
           <p className="rounded-2xl bg-card/90 p-3 text-base">
-            Снимите коробку, полку или вещи сверху при хорошем свете. Розитта сама поймёт, где книги, где лекарства, а где всё остальное. Если заполнен <Link to="/settings" className="underline">профиль здоровья</Link>, лекарства получат метку 🟢🟡🔴.
+            Снимите коробку, полку или вещи сверху при хорошем свете. Лучше до 10–15 вещей на одном фото — так всё видно и быстрее. Розитта сама поймёт, где книги, где лекарства, а где всё остальное. Если заполнен <Link to="/settings" className="underline">профиль здоровья</Link>, лекарства получат метку 🟢🟡🔴.
           </p>
           {localWait}
           {!aiReady && !pasting && (
@@ -216,7 +242,12 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       {step === 3 && (
         <div className="space-y-4">
           <h1 className="font-display text-2xl font-bold">Какая группа?</h1>
-          {group && <p className="text-sm text-muted-foreground">Предлагаю: {group.icon} {group.name}</p>}
+          {newGroup ? (
+            <div className="space-y-2 rounded-2xl bg-card p-3">
+              <p className="text-base">🐸 Кажется, для этого сундука нужна новая группа: <b>{newGroup}</b></p>
+              <Button className="h-12 w-full rounded-2xl" disabled={busy} onClick={createSuggested}>+ Создать «{newGroup}»</Button>
+            </div>
+          ) : group && <p className="text-sm text-muted-foreground">Предлагаю: {group.icon} {group.name}</p>}
           <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />
           <CreateGroup groups={d.groups} token={token} onCreated={setGroupId} />
           {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
