@@ -16,7 +16,7 @@ import { recognizePhoto } from "@/lib/store.functions";
 import { matchGroup } from "@/lib/defaults";
 import { RozittaBubble } from "@/components/RozittaBubble";
 import { BREWING, sfx } from "@/lib/rozitta";
-import { getAiKey, getService, isAiConfigured, recognizeWithKey } from "@/lib/ai-key";
+import { cancelLocal, getAiKey, getService, isAiConfigured, recognizeWithKey } from "@/lib/ai-key";
 import { parsePasted, pastePrompt } from "@/lib/paste-list";
 import { Textarea } from "@/components/ui/textarea";
 import { useBlocker } from "@tanstack/react-router";
@@ -67,6 +67,21 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
   const [aiReady, setAiReady] = useState(false);
   const [local, setLocalMode] = useState(false);
   useEffect(() => { setAiReady(isAiConfigured()); setLocalMode(getService()?.id === "local"); }, []);
+  const [secs, setSecs] = useState(0);
+  useEffect(() => {
+    if (!busy || !local) { setSecs(0); return; }
+    const t = setInterval(() => setSecs((x) => x + 1), 1000);
+    return () => clearInterval(t);
+  }, [busy, local]);
+  const localWait = busy && local && step !== 3 && (
+    <div className="space-y-2 rounded-2xl bg-card p-3 text-base">
+      <p>Модель думает: {Math.floor(secs / 60)}:{String(secs % 60).padStart(2, "0")}</p>
+      <p className="text-sm text-muted-foreground">
+        {secs < 120 ? "На домашнем компьютере это обычно 1–3 минуты." : "Долго — значит, вещей много. Можно подождать (до 5 минут) или отменить."}
+      </p>
+      <Button variant="secondary" className="w-full rounded-2xl" onClick={cancelLocal}>Отменить</Button>
+    </div>
+  );
 
   const copyPrompt = async () => {
     try {
@@ -156,6 +171,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           <p className="rounded-2xl bg-card/90 p-3 text-base">
             Снимите коробку, полку или вещи сверху при хорошем свете. Розитта сама поймёт, где книги, где лекарства, а где всё остальное. Если заполнен <Link to="/settings" className="underline">профиль здоровья</Link>, лекарства получат метку 🟢🟡🔴.
           </p>
+          {localWait}
           {!aiReady && !pasting && (
             <p className="rounded-2xl bg-card p-3 text-sm">Своего ИИ пока нет — проще всего «Вставить список»: сфотографируйте в любом ИИ-чате и вставьте ответ.</p>
           )}
@@ -190,6 +206,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           <Button variant="secondary" className="h-12 w-full rounded-2xl" disabled={busy} onClick={() => fileRef.current?.click()}>
             <Camera className="h-5 w-5" /> {busy ? (local ? "Модель думает…" : "Смотрю…") : "Распознать новое фото"}
           </Button>
+          {localWait}
           <ItemsEditor items={items} onChange={setItems} />
           <Button className="h-14 w-full rounded-2xl text-base" onClick={() => setStep(3)}>
             Дальше

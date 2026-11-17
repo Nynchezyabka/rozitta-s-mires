@@ -59,19 +59,28 @@ export function isAiConfigured() {
 }
 
 /** Own OpenAI-compatible server (LM Studio etc.): explain network failures in plain words. */
+/** Lets the user stop a slow local recognition. */
+let localCtl: AbortController | null = null;
+export function cancelLocal() { localCtl?.abort("cancel"); }
+/** Remove <think>…</think> reasoning that some local models print before the answer. */
+export const stripThinking = (t: string) => t.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/^[\s\S]*<\/think>/i, "").trim();
+const NO_THINK = "\n\nОтвечай сразу JSON, без рассуждений и без тегов <think>. /no_think";
+
 async function localFetch(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
   if (typeof location !== "undefined" && location.protocol === "https:" && url.startsWith("http:"))
     throw new Error("Страница открыта по https, а адрес сервера — по http: браузер такое блокирует. Нужен https-адрес, например через Tailscale.");
   const ctl = new AbortController();
-  const t = setTimeout(() => ctl.abort(), timeoutMs);
+  localCtl = ctl;
+  const t = setTimeout(() => ctl.abort("timeout"), timeoutMs);
   try {
     return await fetch(url, { ...init, signal: ctl.signal });
   } catch (e) {
     console.error("[Своя модель]", e);
-    if ((e as Error).name === "AbortError") throw new Error("Модель слишком долго думала (больше 2 минут). Попробуйте ещё раз или модель полегче.");
+    if (ctl.signal.aborted) throw new Error(ctl.signal.reason === "cancel" ? "Распознавание отменено — можно вписать вещи вручную." : "Модель думала больше 5 минут. Попробуйте модель полегче или фото с меньшим числом вещей.");
     throw new Error("Сервер не отвечает или блокирует запросы с этого сайта (CORS). Проверьте адрес, что сервер запущен, и включите CORS (в LM Studio: «Enable CORS»).");
   } finally {
     clearTimeout(t);
+    if (localCtl === ctl) localCtl = null;
   }
 }
 const authH = (key: string): Record<string, string> => (key ? { authorization: `Bearer ${key}` } : {});
@@ -90,16 +99,21 @@ export async function listLocalModels(c: Pick<LocalCfg, "url" | "key">): Promise
 
 async function callLocal(prompt: string, photo?: string): Promise<string> {
   const c = getLocal();
-  const content: unknown[] = [{ type: "text", text: prompt }];
+  const content: unknown[] = [{ type: "text", text: prompt + NO_THINK }];
   if (photo) content.push({ type: "image_url", image_url: { url: photo } });
   const r = await localFetch(`${c.url}/v1/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", ...authH(c.key) },
-    body: JSON.stringify({ model: c.model, messages: [{ role: "user", content }] }),
-  }, 120000);
+    body: JSON.stringify({
+      model: c.model,
+      messages: [{ role: "system", content: "Ты отвечаешь сразу, без рассуждений. /no_think" }, { role: "user", content }],
+      temperature: 0.2,
+      chat_template_kwargs: { enable_thinking: false },
+    }),
+  }, 300000);
   if (!r.ok) await fail(r, { id: "local", name: "Своя модель", vpn: false }, c.model);
   const j = await r.json();
-  return j.choices?.[0]?.message?.content ?? "";
+  return stripThinking(j.choices?.[0]?.message?.content ?? "");
 }
 
 const modelStore = (id: ServiceId) => `${MODEL_KEY}-${id}`;
@@ -171,7 +185,7 @@ export async function testKey(key: string, svc?: Service) {
 }
 
 export async function recognizeWithKey(key: string, photo: string, mode: "box" | "books" | "meds", groupNames: string[]): Promise<Recognized> {
-  const text = await call(key, buildPrompt(mode, groupNames), photo);
+  const text = stripThinking(await call(key, buildPrompt(mode, groupNames), photo));
   const block = text.match(/```(?:json)?\s*([\s\S]*?)```/)?.[1] ?? text;
   let p: Partial<Recognized>;
   try {
