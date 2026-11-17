@@ -8,8 +8,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { saveBox } from "@/lib/store";
 import { suggestTag, autoTagColor, normTag, setTagColor, TAG_COLORS, tagColor, tagCounts } from "@/lib/tags";
 
-const T = "Метки вещей · Топи Розитты";
-const D = "Облако меток: чего в доме больше, чего меньше и в каких сундуках это лежит.";
+const T = "Вещи дома · Топи Розитты";
+const D = "Все вещи дома: где каждая лежит, с фильтром по категориям.";
 export const Route = createFileRoute("/tags")({
   head: () => ({ meta: [
     { title: T }, { name: "description", content: D }, { property: "og:title", content: T },
@@ -34,7 +34,7 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
         await saveBox({ data: { token, id, group_id: b.group_id, note: b.note ?? "", decide_by: b.decide_by, kid_size: b.kid_size, kid_season: b.kid_season, location: b.location, photos: b.photo_paths, items } });
       }
       await qc.invalidateQueries({ queryKey: ["household", token] });
-      toast.success(`🪄 Метки расставлены: ${guessable.length}`);
+      toast.success(`🪄 Категории подобраны: ${guessable.length}`);
     } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
   };
   const cloud = useMemo(() => tagCounts(d.items), [d.items]);
@@ -47,8 +47,10 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
   const boxes = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
   const groups = Object.fromEntries(d.groups.map((g) => [g.id, g]));
   const NONE = "__none";
-  const sel = open ?? (cloud[0] ? cloud[0].tag : d.items.some((i) => !normTag(i.category)) ? NONE : null);
-  const things = sel === NONE ? d.items.filter((i) => !normTag(i.category)) : sel ? d.items.filter((i) => normTag(i.category)?.toLowerCase() === sel.toLowerCase()) : [];
+  const ALL = "__all";
+  const sel = open ?? ALL;
+  const things = (sel === ALL ? d.items : sel === NONE ? d.items.filter((i) => !normTag(i.category)) : d.items.filter((i) => normTag(i.category)?.toLowerCase() === sel.toLowerCase()))
+    .slice().sort((a, b) => a.name.localeCompare(b.name, "ru"));
   const untagged = d.items.filter((i) => !normTag(i.category)).length;
   /** Sets one thing's tag by re-saving its chest with everything else unchanged. */
   const setTag = async (itemId: string, tag: string) => {
@@ -64,34 +66,38 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
 
   return (
     <div className="space-y-4 pt-2">
-      <h1 className="font-display text-xl text-primary">🏷️ Метки вещей</h1>
-      <p className="text-base">Розитта сама ставит метку каждой вещи. Нажмите на метку — покажу, где такие вещи лежат.</p>
-      {cloud.length === 0 ? (
-        <p className="rounded-2xl bg-card p-4 text-muted-foreground">Меток пока нет. Они появятся у новых распознанных вещей, а старым Розитта подберёт метку сама.</p>
+      <h1 className="font-display text-xl text-primary">📋 Вещи</h1>
+      <p className="text-base">Все вещи дома и где они лежат. Нажмите категорию, чтобы оставить только её.</p>
+      {d.items.length === 0 ? (
+        <p className="rounded-2xl bg-card p-4 text-muted-foreground">Вещей пока нет. Добавьте сундук — и список появится здесь.</p>
       ) : (
         <div className="flex flex-wrap gap-2 rounded-3xl bg-card p-4">
+          <button type="button" onClick={() => setOpen(ALL)} aria-pressed={sel === ALL}
+            className={`rounded-full px-3 py-1 text-sm font-semibold ${sel === ALL ? "bg-foreground text-background" : "bg-secondary text-secondary-foreground"}`}>
+            Все вещи · {d.items.length}
+          </button>
           {cloud.map(({ tag, count }) => (
             <button key={tag} type="button" onClick={() => setOpen(tag)} aria-pressed={sel === tag}
               className={`rounded-full px-3 py-1 font-semibold text-background transition ${sel === tag ? "ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}
-              style={{ backgroundColor: color(tag), fontSize: `${0.85 + (count / max) * 0.65}rem` }}>
+              style={{ backgroundColor: color(tag), fontSize: `${0.85 + (count / max) * 0.4}rem` }}>
               {tag} · {count}
             </button>
           ))}
           {untagged > 0 && (
             <button type="button" onClick={() => setOpen(NONE)} aria-pressed={sel === NONE}
               className={`rounded-full border-2 border-dashed border-muted-foreground px-3 py-1 text-sm font-semibold ${sel === NONE ? "ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}>
-              ❔ Без метки · {untagged}
+              ❔ Без категории · {untagged}
             </button>
           )}
         </div>
       )}
-      {guessable.length > 0 && <Button className="h-11 w-full" disabled={busy} onClick={autoTag}>🪄 {busy ? "Расставляю…" : `Расставить метки сама (${guessable.length})`}</Button>}
+      {guessable.length > 0 && <Button className="h-11 w-full" disabled={busy} onClick={autoTag}>🪄 {busy ? "Расставляю…" : `Подобрать категории сама (${guessable.length})`}</Button>}
 
-      {sel && (
+      {d.items.length > 0 && (
         <section className="space-y-3">
-          <h2 className="font-semibold">{sel === NONE ? "Без метки" : sel}: {things.length}</h2>
-          {sel === NONE && <p className="text-sm text-muted-foreground">Розитта не узнала эти названия. Нажмите метку под вещью — и готово.</p>}
-          {sel !== NONE && <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-semibold">{sel === ALL ? "Все вещи" : sel === NONE ? "Без категории" : sel}: {things.length}</h2>
+          {sel === NONE && <p className="text-sm text-muted-foreground">Розитта не узнала эти названия. Нажмите категорию под вещью — и готово.</p>}
+          {sel !== NONE && sel !== ALL && <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm">Цвет:</span>
             {TAG_COLORS.map((c, i) => (
               <Button key={c} type="button" variant="ghost" size="icon" aria-label={`Цвет ${i + 1}`} aria-pressed={color(sel) === c}
@@ -105,12 +111,12 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
             return (
               <div key={it.id} className="rounded-2xl bg-card p-3">
                 <Link to="/box/$id" params={{ id: it.box_id }} className="block">
-                  <span className="block text-base">{it.name}</span>
+                  <span className="flex flex-wrap items-center gap-2 text-base">{it.kind === "book" ? "📖 " : ""}{it.name}{it.author && <span className="text-sm text-muted-foreground">— {it.author}</span>}{normTag(it.category) && <span className="rounded-full px-2 py-0.5 text-xs font-semibold text-background" style={{ backgroundColor: color(normTag(it.category)!) }}>{normTag(it.category)}</span>}</span>
                   <span className="block text-sm text-muted-foreground">
                     📍 {b?.location || "место не указано"} → сундук №{b?.number}{g ? ` (${g.icon} ${g.name})` : ""}
                   </span>
                 </Link>
-                {sel === NONE && cloud.length > 0 && (
+                {!normTag(it.category) && cloud.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {cloud.slice(0, 10).map(({ tag }) => (
                       <button key={tag} type="button" onClick={() => setTag(it.id, tag)} className="rounded-full px-2.5 py-1 text-xs font-semibold text-background" style={{ backgroundColor: color(tag) }}>{tag}</button>
