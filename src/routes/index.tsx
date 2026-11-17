@@ -1,3 +1,4 @@
+import { tagColor } from "@/lib/tags";
 import { DueBadge, LocationPath } from "@/components/BoxBits";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -65,6 +66,7 @@ function Home({ d }: { d: HouseholdData }) {
                   {it.kind === "book" ? "📖 " : ""}
                   {it.name}
                   {it.author && <span className="text-muted-foreground"> — {it.author}</span>}
+                  {it.category && <span className="ml-2 rounded-full px-2 py-0.5 text-xs text-background" style={{ backgroundColor: tagColor(it.category) }}>{it.category}</span>}
                 </span>
                 <span className="font-display text-lg font-bold">№{b?.number}</span>
               </Link>
