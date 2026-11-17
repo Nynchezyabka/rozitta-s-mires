@@ -18,6 +18,7 @@ import { matchGroup, GROUP_COLORS } from "@/lib/defaults";
 import { normTag } from "@/lib/tags";
 import { suggestIcons } from "@/lib/icons";
 import { getHousehold, saveGroup } from "@/lib/store";
+import { QuickAiSetup } from "@/components/QuickAiSetup";
 import { RozittaBubble } from "@/components/RozittaBubble";
 import { BREWING, sfx } from "@/lib/rozitta";
 import { cancelLocal, getAiKey, getService, isAiConfigured, recognizeWithKey } from "@/lib/ai-key";
@@ -200,7 +201,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           </p>
           {localWait}
           {!aiReady && !pasting && (
-            <p className="rounded-2xl bg-card p-3 text-sm">Своего ИИ пока нет — проще всего «Вставить список»: сфотографируйте в любом ИИ-чате и вставьте ответ.</p>
+            <QuickAiSetup onReady={() => setAiReady(true)} />
           )}
           {pasting ? (
             <div className="space-y-3 rounded-2xl bg-card p-4">
