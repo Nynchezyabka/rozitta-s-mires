@@ -1,7 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag, FolderTree } from "lucide-react";
+import { Home, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
