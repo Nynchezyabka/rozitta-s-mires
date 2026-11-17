@@ -19,3 +19,15 @@ describe("аптечка", () => {
     expect(medsPrompt({ flags: [], notes: "" }, true)).toContain("проверьте по упаковке");
   });
 });
+
+import { healthCheckLine } from "./health";
+describe("healthCheckLine", () => {
+  it("is empty when the profile is empty", () => {
+    expect(healthCheckLine({ flags: [], notes: "" })).toBe("");
+  });
+  it("asks to mark medicines when something is set", () => {
+    const l = healthCheckLine({ flags: ["pregnant"], notes: "" });
+    expect(l).toContain("беременность");
+    expect(l).toContain("🔴");
+  });
+});
