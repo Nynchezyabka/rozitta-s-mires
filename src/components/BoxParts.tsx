@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { ROOMS, DEFAULT_ROOMS, getShownRooms } from "@/lib/rooms";
 import { X, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -93,8 +95,17 @@ export function KidsPicker({ size, season, onSize, onSeason }: { size: string; s
 /** "Где стоит" with suggestions from places already used in this household. */
 export function LocationInput({ value, onChange, known }: { value: string; onChange: (v: string) => void; known: (string | null)[] }) {
   const opts = [...new Set(known.filter((x): x is string => !!x))].sort();
+  const [shown, setShown] = useState<string[]>(DEFAULT_ROOMS);
+  useEffect(() => setShown(getShownRooms()), []);
+  const rooms = ROOMS.filter((r) => r.key !== "other" && shown.includes(r.key));
   return (
     <div className="space-y-2">
+      <p className="text-sm text-muted-foreground">Комната — одним нажатием, уточнение можно дописать:</p>
+      <div className="flex flex-wrap gap-1.5">
+        {rooms.map((r) => (
+          <button type="button" key={r.key} onClick={() => onChange(r.title)} className={`rounded-full px-3 py-1.5 text-sm ${value === r.title ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>{r.icon} {r.title}</button>
+        ))}
+      </div>
       <input list="known-places" value={value} onChange={(e) => onChange(e.target.value)} placeholder="Балкон, шкаф в коридоре, дача…"
         className="h-11 w-full rounded-xl border border-input bg-background px-3 text-base" />
       <datalist id="known-places">{opts.map((o) => <option key={o} value={o} />)}</datalist>
