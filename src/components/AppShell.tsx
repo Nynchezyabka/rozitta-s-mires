@@ -1,7 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag } from "lucide-react";
+import { Home, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag, FolderTree } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -86,11 +86,16 @@ function MoreMenu() {
         <Button variant="secondary" size="icon" aria-label="Меню" className="shrink-0 rounded-full"><Menu /></Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="z-50 w-60 border-2 border-primary/60 bg-card">
+        <p className="px-2 pb-1 pt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Магия болот</p>
         <DropdownMenuItem asChild><Link to="/garden"><img src={gardenKey} alt="" width={816} height={816} className="pixel mr-2 h-6 w-6" />Таинственный сад</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/grimoire"><BookOpen className="mr-2 h-4 w-4" />Гримуар</Link></DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <p className="px-2 pb-1 pt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Семья и сундуки</p>
+        <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Подключить телефон</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/groups"><FolderTree className="mr-2 h-4 w-4" />Группы сундуков</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/stickers"><Printer className="mr-2 h-4 w-4" />Наклейки</Link></DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Подключить телефон</Link></DropdownMenuItem>
+        <p className="px-2 pb-1 pt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Система</p>
         <DropdownMenuItem asChild><Link to="/backup"><Save className="mr-2 h-4 w-4" />Копия и обновления</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/help"><HelpCircle className="mr-2 h-4 w-4" />Справка</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/settings"><Settings className="mr-2 h-4 w-4" />Настройки</Link></DropdownMenuItem>
@@ -109,8 +114,9 @@ const nav = [
 const more = [
   { to: "/garden", label: "Таинственный сад", icon: Sprout },
   { to: "/grimoire", label: "Гримуар", icon: BookOpen },
-  { to: "/stickers", label: "Наклейки", icon: Printer },
   { to: "/family", label: "Подключить телефон", icon: Users },
+  { to: "/groups", label: "Группы сундуков", icon: FolderTree },
+  { to: "/stickers", label: "Наклейки", icon: Printer },
   { to: "/backup", label: "Копия и обновления", icon: Save },
   { to: "/help", label: "Справка", icon: HelpCircle },
   { to: "/settings", label: "Настройки", icon: Settings },
