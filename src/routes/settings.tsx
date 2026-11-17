@@ -78,27 +78,24 @@ function Settings() {
   return (
     <div className="space-y-5 py-4">
       <h1 className="font-display text-xl font-bold">Настройки</h1>
-      <Button asChild variant="outline" className="h-14 w-full justify-start text-base"><Link to="/groups"><Tags />Группы сундуков<ChevronRight className="ml-auto" /></Link></Button>
+      <Button asChild variant="outline" className="h-auto min-h-14 w-full justify-start py-2 text-base"><Link to="/groups"><Tags /><span className="text-left">Группы сундуков<span className="block text-xs font-normal text-muted-foreground">папки для сундуков: «Сезонное», «Детское»…</span></span><ChevronRight className="ml-auto" /></Link></Button>
       <div className="flex items-center justify-between gap-3 border-b border-border py-3">
         <label htmlFor="sound-setting" className="font-medium">Звуки Розитты</label>
         <Switch id="sound-setting" checked={sounds} onCheckedChange={(on) => { setSounds(on); setSound(on); if (on) sfx.quack(); }} />
       </div>
       <details className="border-b border-border pb-4">
-      <summary className="cursor-pointer py-3 text-base font-semibold">Распознавание фото · ваш ИИ</summary>
+      <summary className="cursor-pointer py-3 text-base font-semibold">👁️ Глаза Розитты · распознавание фото</summary>
       <div className="space-y-5 pt-3">
       <p className="text-sm text-muted-foreground">
-        Выберите, кто будет смотреть на фото. Всё хранится только в этом браузере. Без настройки можно вставлять список из любого ИИ-чата.
+        Всё хранится только в этом браузере. Без настройки можно вставлять список из любого ИИ-чата.
       </p>
       <div className="grid grid-cols-2 gap-2">
-        {SERVICES.map((x) => (
-          <button key={x.id} type="button" onClick={() => setSvc(x.id)} className={`rounded-2xl border-2 bg-card p-3 text-sm font-medium ${svc === x.id ? "border-primary" : "border-transparent"}`}>
-            {x.id === "local" ? "Своя модель (LM Studio)" : x.name}
-          </button>
-        ))}
+        <button type="button" onClick={() => setSvc(guess?.id ?? (svc === "local" ? "cnc" : svc))} className={`rounded-2xl border-2 bg-card p-3 text-sm font-medium ${svc !== "local" ? "border-primary" : "border-transparent"}`}>☁️ Облачный ключ</button>
+        <button type="button" onClick={() => setSvc("local")} className={`rounded-2xl border-2 bg-card p-3 text-sm font-medium ${svc === "local" ? "border-primary" : "border-transparent"}`}>💻 Своя модель</button>
       </div>
       {svc === "local" ? (
         <div className="space-y-3 rounded-2xl bg-card p-4">
-          <p className="text-sm text-muted-foreground">Любой OpenAI-совместимый сервер. Модель должна понимать картинки.</p>
+          <p className="text-sm text-muted-foreground">LM Studio, Ollama или любой OpenAI-совместимый сервер. Модель должна понимать картинки.</p>
           <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://my-pc.tailnet.ts.net или http://192.168.1.10:1234" className="h-12" />
           <Input value={model} onChange={(e) => setM(e.target.value)} placeholder="Название модели (пусто — покажу список)" className="h-12" />
           {found.length > 0 && (
@@ -110,18 +107,32 @@ function Settings() {
         </div>
       ) : (
         <>
-          <Input value={key} onChange={(e) => setKey(e.target.value)} placeholder="Ключ сервиса" className="h-14 rounded-2xl text-base" />
-          <div className="rounded-2xl bg-card p-4 text-sm">
-            {s?.vpn ? "Из России может понадобиться VPN." : "Работает без VPN."}
-            {key && guess && guess.id !== svc && <> Похоже, это ключ от <b>{guess.name}</b> — <button className="underline" onClick={() => setSvc(guess.id)}>переключить</button>?</>}
+          <Input value={key} onChange={(e) => { const v = e.target.value; setKey(v); const g = detectService(v); if (g) setSvc(g.id); }} placeholder="Вставьте ключ" className="h-14 rounded-2xl text-base" />
+          <div className="space-y-2 rounded-2xl bg-card p-4 text-sm">
+            {key && !guess ? (
+              <>
+                <p>Не узнала сервис по ключу — подскажите, чей он:</p>
+                <div className="flex flex-wrap gap-2">
+                  {SERVICES.filter((x) => x.id !== "local").map((x) => <button key={x.id} type="button" onClick={() => setSvc(x.id)} className={chip(svc === x.id)}>{x.name}</button>)}
+                </div>
+              </>
+            ) : key ? (
+              <p>✅ {s?.name} · {s?.vpn ? "из России может понадобиться VPN" : "работает без VPN"}</p>
+            ) : (
+              <p className="text-muted-foreground">Подходят ключи Google Gemini, OpenRouter и Claude n Codex — сервис определится сам.</p>
+            )}
           </div>
-          <div className="space-y-2 rounded-2xl bg-card p-4">
-            <p className="text-sm font-medium">Модель</p>
-            <div className="flex flex-wrap gap-2">
-              {MODELS[svc].map((m) => <button key={m} type="button" onClick={() => setM(m)} className={chip(model === m)}>{m}</button>)}
-            </div>
-            <Input value={model} onChange={(e) => setM(e.target.value)} placeholder="или впишите своё название" className="h-11" />
-          </div>
+          {key && (
+            <details className="rounded-2xl bg-card p-4">
+              <summary className="cursor-pointer text-sm">Модель: <b>{model || MODELS[svc][0]}</b> · выбрать другую</summary>
+              <div className="mt-3 space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {MODELS[svc].map((m) => <button key={m} type="button" onClick={() => setM(m)} className={chip(model === m)}>{m}</button>)}
+                </div>
+                <Input value={model} onChange={(e) => setM(e.target.value)} placeholder="или впишите своё название" className="h-11" />
+              </div>
+            </details>
+          )}
         </>
       )}
       <Button className="h-14 w-full rounded-2xl text-base" disabled={busy || (svc === "local" ? !url : !key)} onClick={check}>
