@@ -95,6 +95,7 @@ function Stickers({ d }: { d: HouseholdData }) {
                 </button>
               ))}
             </div>
+            <p className="text-sm text-muted-foreground">Для маленьких термоэтикеток (40×30, 50×30) лучше «Простой» или «Фирменный». Изумрудный и шоколадный — для цветного принтера и наклеек покрупнее; сначала напечатайте одну пробную.</p>
           </div>
           <div className="space-y-2 rounded-2xl bg-card p-3">
             <p className="text-sm font-medium">Что на наклейке</p>

@@ -44,6 +44,7 @@ function BackupPage({ d, token }: { d: HouseholdData; token: string }) {
       const plan = await applyBackup(token, b, (n, t) => setProgress(`Раскладываю ${n} из ${t}…`), restoreDevice);
       await qc.invalidateQueries();
       toast.success(`Возвращено: сундуков ${plan.add.length}, заметок ${plan.notes.length}${plan.same ? `; уже были: ${plan.same}` : ""}`);
+      if (plan.skipped?.length) toast.warning(`Номера ${plan.skipped.join(", ")} заняты сундуками из корзины — эти сундуки не вернулись`);
     } catch (e) { toast.error((e as Error).message); } finally { setProgress(null); }
   };
 

@@ -81,8 +81,8 @@ export async function drawSticker(s: Sticker, wMm: number, hMm: number, style: S
   const band = Math.round(h * (small ? 0.3 : 0.26));
   // Small labels: QR takes the full height at the right, everything else sits to its left.
   const qrFull = small && !!s.url;
-  const qrSize0 = qrFull ? h - pad : 0;
-  const leftW = w - (qrFull ? qrSize0 + pad : 0);
+  const qrSize0 = qrFull ? h - Math.round(pad / 3) : 0;
+  const leftW = w - (qrFull ? qrSize0 + pad / 2 : 0);
   if (style === "brand") {
     x.fillStyle = s.color;
     x.fillRect(0, 0, leftW, band);
@@ -107,12 +107,12 @@ export async function drawSticker(s: Sticker, wMm: number, hMm: number, style: S
     const qr = await QRCode.toDataURL(s.url, { margin: 2, width: Math.round(qrSize * 2), errorCorrectionLevel: tone ? "H" : small ? "L" : "M", color: { dark: tone ? tone.ink : "#000000", light: tone ? tone.paper : "#ffffff" } });
     const img = await loadImg(qr);
     x.imageSmoothingEnabled = false;
-    if (qrFull) x.drawImage(img, w - qrSize - pad / 2, (h - qrSize) / 2, qrSize, qrSize);
+    if (qrFull) x.drawImage(img, w - qrSize - pad / 6, (h - qrSize) / 2, qrSize, qrSize);
     else x.drawImage(img, w - qrSize - pad / 2, top + (body - qrSize) / 2, qrSize, qrSize);
     x.imageSmoothingEnabled = true;
     if (tone) {
       // Level H tolerates ~30% loss; the seal covers ~5% of the code.
-      const qx = qrFull ? w - qrSize - pad / 2 : w - qrSize - pad / 2;
+      const qx = qrFull ? w - qrSize - pad / 6 : w - qrSize - pad / 2;
       const qy = qrFull ? (h - qrSize) / 2 : top + (body - qrSize) / 2;
       const seal = qrSize * 0.22, cx = qx + qrSize / 2, cy = qy + qrSize / 2;
       x.fillStyle = tone.paper;
@@ -188,13 +188,19 @@ export async function stickersPdf(list: Sticker[], f: Format, style: StickerStyl
 /** One PNG per sticker, at the label's own size (for label-printer apps). */
 export async function stickersPng(list: Sticker[], f: Format, style: StickerStyle = "brand", content: StickerContent = "number") {
   const [w, h] = f.id === "a4" ? [92, 62] : [f.w, f.h];
+  const save = (href: string, name: string) => { const a = document.createElement("a"); a.href = href; a.download = name; a.click(); };
+  if (list.length === 1) return save(await drawSticker(list[0]!, w, h, style, content), `sunduk-${list[0]!.number}.png`);
+  // Several labels: one ZIP, so iPhone Safari asks once instead of blocking a burst of downloads.
+  const { zipSync } = await import("fflate");
+  const files: Record<string, Uint8Array> = {};
   for (const s of list) {
-    const a = document.createElement("a");
-    a.href = await drawSticker(s, w, h, style, content);
-    a.download = `sunduk-${s.number}.png`;
-    a.click();
-    await new Promise((r) => setTimeout(r, 300));
+    const url = await drawSticker(s, w, h, style, content);
+    files[`sunduk-${s.number}.png`] = Uint8Array.from(atob(url.split(",")[1] ?? ""), (c) => c.charCodeAt(0));
   }
+  const blob = new Blob([zipSync(files, { level: 0 }) as BlobPart], { type: "application/zip" });
+  const href = URL.createObjectURL(blob);
+  save(href, "naklejki-sunduki.zip");
+  setTimeout(() => URL.revokeObjectURL(href), 10000);
 }
 
 /** Opens the PDF in a new tab and asks the browser to print it. */

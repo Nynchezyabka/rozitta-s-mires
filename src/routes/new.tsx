@@ -154,7 +154,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
         <div className="space-y-5">
           <h1 className="font-display text-2xl font-bold">Сфотографируйте</h1>
           <p className="rounded-2xl bg-card/90 p-3 text-base">
-            Снимите коробку, полку или вещи сверху при хорошем свете. Розитта сама поймёт, где книги, где лекарства, а где всё остальное. Сверить лекарства с <Link to="/settings" className="underline">профилем здоровья</Link> можно в «Аптечке».
+            Снимите коробку, полку или вещи сверху при хорошем свете. Розитта сама поймёт, где книги, где лекарства, а где всё остальное. Если заполнен <Link to="/settings" className="underline">профиль здоровья</Link>, лекарства получат метку 🟢🟡🔴.
           </p>
           {!aiReady && !pasting && (
             <p className="rounded-2xl bg-card p-3 text-sm">Своего ИИ пока нет — проще всего «Вставить список»: сфотографируйте в любом ИИ-чате и вставьте ответ.</p>

@@ -25,6 +25,15 @@ export function healthContext(h: Health): string {
   return parts.join("; ");
 }
 
+/** Extra line for the universal photo prompt: only when the profile has something, otherwise "". */
+export function healthCheckLine(h: Health): string {
+  const ctx = healthContext(h);
+  if (!ctx) return "";
+  const sensitive = h.flags.some((f) => f === "pregnant" || f === "breastfeeding" || f === "kids");
+  const green = sensitive ? "🟢 нет известных запретов, уточните у врача или фармацевта" : "🟢 нет известных запретов по инструкции";
+  return ` Если среди вещей есть лекарства, проверь каждое на совместимость с: ${ctx}. В конце строки лекарства поставь метку: ${green}, 🟡 с осторожностью/по назначению врача, 🔴 нельзя — и в двух-трёх словах почему.`;
+}
+
 export function medsPrompt(h: Health, forPaste: boolean): string {
   const ctx = healthContext(h);
   const sensitive = h.flags.some((f) => f === "pregnant" || f === "breastfeeding" || f === "kids");

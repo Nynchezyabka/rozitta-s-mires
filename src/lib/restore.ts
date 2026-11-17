@@ -1,4 +1,4 @@
-import { getHousehold, saveBox, saveGroup, saveNote, type HouseholdData } from "./store";
+import { getHousehold, restoreBox, saveBox, saveGroup, saveNote, type HouseholdData } from "./store";
 import { DEVICE_KEYS } from "./backup";
 
 export type Backup = {
@@ -10,7 +10,7 @@ export type Backup = {
   device?: Record<string, string>;
 };
 
-export type RestorePlan = { add: Backup["boxes"]; same: number; conflicts: number[]; notes: Backup["notes"] };
+export type RestorePlan = { add: Backup["boxes"]; same: number; conflicts: number[]; notes: Backup["notes"]; skipped?: number[] };
 
 /** What a restore will do: boxes already here (same id) are skipped; a number taken by another chest is a conflict. */
 export function planRestore(cur: Pick<HouseholdData, "boxes" | "notes">, b: Backup): RestorePlan {
@@ -45,7 +45,14 @@ export function parseBackup(text: string): Backup {
 
 /** Возвращает сундуки из копии с прежними номерами и id (старые QR работают). Повтор не создаёт дублей. Ничего существующего не удаляет. */
 export async function applyBackup(token: string, b: Backup, onStep?: (done: number, total: number) => void, withDevice = false) {
-  const cur = await getHousehold({ data: { token } });
+  let cur = await getHousehold({ data: { token } });
+  // Chests from the copy that sit in this home's trash come back out of it first (no-op for unknown ids).
+  const here = new Set(cur.boxes.map((x) => x.id));
+  const missing = b.boxes.filter((x) => !here.has(x.id));
+  if (missing.length) {
+    await Promise.all(missing.map((x) => restoreBox({ data: { token, id: x.id } }).catch(() => undefined)));
+    cur = await getHousehold({ data: { token } });
+  }
   const plan = planRestore(cur, b);
   if (plan.conflicts.length) throw new Error(`Номера ${plan.conflicts.join(", ")} уже заняты в этом доме другими сундуками — восстановление не начато`);
   const have = new Set(cur.groups.map((g) => g.name.toLowerCase()));
@@ -54,17 +61,19 @@ export async function applyBackup(token: string, b: Backup, onStep?: (done: numb
   const byName = Object.fromEntries(fresh.groups.map((g) => [g.name.toLowerCase(), g.id]));
   const total = plan.add.length + plan.notes.length;
   let done = 0;
+  const skipped: number[] = [];
   for (const box of [...plan.add].sort((x, y) => x.number - y.number)) {
     const gname = box.group_id ? b.groupNames[box.group_id] : undefined;
-    await saveBox({ data: {
+    // A number can still be held by a different chest in the trash: skip it, keep going, report at the end.
+    try { await saveBox({ data: {
       token, id: box.id, number: box.number, restore: true,
       group_id: gname ? byName[gname.toLowerCase()] ?? null : null, ...(box.note ? { note: box.note } : {}), decide_by: box.decide_by,
       kid_size: box.kid_size, kid_season: box.kid_season, location: box.location,
       items: b.items.filter((i) => i.box_id === box.id).map(({ name, kind, author, needs_review }) => ({ name, kind, author, needs_review })),
-    } });
+    } }); } catch (e) { if (/занят/.test((e as Error).message)) skipped.push(box.number); else throw e; }
     onStep?.(++done, total);
   }
   for (const n of plan.notes) { await saveNote({ data: { token, title: n.title, body: n.body } }); onStep?.(++done, total); }
   if (withDevice && b.device) for (const [k, v] of Object.entries(b.device)) localStorage.setItem(k, v);
-  return plan;
+  return { ...plan, add: plan.add.filter((x) => !skipped.includes(x.number)), skipped };
 }

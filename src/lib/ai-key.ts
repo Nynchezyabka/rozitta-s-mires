@@ -1,5 +1,5 @@
 /** Own AI key: stored only in this browser; photos go straight from the browser to the chosen service. */
-import { getHealth, medsPrompt } from "./health";
+import { getHealth, healthCheckLine, medsPrompt } from "./health";
 const KEY = "korobki-ai-key";
 const MODEL_KEY = "korobki-ai-model";
 
@@ -123,7 +123,7 @@ export function buildPrompt(mode: "box" | "books" | "meds", groupNames: string[]
       ? medsPrompt(getHealth(), false)
       : mode === "books"
       ? `На фото обложки или корешки книг. Для каждой книги верни название (name) и автора (author). Если не уверен — needs_review: true. Старые книги без ISBN часто читаются плохо — тогда тоже needs_review: true.`
-      : `На фото могут быть любые вещи: содержимое коробки или шкафа, книги, лекарства. Перечисли всё коротко по-русски (name), объединяя однотипные ("Полотенца, 4 шт"). Для книги укажи автора (author), если читается. Для лекарства добавь к названию коротко, от чего оно ("Нурофен — от боли и жара"). Не больше 25 пунктов. needs_review: true, если вещь видна плохо.`;
+      : `На фото могут быть любые вещи: содержимое коробки или шкафа, книги, лекарства. Перечисли всё коротко по-русски (name), объединяя однотипные ("Полотенца, 4 шт"). Для книги укажи автора (author), если читается. Для лекарства добавь к названию коротко, от чего оно ("Нурофен — от боли и жара"). Не больше 25 пунктов. needs_review: true, если вещь видна плохо.${healthCheckLine(getHealth())}`;
   return `${task}
 Предложи одну группу из списка: ${groupNames.join(", ")}. Если не подходит ни одна — "Тайничок на потом" (или "Решить позже").
 Верни только JSON без пояснений: {"items":[{"name":"...","author":null,"needs_review":false}],"group":"..."}`;
