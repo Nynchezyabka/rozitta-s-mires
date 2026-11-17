@@ -91,7 +91,7 @@ function Settings() {
       </p>
       <div className="grid grid-cols-2 gap-2">
         <button type="button" onClick={() => setSvc(guess?.id ?? (svc === "local" ? "cnc" : svc))} className={`rounded-2xl border-2 bg-card p-3 text-sm font-medium ${svc !== "local" ? "border-primary" : "border-transparent"}`}>☁️ Облачный ключ</button>
-        <button type="button" onClick={() => setSvc("local")} className={`rounded-2xl border-2 bg-card p-3 text-sm font-medium ${svc === "local" ? "border-primary" : "border-transparent"}`}>💻 Своя модель</button>
+        <button type="button" onClick={() => setSvc("local")} className={`rounded-2xl border-2 bg-card p-3 text-sm font-medium ${svc === "local" ? "border-primary" : "border-transparent"}`}>💻 Локальная модель</button>
       </div>
       {svc === "local" ? (
         <div className="space-y-3 rounded-2xl bg-card p-4">
