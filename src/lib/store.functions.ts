@@ -72,3 +72,22 @@ function extractText(res: unknown): string {
   for (const o of r.output ?? []) for (const c of o.content ?? []) if (c.type === "output_text" && c.text) return c.text;
   return "{}";
 }
+
+export const categorizeItems = createServerFn({ method: "POST" })
+  .inputValidator((i: Tok & { names: string[]; known: string[] }) => ({ ...tok(i), names: i.names.slice(0, 150).map(String), known: i.known.slice(0, 60).map(String) }))
+  .handler(async ({ data }): Promise<Record<string, string>> => {
+    await householdFor(data.token);
+    const { categorizePrompt, parseCategories } = await import("./ai-key");
+    const { generateResponse } = await import("@lovable.dev/ai-gateway");
+    try {
+      const res = await generateResponse({
+        model: "openai/gpt-6-astra",
+        input: [{ role: "user", content: [{ type: "input_text", text: categorizePrompt(data.names, data.known) }] }],
+        text: { format: { type: "json_object" } },
+      });
+      return parseCategories(extractText(res), data.names);
+    } catch (e) {
+      console.error("categorize failed", e);
+      throw new Error("Не получилось подобрать категории. Попробуйте позже.");
+    }
+  });

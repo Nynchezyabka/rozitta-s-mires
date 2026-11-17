@@ -26,7 +26,7 @@ export function ItemsEditor({ items, onChange }: { items: EditItem[]; onChange: 
           )}
           <label className="ml-8 mt-1 flex w-[calc(100%-2rem)] items-center gap-2">
             <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tagColor(normTag(it.category) ?? "—") , opacity: it.category ? 1 : 0.3 }} aria-hidden />
-            <Input value={it.category ?? ""} onChange={(e) => set(i, { category: e.target.value || null })} placeholder="метка подберётся сама по названию" aria-label="Метка вещи" className="h-8 border-0 bg-muted/60 text-sm shadow-none" />
+            <Input value={it.category ?? ""} onChange={(e) => set(i, { category: e.target.value || null })} placeholder="Категория" aria-label="Метка вещи" className="h-8 border-0 bg-muted/60 text-sm shadow-none" />
           </label>
           {it.needs_review && (
             <button onClick={() => set(i, { needs_review: false })} className="ml-8 mt-1 rounded-full bg-warning/40 px-2.5 py-0.5 text-xs">

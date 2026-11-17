@@ -199,3 +199,25 @@ export async function recognizeWithKey(key: string, photo: string, mode: "box" |
     group: typeof p.group === "string" ? p.group : null,
   };
 }
+
+export const categorizePrompt = (names: string[], known: string[]) => `Разложи домашние вещи по категориям. Категория — 1–2 слова по-русски с большой буквы ("Одежда", "Декор", "Оптика"). ${known.length ? `Если подходит одна из уже существующих категорий (${known.join(", ")}), используй её.` : ""}
+Вещи:
+${names.map((n, i) => `${i + 1}. ${n}`).join("\n")}
+Верни только JSON: {"items":[{"name":"...","category":"..."}]} — в том же порядке, по одной записи на каждую вещь.`;
+
+export function parseCategories(text: string, names: string[]): Record<string, string> {
+  const t = stripThinking(text);
+  const block = t.match(/```(?:json)?\s*([\s\S]*?)```/)?.[1] ?? t;
+  const p = JSON.parse(block.match(/\{[\s\S]*\}/)?.[0] ?? "{}") as { items?: { name?: string; category?: string }[] };
+  const out: Record<string, string> = {};
+  (p.items ?? []).forEach((x, i) => {
+    const c = typeof x?.category === "string" ? x.category.trim() : "";
+    const n = names.includes(x?.name ?? "") ? (x.name as string) : names[i];
+    if (c && n) out[n] = c;
+  });
+  return out;
+}
+
+export async function categorizeWithKey(key: string, names: string[], known: string[]) {
+  return parseCategories(await call(key, categorizePrompt(names, known)), names);
+}

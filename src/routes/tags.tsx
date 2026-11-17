@@ -6,6 +6,8 @@ import type { HouseholdData } from "@/lib/store";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { saveBox } from "@/lib/store";
+import { categorizeItems } from "@/lib/store.functions";
+import { categorizeWithKey, getAiKey, isAiConfigured } from "@/lib/ai-key";
 import { suggestTag, autoTagColor, normTag, setTagColor, TAG_COLORS, tagColor, tagCounts } from "@/lib/tags";
 
 const T = "Вещи дома · Топи Розитты";
@@ -21,20 +23,32 @@ export const Route = createFileRoute("/tags")({
 function Tags({ d, token }: { d: HouseholdData; token: string }) {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
-  const guessable = d.items.filter((i) => !normTag(i.category) && (suggestTag(i.name) || i.kind === "book"));
-  /** Fills empty tags in every chest from the thing's name; other fields are saved unchanged. */
+  const untagged = d.items.filter((i) => !normTag(i.category));
+  /** Dictionary first, then AI (own key or built-in) for the rest; saves every touched chest. */
   const autoTag = async () => {
     setBusy(true);
     try {
-      const ids = [...new Set(guessable.map((i) => i.box_id))];
+      const found: Record<string, string> = {};
+      for (const i of untagged) { const g = suggestTag(i.name) ?? (i.kind === "book" ? "Книги" : null); if (g) found[i.name] = g; }
+      const rest = [...new Set(untagged.filter((i) => !found[i.name]).map((i) => i.name))];
+      if (rest.length) {
+        const known = tagCounts(d.items).map((c) => c.tag);
+        try {
+          const ai = isAiConfigured() ? await categorizeWithKey(getAiKey(), rest, known) : await categorizeItems({ data: { token, names: rest, known } });
+          for (const [n, c] of Object.entries(ai)) { const t = normTag(c); if (t) found[n] = t; }
+        } catch (e) { toast.error((e as Error).message); }
+      }
+      const ids = [...new Set(untagged.filter((i) => found[i.name]).map((i) => i.box_id))];
       for (const id of ids) {
         const b = d.boxes.find((x) => x.id === id);
         if (!b) continue;
-        const items = d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind, author: i.author, needs_review: i.needs_review, category: normTag(i.category) ?? suggestTag(i.name) ?? (i.kind === "book" ? "Книги" : null) }));
+        const items = d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind, author: i.author, needs_review: i.needs_review, category: normTag(i.category) ?? found[i.name] ?? null }));
         await saveBox({ data: { token, id, group_id: b.group_id, note: b.note ?? "", decide_by: b.decide_by, kid_size: b.kid_size, kid_season: b.kid_season, location: b.location, photos: b.photo_paths, items } });
       }
       await qc.invalidateQueries({ queryKey: ["household", token] });
-      toast.success(`🪄 Категории подобраны: ${guessable.length}`);
+      const n = untagged.filter((i) => found[i.name]).length;
+      if (n) toast.success(`🪄 Разложено по категориям: ${n} из ${untagged.length}`);
+      else toast.error("Не удалось подобрать категории — выберите вручную");
     } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
   };
   const cloud = useMemo(() => tagCounts(d.items), [d.items]);
@@ -51,7 +65,6 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
   const sel = open ?? ALL;
   const things = (sel === ALL ? d.items : sel === NONE ? d.items.filter((i) => !normTag(i.category)) : d.items.filter((i) => normTag(i.category)?.toLowerCase() === sel.toLowerCase()))
     .slice().sort((a, b) => a.name.localeCompare(b.name, "ru"));
-  const untagged = d.items.filter((i) => !normTag(i.category)).length;
   /** Sets one thing's tag by re-saving its chest with everything else unchanged. */
   const setTag = async (itemId: string, tag: string) => {
     const it = d.items.find((i) => i.id === itemId); const b = it && d.boxes.find((x) => x.id === it.box_id);
@@ -82,15 +95,15 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
               {tag} · {count}
             </button>
           ))}
-          {untagged > 0 && (
+          {untagged.length > 0 && (
             <button type="button" onClick={() => setOpen(NONE)} aria-pressed={sel === NONE}
               className={`rounded-full border-2 border-dashed border-muted-foreground px-3 py-1 text-sm font-semibold ${sel === NONE ? "ring-2 ring-foreground ring-offset-2 ring-offset-card" : ""}`}>
-              ❔ Без категории · {untagged}
+              ❔ Без категории · {untagged.length}
             </button>
           )}
         </div>
       )}
-      {guessable.length > 0 && <Button className="h-11 w-full" disabled={busy} onClick={autoTag}>🪄 {busy ? "Расставляю…" : `Подобрать категории сама (${guessable.length})`}</Button>}
+      {untagged.length > 0 && <Button className="h-11 w-full" disabled={busy} onClick={autoTag}>🪄 {busy ? "Расставляю…" : `Разложить по категориям с ИИ (${untagged.length})`}</Button>}
 
       {d.items.length > 0 && (
         <section className="space-y-3">
