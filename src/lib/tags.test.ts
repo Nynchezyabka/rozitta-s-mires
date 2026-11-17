@@ -15,3 +15,13 @@ describe("tags", () => {
       .toEqual([{ tag: "Кухня", count: 2 }, { tag: "Аквариум", count: 1 }]);
   });
 });
+
+import { suggestTag } from "./tags";
+describe("suggestTag", () => {
+  it("guesses tags from names", () => {
+    expect(suggestTag("Зарядка для телефона")).toBe("Электроника");
+    expect(suggestTag("Губка для посуды")).toBe("Уборка");
+    expect(suggestTag("Пластинки Битлз")).toBe("Музыка");
+    expect(suggestTag("Нечто странное")).toBeNull();
+  });
+});
