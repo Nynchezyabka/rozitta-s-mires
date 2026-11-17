@@ -1,13 +1,13 @@
 /** "Вставить список": turn text copied from any AI chat into items. Pure, no network. */
 export type PastedItem = { name: string; author: string | null };
 
-import { getHealth, medsPrompt } from "./health";
+import { getHealth, healthCheckLine, medsPrompt } from "./health";
 
 export function pastePrompt(mode: "box" | "books" | "meds") {
   if (mode === "meds") return medsPrompt(getHealth(), true);
   return mode === "books"
     ? 'Перечисли книги на фото. Для каждой книги напиши "Название — Автор", по одной на строку, без нумерации и пояснений.'
-    : 'Перечисли вещи на фото коротко по-русски, по одной на строку, без нумерации и пояснений. Однотипные объединяй: "Полотенца, 4 шт". Книгу пиши как "Название (Автор)", лекарство — "Название — от чего". Не больше 25 строк.';
+    : 'Перечисли вещи на фото коротко по-русски, по одной на строку, без нумерации и пояснений. Однотипные объединяй: "Полотенца, 4 шт". Книгу пиши как "Название (Автор)", лекарство — "Название — от чего". Не больше 25 строк.' + healthCheckLine(getHealth());
 }
 
 /** Chat chatter around the list: "Вот список вещей:", "Если нужно, могу…", "Надеюсь, помог!". */
