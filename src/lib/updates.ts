@@ -1,6 +1,6 @@
 /** Обновления и напоминания о копии. Без service worker: свежая версия приходит при перезагрузке страницы. */
 import { CHANGELOG } from "./changelog";
-export const APP_VERSION = CHANGELOG[0].version;
+export const APP_VERSION = CHANGELOG[0]?.version ?? "1.6.0";
 
 function isPreview(): boolean {
   if (!import.meta.env.PROD) return true;
