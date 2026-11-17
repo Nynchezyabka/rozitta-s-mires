@@ -113,7 +113,7 @@ function Home({ d }: { d: HouseholdData }) {
         </div>
       )}
 
-      <section className="grid grid-cols-2 gap-3">
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
         {boxes.map((b) => {
           const g = gmap[b.group_id ?? ""];
           const its = itemsByBox[b.id] ?? [];

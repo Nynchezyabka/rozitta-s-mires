@@ -1,7 +1,7 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Plus, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save } from "lucide-react";
+import { Home, Plus, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,7 @@ function MoreMenu() {
         <DropdownMenuItem asChild><Link to="/grimoire"><BookOpen className="mr-2 h-4 w-4" />Гримуар</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/stickers"><Printer className="mr-2 h-4 w-4" />Наклейки</Link></DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Хранители ключей</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Подключить телефон</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/backup"><Save className="mr-2 h-4 w-4" />Копия и обновления</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/help"><HelpCircle className="mr-2 h-4 w-4" />Справка</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/settings"><Settings className="mr-2 h-4 w-4" />Настройки</Link></DropdownMenuItem>
@@ -107,6 +107,52 @@ const nav = [
   
 ] as const;
 
+const more = [
+  { to: "/garden", label: "Таинственный сад", icon: Sprout },
+  { to: "/grimoire", label: "Гримуар", icon: BookOpen },
+  { to: "/stickers", label: "Наклейки", icon: Printer },
+  { to: "/family", label: "Подключить телефон", icon: Users },
+  { to: "/backup", label: "Копия и обновления", icon: Save },
+  { to: "/help", label: "Справка", icon: HelpCircle },
+  { to: "/settings", label: "Настройки", icon: Settings },
+] as const;
+
+function BackButton() {
+  const router = useRouter();
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  if (path === "/" || path === "/new" || path === "/house") return null;
+  return (
+    <button
+      aria-label="Назад"
+      className="shrink-0 rounded-full bg-secondary p-2 text-secondary-foreground"
+      onClick={() => (window.history.length > 1 ? router.history.back() : router.navigate({ to: "/" }))}
+    >
+      <ArrowLeft className="h-5 w-5" />
+    </button>
+  );
+}
+
+function SideNav() {
+  const link = "flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-secondary";
+  const active = { className: "bg-secondary text-primary font-semibold" };
+  return (
+    <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 flex-col gap-1 overflow-y-auto border-r-2 border-primary/40 bg-card p-4 lg:flex">
+      <Link to="/" className="mb-4 flex items-center gap-2">
+        <img src={rozitta} alt="Розитта" className="pixel bob h-10 w-10" />
+        <span className="font-display text-[11px] text-primary">Топи Розитты</span>
+      </Link>
+      {nav.map(({ to, label, icon: Icon }) => (
+        <Link key={to} to={to} activeOptions={{ exact: true }} className={link} activeProps={active}><Icon className="h-5 w-5" />{label}</Link>
+      ))}
+      <div className="my-2 border-t border-primary/30" />
+      {more.map(({ to, label, icon: Icon }) => (
+        <Link key={to} to={to} className={link} activeProps={active}><Icon className="h-4 w-4" />{label}</Link>
+      ))}
+      <p className="mt-auto pt-4 text-[10px] text-muted-foreground">версия {APP_VERSION}</p>
+    </aside>
+  );
+}
+
 export function AppShell({ children, garden = false }: { children: (d: NonNullable<ReturnType<typeof useHousehold>["data"]>, token: string) => ReactNode; garden?: boolean }) {
   const { token, data, isLoading, error } = useHousehold();
   const boxes = data?.boxes.length;
@@ -114,25 +160,31 @@ export function AppShell({ children, garden = false }: { children: (d: NonNullab
   if (token === undefined) return <div className="min-h-screen" />;
   if (!token) return <Welcome foreignBox={window.location.pathname.startsWith("/box/")} />;
   return (
-    <div className={`mx-auto min-h-screen max-w-2xl pb-28 ${garden ? "garden-shell" : ""}`}>
+    <>
+    <SideNav />
+    <div className={`mx-auto min-h-screen max-w-2xl pb-28 lg:ml-60 lg:mr-0 lg:max-w-none lg:pb-10 ${garden ? "garden-shell" : ""}`}>
       <header className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 bg-background/90 px-4 py-2 backdrop-blur">
-        <Link to="/" className="flex min-w-0 items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+        <BackButton />
+        <Link to="/" className="flex min-w-0 items-center gap-2 lg:hidden">
           <img src={rozitta} alt="Розитта" className="pixel bob h-10 w-10 shrink-0" />
           <span className="flex min-w-0 flex-col leading-tight"><span className="truncate font-display text-[11px] text-primary">Топи Розитты</span>{data?.household.name && <span className="truncate text-[11px] text-muted-foreground">{data.household.name}</span>}</span>
         </Link>
+        {data?.household.name && <span className="hidden truncate text-sm text-muted-foreground lg:inline">{data.household.name}</span>}
+        </div>
         <div className="flex items-center gap-2">
           <QrScanner />
           <SessionTimer />
-          <MoreMenu />
+          <span className="lg:hidden"><MoreMenu /></span>
         </div>
       </header>
-      <main className="relative z-[1] px-4">
+      <main className={`relative z-[1] mx-auto px-4 ${garden ? "max-w-2xl" : "lg:max-w-6xl lg:px-8"}`}>
         {isLoading && <p className="py-10 text-center text-muted-foreground">Загружаю…</p>}
         {error && <p className="py-10 text-center text-destructive">{(error as Error).message}</p>}
         {data && children(data, token)}
       </main>
       {!garden && <SwampDecor />}
-      <nav aria-label="Основные разделы" className="fixed inset-x-0 bottom-0 z-10 border-t bg-card rounded-t-3xl border-t-2 border-primary/60 shadow-[0_-6px_24px_-6px_var(--primary)]">
+      <nav aria-label="Основные разделы" className="fixed inset-x-0 bottom-0 z-10 lg:hidden border-t bg-card rounded-t-3xl border-t-2 border-primary/60 shadow-[0_-6px_24px_-6px_var(--primary)]">
         <div className="mx-auto flex max-w-2xl justify-around py-2">
           {nav.map(({ to, label, icon: Icon }) => (
             <Link
@@ -149,5 +201,6 @@ export function AppShell({ children, garden = false }: { children: (d: NonNullab
         </div>
       </nav>
     </div>
+    </>
   );
 }

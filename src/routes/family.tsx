@@ -33,10 +33,15 @@ function Family({ d, token }: { d: HouseholdData; token: string }) {
   }, [link]);
   return (
     <div className="space-y-5 pt-2">
-      <h1 className="font-display text-2xl font-bold">Хранители ключей</h1>
+      <h1 className="font-display text-2xl font-bold">Подключить телефон</h1>
+      <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
+        <li>На втором телефоне откройте камеру.</li>
+        <li>Наведите её на этот код и откройте ссылку.</li>
+        <li>Готово — там тот же дом, сундуки общие.</li>
+      </ol>
       <div className="space-y-3 rounded-3xl bg-card p-5 text-center">
         <p className="font-semibold">Наведите камеру телефона на код</p>
-        {qr && <img src={qr} alt="QR-код приглашения" className="mx-auto w-56 rounded-xl" />}
+        {qr && <img src={qr} alt="QR-код приглашения" className="mx-auto w-64 rounded-xl bg-white p-2 sm:w-72" />}
         <p className="text-sm text-muted-foreground">Каждый, у кого есть этот код или ссылка, видит и меняет все сундуки. Не публикуйте его.</p>
         <Button
           variant="outline"
@@ -51,6 +56,7 @@ function Family({ d, token }: { d: HouseholdData; token: string }) {
         >
           Отправить ссылку
         </Button>
+        <Button variant="ghost" className="w-full" onClick={async () => { await navigator.clipboard.writeText(link); toast.success("Ссылка скопирована"); }}>Скопировать ссылку</Button>
       </div>
       <div className="space-y-2">
         <p className="text-sm font-medium">Название дома</p>
