@@ -3,6 +3,8 @@ import { normSearch, matchesAll } from "@/lib/search";
 import { DueBadge, LocationPath } from "@/components/BoxBits";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useQueries } from "@tanstack/react-query";
+import { householdQuery, setToken, useHouses, useToken } from "@/lib/household";
 import { Search, Plus, AlertCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { GroupChip } from "@/components/GroupChip";
@@ -42,6 +44,16 @@ function Home({ d }: { d: HouseholdData }) {
     if (!query) return true;
     return String(b.number) === query || matchesAll(`${b.note ?? ""} ${b.kid_size ?? ""} ${b.kid_season ?? ""} ${b.location ?? ""} ${gmap[b.group_id ?? ""]?.name ?? ""}`, query);
   });
+  const token = useToken();
+  const others = useHouses().filter((t) => t !== token);
+  const otherData = useQueries({ queries: others.map((t) => ({ ...householdQuery(t), staleTime: 60_000 })) });
+  const otherHits = query ? otherData.flatMap((r, i) => {
+    const od = r.data;
+    if (!od) return [];
+    const bx = Object.fromEntries(od.boxes.map((b) => [b.id, b]));
+    return od.items.filter((it) => bx[it.box_id] && matchesAll(`${it.name} ${it.author ?? ""} ${it.category ?? ""}`, query))
+      .map((it) => ({ it, b: bx[it.box_id]!, house: od.household.name, t: others[i]! }));
+  }) : [];
   const boxById = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
   const today = new Date().toISOString().slice(0, 10);
   const overdue = d.boxes.filter((b) => b.decide_by && b.decide_by <= today);
@@ -74,6 +86,16 @@ function Home({ d }: { d: HouseholdData }) {
               </Link>
             );
           })}
+          {otherHits.length > 0 && <h2 className="pt-2 text-sm font-semibold text-muted-foreground">В других домах: {otherHits.length}</h2>}
+          {otherHits.slice(0, 30).map(({ it, b, house, t }) => (
+            <Link key={it.id} to="/box/$id" params={{ id: it.box_id }} onClick={() => setToken(t)} className="flex items-center justify-between rounded-2xl border border-dashed border-primary/40 bg-card p-3">
+              <span>{it.name}<span className="block text-xs text-accent">🏠 {house}</span></span>
+              <span className="ml-2 shrink-0 text-right">
+                <span className="block font-display text-lg font-bold">№{b.number}</span>
+                {b.location && <span className="block max-w-40 truncate text-xs text-muted-foreground">📍 {b.location}</span>}
+              </span>
+            </Link>
+          ))}
           {hits.length > 30 && <p className="text-center text-sm text-muted-foreground">Показаны первые 30 из {hits.length} — уточните запрос</p>}
         </section>
       )}
