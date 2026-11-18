@@ -30,7 +30,7 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
     setBusy(true);
     try {
       const found: Record<string, string> = {};
-      for (const i of untagged) { const g = suggestTag(i.name) ?? (i.kind === "book" ? "Книги" : null); if (g) found[i.name] = g; }
+      for (const i of untagged) { const g = i.kind === "book" ? null : suggestTag(i.name); if (g) found[i.name] = g; }
       const rest = [...new Set(untagged.filter((i) => !found[i.name]).map((i) => i.name))];
       if (rest.length) {
         const known = tagCounts(d.items).map((c) => c.tag);
