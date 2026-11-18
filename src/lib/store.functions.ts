@@ -31,13 +31,16 @@ export const recognizePhoto = createServerFn({ method: "POST" })
     const { db, household } = await householdFor(data.token);
     const { data: groups } = await db.from("groups").select("name").eq("household_id", household.id);
     const names = (groups ?? []).map((g) => g.name).join(", ");
+    const { data: tagRows } = await db.from("items").select("category, boxes!inner(household_id)").eq("boxes.household_id", household.id).not("category", "is", null).limit(2000);
+    const tags = [...new Set((tagRows ?? []).map((r) => (r as { category: string | null }).category?.trim()).filter((x): x is string => !!x))].slice(0, 60);
+    const tagHint = tags.length ? ` Сначала выбирай из уже существующих меток дома: ${tags.join(", ")}. Новую — только если ни одна не подходит.` : "";
     const { generateResponse } = await import("@lovable.dev/ai-gateway");
     const task =
       data.mode === "books"
         ? `На фото обложки или корешки книг. Для каждой книги верни название (name) и автора (author). Если не уверен в названии или авторе — поставь needs_review: true. Старые книги без ISBN часто читаются плохо — тогда тоже needs_review: true.`
         : `На фото могут быть любые вещи: содержимое коробки или шкафа, книги, лекарства. Перечисли всё коротко по-русски (name), объединяя однотипные ("Полотенца, 4 шт"). Для книги укажи автора (author), если читается. Для лекарства добавь к названию коротко, от чего оно ("Нурофен — от боли и жара"). Не больше 25 пунктов. needs_review: true, если вещь видна плохо.`;
     const prompt = `${task}
-Каждой вещи дай метку category: 1–2 слова, к чему она относится (например "Электроника", "Аквариум", "Косметика"). Подойдёт любая тема.
+Каждой вещи дай метку category: 1–2 слова, к чему она относится (например "Электроника", "Аквариум", "Косметика"). Подойдёт любая тема.${tagHint}
 group — общая группа для всего фото. Если подходит одна из групп дома (${names}), напиши её. Если нет — придумай короткое название новой группы. Если вещи совсем разные — "Разное".
 Верни только JSON: {"items":[{"name":"...","category":"...","author":null,"needs_review":false}],"group":"..."}`;
     try {

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { compressImage, type HouseholdData } from "@/lib/household";
 import { saveBox } from "@/lib/store";
 import { recognizePhoto } from "@/lib/store.functions";
+import { knownTags } from "@/lib/tags";
 import { matchGroup, GROUP_COLORS } from "@/lib/defaults";
 import { normTag } from "@/lib/tags";
 import { suggestIcons } from "@/lib/icons";
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/new")({
 function Steps({ n }: { n: number }) {
   return (
     <div className="flex gap-1.5 py-2">
-      {[1, 2, 3].map((i) => (
+      {[1, 2, 3, 4].map((i) => (
         <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= n ? "bg-primary" : "bg-muted"}`} />
       ))}
     </div>
@@ -134,7 +135,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       setPhotos((p) => (p.length < MAX_PHOTOS ? [...p, img] : p));
       const key = getAiKey();
       const r = isAiConfigured()
-        ? await recognizeWithKey(key, img, mode, d.groups.map((g) => g.name))
+        ? await recognizeWithKey(key, img, mode, d.groups.map((g) => g.name), knownTags(d.items))
         : await recognizePhoto({ data: { token, photo: img, mode } });
       const found = r.items.map((x) => ({ name: x.name, author: x.author ?? null, needs_review: !!x.needs_review, kind: x.author ? "book" : "item", category: normTag(x.category) ?? suggestTag(x.name) }) as EditItem);
       setItems((prev) => {
@@ -242,6 +243,19 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       )}
       {step === 3 && (
         <div className="space-y-4">
+          <h1 className="font-display text-2xl font-bold">Где стоит?</h1>
+          <p className="text-sm text-muted-foreground">Можно путём: Спальня / Шкаф / Полка 3</p>
+          <LocationInput value={place} onChange={setPlace} known={d.boxes.map((b) => b.location)} />
+          <Button className="h-14 w-full rounded-2xl text-base" onClick={() => setStep(4)}>
+            Дальше
+          </Button>
+          <button className="w-full text-sm text-muted-foreground" onClick={() => setStep(2)}>
+            ← назад к списку
+          </button>
+        </div>
+      )}
+      {step === 4 && (
+        <div className="space-y-4">
           <h1 className="font-display text-2xl font-bold">Какая группа?</h1>
           {newGroup ? (
             <div className="space-y-2 rounded-2xl bg-card p-3">
@@ -252,18 +266,15 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />
           <CreateGroup groups={d.groups} token={token} onCreated={setGroupId} />
           {isKids(group) && <KidsPicker size={kidSize} season={kidSeason} onSize={setKidSize} onSeason={setKidSeason} />}
-        <h2 className="pt-2 font-semibold">Где стоит</h2>
-        <p className="text-xs text-muted-foreground">Можно путём: Спальня / Шкаф / Полка 3</p>
-        <LocationInput value={place} onChange={setPlace} known={d.boxes.map((b) => b.location)} />
-          <label className="block space-y-1">
-              <span className="text-sm font-medium">{isLater(group) ? "Решить до" : "Срок годности / пересмотреть до (необязательно)"}</span>
-              <Input type="date" value={decideBy} onChange={(e) => setDecideBy(e.target.value)} className="h-12" />
-            </label>
+          <details className="rounded-2xl bg-card p-3" open={isLater(group) || !!decideBy}>
+            <summary className="cursor-pointer text-sm font-medium">{isLater(group) ? "Решить до" : "Срок (необязательно)"}</summary>
+            <Input type="date" value={decideBy} onChange={(e) => setDecideBy(e.target.value)} className="mt-2 h-12" />
+          </details>
           <Button className="h-14 w-full rounded-2xl text-base" disabled={busy} onClick={save}>
             {busy ? "Сохраняю…" : "Запереть сундучок"}
           </Button>
           <button className="w-full text-sm text-muted-foreground" onClick={() => setStep(2)}>
-            ← назад к списку
+            ← назад к месту
           </button>
         </div>
       )}

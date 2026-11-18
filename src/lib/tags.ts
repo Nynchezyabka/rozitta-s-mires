@@ -83,3 +83,8 @@ const TAG_ICONS: Record<string, string> = {
 };
 /** Emoji for a tag; a little crystal for anything unknown. */
 export const tagIcon = (tag: string) => TAG_ICONS[tag.toLowerCase().replace(/ё/g, "е")] ?? "🔮";
+
+/** Existing tags, most used first, for AI prompts. */
+export function knownTags(items: { category?: string | null }[], max = 60): string[] {
+  return tagCounts(items).slice(0, max).map((t) => t.tag);
+}

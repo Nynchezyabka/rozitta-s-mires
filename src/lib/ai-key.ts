@@ -130,7 +130,9 @@ export const TAG_LINE = 'Каждой вещи дай метку category: 1–2
 export const groupLine = (names: string[]) =>
   `group — общая группа для всего фото. Если подходит одна из групп дома (${names.join(", ")}), напиши её. Если нет — придумай короткое название новой группы. Если вещи совсем разные — "Разное".`;
 
-export function buildPrompt(mode: "box" | "books" | "meds", groupNames: string[]) {
+export const knownTagLine = (tags: string[]) => (tags.length ? `Сначала выбирай метку из уже существующих в доме: ${tags.join(", ")}. Новую придумывай, только если ни одна не подходит.` : "");
+
+export function buildPrompt(mode: "box" | "books" | "meds", groupNames: string[], tags: string[] = []) {
   const task =
     mode === "meds"
       ? medsPrompt(getHealth(), false)
@@ -138,7 +140,7 @@ export function buildPrompt(mode: "box" | "books" | "meds", groupNames: string[]
       ? `На фото обложки или корешки книг. Для каждой книги верни название (name) и автора (author). Если не уверен — needs_review: true. Старые книги без ISBN часто читаются плохо — тогда тоже needs_review: true.`
       : `На фото могут быть любые вещи: содержимое коробки или шкафа, книги, лекарства. Перечисли всё коротко по-русски (name), объединяя однотипные ("Полотенца, 4 шт"). Для книги укажи автора (author), если читается. Для лекарства добавь к названию коротко, от чего оно ("Нурофен — от боли и жара"). Не больше 25 пунктов. needs_review: true, если вещь видна плохо.${healthCheckLine(getHealth())}`;
   return `${task}
-${TAG_LINE}
+${TAG_LINE} ${knownTagLine(tags)}
 ${groupLine(groupNames)}
 Верни только JSON без пояснений: {"items":[{"name":"...","category":"...","author":null,"needs_review":false}],"group":"..."}`;
 }
@@ -184,8 +186,8 @@ export async function testKey(key: string, svc?: Service) {
   return t.trim().length > 0;
 }
 
-export async function recognizeWithKey(key: string, photo: string, mode: "box" | "books" | "meds", groupNames: string[]): Promise<Recognized> {
-  const text = stripThinking(await call(key, buildPrompt(mode, groupNames), photo));
+export async function recognizeWithKey(key: string, photo: string, mode: "box" | "books" | "meds", groupNames: string[], tags: string[] = []): Promise<Recognized> {
+  const text = stripThinking(await call(key, buildPrompt(mode, groupNames, tags), photo));
   const block = text.match(/```(?:json)?\s*([\s\S]*?)```/)?.[1] ?? text;
   let p: Partial<Recognized>;
   try {

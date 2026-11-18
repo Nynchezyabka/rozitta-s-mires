@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { getPrinted, markPrinted } from "@/lib/printed";
 import { FORMATS, MAX_CUSTOM_MM, boxQrUrl, drawSticker, isPreviewHost, printStickers, stickersPdf, stickersPng, type Format, type Sticker, type StickerContent, type StickerStyle } from "@/lib/stickers";
 import type { HouseholdData } from "@/lib/household";
 
@@ -24,7 +25,16 @@ export const Route = createFileRoute("/stickers")({
 });
 
 function Stickers({ d }: { d: HouseholdData }) {
+  const [printed, setPrinted] = useState<Set<string>>(new Set());
   const [sel, setSel] = useState<Set<string>>(() => new Set(d.boxes.map((b) => b.id)));
+  useEffect(() => {
+    const p = getPrinted();
+    setPrinted(p);
+    const fresh = d.boxes.filter((b) => !p.has(b.id)).map((b) => b.id);
+    if (fresh.length && fresh.length < d.boxes.length) setSel(new Set(fresh));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const freshIds = d.boxes.filter((b) => !printed.has(b.id)).map((b) => b.id);
   const [qr, setQr] = useState(true);
   const [style, setStyle] = useState<StickerStyle>("brand");
   const [busy, setBusy] = useState(false);
@@ -56,7 +66,7 @@ function Stickers({ d }: { d: HouseholdData }) {
   const run = async (fn: typeof stickersPdf) => {
     if (tooBig) { toast.error(`Слишком большая наклейка: максимум ${MAX_CUSTOM_MM}×${MAX_CUSTOM_MM} мм`); return; }
     setBusy(true);
-    try { await fn(list(), fmt, style, content); } catch (e) { console.error(e); toast.error("Не получилось сделать наклейки"); } finally { setBusy(false); }
+    try { await fn(list(), fmt, style, content); setPrinted(markPrinted([...sel])); } catch (e) { console.error(e); toast.error("Не получилось сделать наклейки"); } finally { setBusy(false); }
   };
 
   return (
@@ -116,6 +126,11 @@ function Stickers({ d }: { d: HouseholdData }) {
               <img src={preview} alt="Предпросмотр наклейки" className="mx-auto max-h-56 rounded-md" style={{ aspectRatio: `${fmt.w} / ${fmt.h}` }} />
             </div>
           )}
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setSel(new Set(freshIds))} className="min-h-11 rounded-full bg-secondary px-4 text-sm text-secondary-foreground">🆕 Ещё не напечатаны · {freshIds.length}</button>
+            <button onClick={() => setSel(new Set(d.boxes.map((b) => b.id)))} className="min-h-11 rounded-full bg-secondary px-4 text-sm text-secondary-foreground">Все · {d.boxes.length}</button>
+            <button onClick={() => setSel(new Set())} className="min-h-11 rounded-full bg-secondary px-4 text-sm text-secondary-foreground">Снять все</button>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             {d.boxes.map((b) => {
               const g = gmap[b.group_id ?? ""];
