@@ -42,3 +42,4 @@ use the editor.
 - Read seasonal decoration from the device calendar after hydration and refresh on focus and each minute. Why: long-open static pages should change seasons without reload or stored overrides.
 - Item tags live in `items.category` (one free-form tag per thing, set by AI, editable); colours are auto from a name hash in src/lib/tags.ts with per-device overrides. Why: tags must cover any topic without a fixed list and need no extra table.
 - App version comes from the top entry of `src/lib/changelog.ts`; bump it with package.json and the README badge on notable releases. Why: one source for the in-app «Что нового» and the version label.
+- Several houses per device: each is its own household token; the list lives in localStorage (`getHouses`/`useHouses` in src/lib/household.ts), switched from the header; home search also queries the other houses. Why: separate places without any schema change.
