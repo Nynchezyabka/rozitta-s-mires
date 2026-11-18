@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Button } from "@/components/ui/button";
 import { useHousehold } from "@/lib/household";
 import { Welcome } from "./Welcome";
+import { HouseSwitcher } from "./HouseSwitcher";
 import rozitta from "@/assets/rozitta.webp";
 import gardenKey from "@/assets/garden-key.webp";
 import { SwampDecor } from "./SwampDecor";
@@ -171,9 +172,8 @@ export function AppShell({ children, garden = false }: { children: (d: NonNullab
         <BackButton />
         <Link to="/" className="flex min-w-0 items-center gap-2 lg:hidden">
           <img src={rozitta} alt="Розитта" className="pixel bob h-10 w-10 shrink-0" />
-          <span className="flex min-w-0 flex-col leading-tight"><span className="truncate font-display text-[11px] text-primary">Топи Розитты</span>{data?.household.name && <span className="truncate text-[11px] text-muted-foreground">{data.household.name}</span>}</span>
-        </Link>
-        {data?.household.name && <span className="hidden truncate text-sm text-muted-foreground lg:inline">{data.household.name}</span>}
+          </Link>
+        {data?.household.name && <HouseSwitcher token={token} name={data.household.name} />}
         </div>
         <div className="flex items-center gap-2">
           <QrScanner />
