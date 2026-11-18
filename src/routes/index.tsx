@@ -1,4 +1,5 @@
 import { tagColor } from "@/lib/tags";
+import { normSearch, matchesAll } from "@/lib/search";
 import { DueBadge, LocationPath } from "@/components/BoxBits";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -34,14 +35,12 @@ function Home({ d }: { d: HouseholdData }) {
     for (const it of d.items) (m[it.box_id] ??= []).push(it);
     return m;
   }, [d.items]);
-  const query = q.trim().toLowerCase();
-  const hits = query
-    ? d.items.filter((it) => it.name.toLowerCase().includes(query) || (it.author ?? "").toLowerCase().includes(query) || (it.category ?? "").toLowerCase().includes(query))
-    : [];
+  const query = normSearch(q);
+  const hits = query ? d.items.filter((it) => matchesAll(`${it.name} ${it.author ?? ""} ${it.category ?? ""}`, query)) : [];
   const boxes = d.boxes.filter((b) => {
     if (groupFilter && b.group_id !== groupFilter) return false;
     if (!query) return true;
-    return String(b.number) === query || `${b.note ?? ""} ${b.kid_size ?? ""} ${b.kid_season ?? ""} ${b.location ?? ""}`.toLowerCase().includes(query) || (gmap[b.group_id ?? ""]?.name ?? "").toLowerCase().includes(query);
+    return String(b.number) === query || matchesAll(`${b.note ?? ""} ${b.kid_size ?? ""} ${b.kid_season ?? ""} ${b.location ?? ""} ${gmap[b.group_id ?? ""]?.name ?? ""}`, query);
   });
   const boxById = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
   const today = new Date().toISOString().slice(0, 10);
@@ -68,10 +67,14 @@ function Home({ d }: { d: HouseholdData }) {
                   {it.author && <span className="text-muted-foreground"> — {it.author}</span>}
                   {it.category && <span className="ml-2 rounded-full px-2 py-0.5 text-xs text-background" style={{ backgroundColor: tagColor(it.category) }}>{it.category}</span>}
                 </span>
-                <span className="font-display text-lg font-bold">№{b?.number}</span>
+                <span className="ml-2 shrink-0 text-right">
+                  <span className="block font-display text-lg font-bold">№{b?.number}</span>
+                  {b?.location && <span className="block max-w-40 truncate text-xs text-muted-foreground">📍 {b.location}</span>}
+                </span>
               </Link>
             );
           })}
+          {hits.length > 30 && <p className="text-center text-sm text-muted-foreground">Показаны первые 30 из {hits.length} — уточните запрос</p>}
         </section>
       )}
 

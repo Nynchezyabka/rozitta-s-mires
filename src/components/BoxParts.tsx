@@ -132,9 +132,16 @@ export function KidsPicker({ size, season, onSize, onSeason }: { size: string; s
   );
 }
 
+/** Distinct places, most used first. */
+export function byFrequency(known: (string | null)[]): string[] {
+  const c = new Map<string, number>();
+  for (const x of known) { const v = x?.trim(); if (v) c.set(v, (c.get(v) ?? 0) + 1); }
+  return [...c.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ru")).map(([k]) => k);
+}
+
 /** "Где стоит" with suggestions from places already used in this household. */
 export function LocationInput({ value, onChange, known }: { value: string; onChange: (v: string) => void; known: (string | null)[] }) {
-  const opts = [...new Set(known.filter((x): x is string => !!x))].sort();
+  const opts = byFrequency(known);
   const [shown, setShown] = useState<string[]>(DEFAULT_ROOMS);
   useEffect(() => setShown(getShownRooms()), []);
   const rooms = ROOMS.filter((r) => r.key !== "other" && shown.includes(r.key));

@@ -1,5 +1,6 @@
 import { DueBadge, LocationPath } from "@/components/BoxBits";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useBlocker } from "@tanstack/react-router";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -49,6 +50,11 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const [busy, setBusy] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const [moveTo, setMoveTo] = useState("");
+  const [base, setBase] = useState("");
+  const snap = JSON.stringify([items, groupId, note, decideBy, kidSize, kidSeason, place, shots]);
+  const dirty = !!box && !busy && base !== "" && base !== "pending" && snap !== base;
+  const blocker = useBlocker({ shouldBlockFn: () => dirty, enableBeforeUnload: () => dirty, withResolver: true });
+  useEffect(() => { if (base === "pending") setBase(snap); }, [snap, base]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!box) return;
     setItems(d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? "book" : "item", author: i.author, needs_review: i.needs_review, category: i.category })));
@@ -59,6 +65,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
     setKidSeason(box.kid_season ?? "");
     setPlace(box.location ?? "");
     setShots(box.photo_paths);
+    setBase("pending");
   }, [box?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!box) return <p className="py-10 text-center text-muted-foreground">Сундук не найден. Возможно, он из другого дома или удалён — отсканируйте наклейку кнопкой сканера в шапке.</p>;
@@ -69,6 +76,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
     try {
       await saveBox({ data: { token, id, group_id: groupId, note, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, location: place, photos: shots, items } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
+      setBase(snap);
       toast.success("Сохранено");
     } catch (e) {
       toast.error((e as Error).message);
@@ -147,9 +155,23 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
         <h2 className="font-semibold">Заметка</h2>
         <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Например: стоит в кладовке" />
       </section>
-      <Button className="h-14 w-full rounded-2xl text-base" disabled={busy} onClick={save}>
-        {busy ? "Сохраняю…" : "Сохранить"}
-      </Button>
+      <div className="sticky bottom-20 z-20 lg:bottom-4">
+        <Button className={`h-14 w-full rounded-2xl text-base shadow-lg ${dirty ? "" : "opacity-90"}`} disabled={busy} onClick={save}>
+          {busy ? "Сохраняю…" : dirty ? "Сохранить изменения" : "Сохранить"}
+        </Button>
+      </div>
+      <AlertDialog open={blocker.status === "blocked"}>
+        <AlertDialogContent className="border-2 border-primary/60 bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Уйти без сохранения?</AlertDialogTitle>
+            <AlertDialogDescription>Изменения в сундуке ещё не записаны и пропадут.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => blocker.reset?.()}>Остаться</AlertDialogCancel>
+            <AlertDialogAction onClick={() => blocker.proceed?.()}>Уйти</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <button
         className="flex w-full items-center justify-center gap-2 py-2 text-sm text-destructive"
         onClick={async () => {

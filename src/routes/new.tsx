@@ -150,8 +150,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
       if (!r.items.length) toast("Ничего не нашлось — добавьте вещи вручную");
       else if (!first) toast.success(`Добавлено из нового фото: ${found.length}`);
     } catch (e) {
-      toast.error((e as Error).message);
-      setItems([]);
+      toast.error(`Это фото не распозналось, список не тронут. ${(e as Error).message}`);
     } finally {
       setBusy(false);
       setStep(2);
@@ -191,7 +190,7 @@ function Wizard({ d, token }: { d: HouseholdData; token: string }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ""; }} />
       {busy && step === 1 && <RozittaBubble phrases={BREWING} />}
       {step === 1 && (
         <div className="space-y-5">
