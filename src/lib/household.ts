@@ -5,10 +5,46 @@ import { getHousehold } from "./store";
 const KEY = "korobki-token";
 const listeners = new Set<(t: string | null) => void>();
 
+const LIST = "korobki-houses";
+const listListeners = new Set<(l: string[]) => void>();
+
+/** All houses (tokens) this device knows: дом, дача… */
+export function getHouses(): string[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(LIST) ?? "[]");
+    const list: string[] = Array.isArray(v) ? v : [];
+    const cur = localStorage.getItem(KEY);
+    return cur && !list.includes(cur) ? [cur, ...list] : list;
+  } catch { return []; }
+}
+function saveHouses(l: string[]) {
+  localStorage.setItem(LIST, JSON.stringify(l));
+  listListeners.forEach((f) => f(l));
+}
+
 export function setToken(t: string | null) {
-  if (t) localStorage.setItem(KEY, t);
-  else localStorage.removeItem(KEY);
+  const list = getHouses();
+  if (t) {
+    localStorage.setItem(KEY, t);
+    if (!list.includes(t)) saveHouses([...list, t]);
+  } else {
+    const cur = localStorage.getItem(KEY);
+    const rest = list.filter((x) => x !== cur);
+    saveHouses(rest);
+    if (rest[0]) { localStorage.setItem(KEY, rest[0]); t = rest[0]; }
+    else localStorage.removeItem(KEY);
+  }
   listeners.forEach((l) => l(t));
+}
+
+export function useHouses() {
+  const [list, set] = useState<string[]>([]);
+  useEffect(() => {
+    set(getHouses());
+    listListeners.add(set);
+    return () => void listListeners.delete(set);
+  }, []);
+  return list;
 }
 
 /** undefined = still reading storage (first render / SSR). */
