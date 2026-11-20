@@ -17,36 +17,18 @@ export const Route = createFileRoute("/help")({
 const slug = (t: string) => "g-" + GUIDE.findIndex((g) => g.title === t);
 
 function Help() {
-  const tiles = GUIDE.filter((g) => g.to);
   return (
     <div className="space-y-4 pt-2">
       <section className="space-y-3 rounded-2xl border-2 border-primary/50 bg-card p-5">
         <h1 className="font-display text-xl text-primary">Справка</h1>
-        <p className="text-sm text-muted-foreground">«Топи Розитты» — волшебная опись всего дома. Сфотографировали сундук — Розитта записала, что внутри. Потом ищете вещь словом и видите, где она.</p>
+        <p className="text-sm text-muted-foreground">Опись всего дома: сфотографировали сундук — Розитта записала, что внутри. Потом ищете вещь словом.</p>
         <Button asChild className="w-full"><Link to="/new">Собрать первый сундук</Link></Button>
       </section>
 
       <section className="space-y-2">
-        <h2 className="font-display text-lg text-foreground">Перейти в раздел</h2>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {tiles.map((g) => (
-            <Link key={g.title} to={g.to!} className="flex flex-col gap-1 rounded-2xl bg-card p-3 transition hover:bg-secondary">
-              <span className="text-2xl">{g.icon}</span>
-              <span className="text-sm font-semibold leading-tight">{g.title}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="font-display text-lg text-foreground">Вопросы и ответы</h2>
-        <nav className="flex flex-wrap gap-1.5">
-          {GUIDE.map((g) => (
-            <a key={g.title} href={`#${slug(g.title)}`} className="rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground">{g.icon} {g.title}</a>
-          ))}
-        </nav>
+        <h2 className="font-display text-lg text-foreground">Коротко о главном</h2>
         {GUIDE.map((g, i) => (
-          <details key={g.title} id={slug(g.title)} open={i === 1} className="group scroll-mt-20 rounded-2xl bg-card p-4">
+          <details key={g.title} id={slug(g.title)} open={i === 0} className="group scroll-mt-20 rounded-2xl bg-card p-4">
             <summary className="flex cursor-pointer list-none items-center gap-3 font-semibold [&::-webkit-details-marker]:hidden">
               <span className="text-xl">{g.icon}</span>
               <span className="flex-1">{g.title}</span>

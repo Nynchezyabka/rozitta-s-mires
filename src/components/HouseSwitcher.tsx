@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ChevronDown, Plus, Check } from "lucide-react";
+import { ChevronDown, Plus, Check, Pencil } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { householdQuery, setToken, useHouses } from "@/lib/household";
-import { createHousehold } from "@/lib/store";
+import { createHousehold, renameHousehold } from "@/lib/store";
 
 /** Switch between houses (дом, дача…) and add a new one. */
 export function HouseSwitcher({ token, name }: { token: string; name: string }) {
@@ -16,6 +16,20 @@ export function HouseSwitcher({ token, name }: { token: string; name: string }) 
   const [open, setOpen] = useState(false);
   const [newName, setNewName] = useState("Дача");
   const [busy, setBusy] = useState(false);
+  const qc = useQueryClient();
+  const [ren, setRen] = useState(false);
+  const [newTitle, setNewTitle] = useState(name);
+  const rename = async () => {
+    const n = newTitle.trim();
+    if (!n) return;
+    setBusy(true);
+    try {
+      await renameHousehold({ data: { token, name: n } });
+      await qc.invalidateQueries({ queryKey: ["household", token] });
+      setRen(false);
+      toast.success("Дом переименован");
+    } catch (e) { toast.error((e as Error).message); } finally { setBusy(false); }
+  };
   const add = async () => {
     setBusy(true);
     try {
@@ -40,6 +54,7 @@ export function HouseSwitcher({ token, name }: { token: string; name: string }) 
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => { setNewTitle(name); setRen(true); }}><Pencil className="mr-2 h-4 w-4" />Переименовать этот дом</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}><Plus className="mr-2 h-4 w-4" />Добавить дом</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -49,6 +64,13 @@ export function HouseSwitcher({ token, name }: { token: string; name: string }) 
           <p className="text-sm text-muted-foreground">Например, дача или квартира родителей. У него будут свои сундуки.</p>
           <Input aria-label="Название дома" value={newName} onChange={(e) => setNewName(e.target.value)} className="h-12" />
           <Button className="h-12" disabled={busy} onClick={add}>{busy ? "Завожу…" : "Завести"}</Button>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={ren} onOpenChange={setRen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Название дома</DialogTitle></DialogHeader>
+          <Input aria-label="Новое название дома" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} onKeyDown={(e) => e.key === "Enter" && rename()} className="h-12" />
+          <Button className="h-12" disabled={busy || !newTitle.trim()} onClick={rename}>{busy ? "Сохраняю…" : "Сохранить"}</Button>
         </DialogContent>
       </Dialog>
     </>

@@ -1,13 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { setToken, type HouseholdData } from "@/lib/household";
-import { renameHousehold } from "@/lib/store";
 
 export const Route = createFileRoute("/family")({
   head: () => ({
@@ -23,10 +20,8 @@ export const Route = createFileRoute("/family")({
   component: () => <AppShell>{(d, t) => <Family d={d} token={t} />}</AppShell>,
 });
 
-function Family({ d, token }: { d: HouseholdData; token: string }) {
-  const qc = useQueryClient();
+function Family({ token }: { d: HouseholdData; token: string }) {
   const [qr, setQr] = useState("");
-  const [name, setName] = useState(d.household.name);
   const link = typeof window !== "undefined" ? `${location.origin}/join/${token}` : "";
   useEffect(() => {
     QRCode.toDataURL(link, { width: 480, margin: 1 }).then(setQr);
@@ -57,22 +52,6 @@ function Family({ d, token }: { d: HouseholdData; token: string }) {
           Отправить ссылку
         </Button>
         <Button variant="ghost" className="w-full" onClick={async () => { await navigator.clipboard.writeText(link); toast.success("Ссылка скопирована"); }}>Скопировать ссылку</Button>
-      </div>
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Название дома</p>
-        <div className="flex gap-2">
-          <Input value={name} onChange={(e) => setName(e.target.value)} className="h-12" />
-          <Button
-            className="h-12"
-            onClick={async () => {
-              await renameHousehold({ data: { token, name } });
-              qc.invalidateQueries({ queryKey: ["household", token] });
-              toast.success("Готово");
-            }}
-          >
-            ОК
-          </Button>
-        </div>
       </div>
       <button className="w-full py-2 text-sm text-muted-foreground underline" onClick={() => toast("Выйти на этом устройстве? Вернуться можно по ссылке-ключу.", { action: { label: "Выйти", onClick: () => setToken(null) }, cancel: { label: "Остаться", onClick: () => {} } })}>
         Выйти на этом устройстве
