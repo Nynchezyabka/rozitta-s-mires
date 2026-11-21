@@ -113,19 +113,19 @@ export const ROOM_EMPTY: Record<Room, string> = {
 export const ROOM_PLANTS: Record<Room, GardenPlant[]> = {
   pond: GARDEN_PLANTS,
   potager: POTAGER_PLANTS,
-  // Bottom-anchored on the tub, shelf planks and under the hanging baskets of room-glasshouse.
+  // Bottom-anchored on the workbench, shelves and the hanging basket of the dusk glasshouse.
   glasshouse: [
-    p("gl-lemon", "Лимонное деревце", "Citrus × limon", "glasshouse", "structure", 50, 76, 24),
-    p("gl-asparagus", "Аспарагус перистый", "Asparagus densiflorus", "glasshouse", "hanging", 50, 43, 15),
-    p("gl-succulents", "Суккуленты: эхеверии, толстянка, очиток", "Echeveria · Crassula · Sedum", "glasshouse", "perennial", 80, 59.5, 9),
-    p("gl-gull", "Чайка в гнезде — высиживает звёздное яйцо", "Larus fabulosus · сказочная птица", "glasshouse", "wonder", 16, 32, 11),
-    p("gl-chrysanthemum", "Хризантемы: винный помпон и персиковый паук", "Chrysanthemum", "glasshouse", "perennial", 15, 59, 10),
-    p("gl-ficus", "Фикус карликовый в подвесной корзине", "Ficus pumila", "glasshouse", "hanging", 31, 36, 12),
-    p("gl-compass", "Звёздный компас — чайка вынесла из гнезда", "Артефакт · всегда показывает домой", "glasshouse", "wonder", 79, 36.5, 8),
-    p("gl-leucadendron", "Леукадендрон", "Leucadendron", "glasshouse", "perennial", 22, 79, 9),
-    p("gl-toadtear", "Жабья слеза — второй подарок чайки", "Артефакт · светится, когда кто-то рядом квакает", "glasshouse", "wonder", 89, 82.5, 8),
-    p("gl-asparagus2", "Аспарагус во второй корзине", "Asparagus densiflorus", "glasshouse", "hanging", 68, 36, 12),
-    p("gl-feather", "Лунное перо в бутылочке", "Артефакт · выпало у чайки в полнолуние", "glasshouse", "wonder", 9, 81, 8),
+    p("gl-lemon", "Лимонное деревце", "Citrus × limon", "glasshouse", "structure", 46, 74, 22),
+    p("gl-asparagus", "Аспарагус перистый", "Asparagus densiflorus", "glasshouse", "hanging", 30, 40, 13),
+    p("gl-succulents", "Суккуленты: эхеверии, толстянка, очиток", "Echeveria · Crassula · Sedum", "glasshouse", "perennial", 62, 66, 9),
+    p("gl-gull", "Чайка в гнезде — высиживает звёздное яйцо", "Larus fabulosus · сказочная птица", "glasshouse", "wonder", 13, 22, 11),
+    p("gl-chrysanthemum", "Хризантемы: винный помпон и персиковый паук", "Chrysanthemum", "glasshouse", "perennial", 24, 68, 10),
+    p("gl-ficus", "Фикус карликовый в подвесной корзине", "Ficus pumila", "glasshouse", "hanging", 87, 26, 12),
+    p("gl-compass", "Звёздный компас — чайка вынесла из гнезда", "Артефакт · всегда показывает домой", "glasshouse", "wonder", 47, 34, 7),
+    p("gl-leucadendron", "Леукадендрон", "Leucadendron", "glasshouse", "perennial", 78, 70, 9),
+    p("gl-toadtear", "Жабья слеза — второй подарок чайки", "Артефакт · светится, когда кто-то рядом квакает", "glasshouse", "wonder", 88, 74, 7),
+    p("gl-asparagus2", "Аспарагус во второй корзине", "Asparagus densiflorus", "glasshouse", "hanging", 68, 42, 12),
+    p("gl-feather", "Лунное перо в бутылочке", "Артефакт · выпало у чайки в полнолуние", "glasshouse", "wonder", 10, 72, 7),
   ],
   grotto: [
     p("gr-viburnum", "Калина складчатая", "Viburnum plicatum", "grotto", "structure", 30, 62, 16),

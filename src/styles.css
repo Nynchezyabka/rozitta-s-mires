@@ -203,10 +203,13 @@ h1 { animation: shimmer 6s ease-in-out infinite; }
 .garden-night .garden-plant, .garden-night .garden-frog img { filter: brightness(.6) saturate(.85) hue-rotate(-12deg); }
 .garden-light { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; z-index: 96; mix-blend-mode: screen; background: radial-gradient(circle, var(--garden-gold) 0 8%, color-mix(in oklab, var(--garden-gold) 45%, transparent) 22%, transparent 68%); animation: garden-lamp 3.2s ease-in-out infinite alternate; }
 @keyframes garden-lamp { from { opacity: .7; } to { opacity: 1; } }
+/* Warm flickering glow over the glasshouse string lights. */
+.garden-garland { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; z-index: 96; mix-blend-mode: screen; background: radial-gradient(circle, #ffd9a0 0 10%, color-mix(in oklab, #ffb35c 55%, transparent) 30%, transparent 70%); animation: garden-bulb 2.8s ease-in-out infinite; }
+@keyframes garden-bulb { 0%, 100% { opacity: .55; } 45% { opacity: 1; } 55% { opacity: .75; } 70% { opacity: .95; } }
 .garden-night .garden-mushroom { filter: brightness(.8) drop-shadow(0 0 6px var(--chart-3)); }
 .garden-night .garden-spark { width: 5px; height: 5px; border-radius: 50%; opacity: 1; background: var(--garden-gold); box-shadow: 0 0 8px 2px var(--garden-gold); animation-duration: 2.6s; }
 .garden-night .garden-fog { background: radial-gradient(ellipse at center, color-mix(in oklab, var(--primary) 28%, transparent), transparent 68%); }
-@media (prefers-reduced-motion: reduce) { .garden-fog, .garden-spark, .garden-light, .garden-frog-jump { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .garden-fog, .garden-spark, .garden-light, .garden-garland, .garden-frog-jump { animation: none; } }
 
 .garden-passage { position: absolute; z-index: 90; border: 0; background: transparent; cursor: pointer; border-radius: 40% 40% 4px 4px; }
 .garden-passage:focus-visible { outline: 2px solid var(--garden-gold); }

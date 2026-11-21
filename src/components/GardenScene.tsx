@@ -63,6 +63,12 @@ const SPARKS = Array.from({ length: 14 }, (_, i) => ({ x: (i * 37 + 11) % 96 + 2
 
 const POTAGER_LIGHTS = [{ x: 7, y: 18, s: 10 }, { x: 74, y: 22, s: 12 }, { x: 30, y: 52, s: 9 }, { x: 62, y: 70, s: 9 }];
 
+// Warm glow spots over the string lights baked into the dusk glasshouse background.
+const GARLAND = [
+  { x: 6, y: 6, s: 5 }, { x: 17, y: 10, s: 4.5 }, { x: 27, y: 14, s: 5 }, { x: 37, y: 19, s: 4.5 },
+  { x: 47, y: 24, s: 5 }, { x: 57, y: 21, s: 4.5 }, { x: 68, y: 20, s: 4 }, { x: 79, y: 17, s: 4.5 }, { x: 96, y: 14, s: 5 },
+];
+
 const PICS: Record<GardenPlant["id"], string> = {
   "p-romanesco": romanesco, "p-cabbage": veggie, chard, artichoke, kale, herbs, calendula, strawberry,
   lily, lily2, kiwi, romanesco, eryngium, veggie, chrysanthemum, peony,
@@ -71,7 +77,7 @@ const PICS: Record<GardenPlant["id"], string> = {
 };
 
 const NEW_ROOMS: Partial<Record<Room, { bg: string; alt: string }>> = {
-  glasshouse: { bg: glasshouseBg, alt: "Уютная оранжерея: кованые стеллажи с глиняными горшками, подвесные корзины, деревянная кадка и фонари" },
+  glasshouse: { bg: glasshouseBg, alt: "Уютная оранжерея в сумерках: деревянные стеллажи с глиняными горшками, верстак, подвесная корзина и тёплая гирлянда лампочек" },
   grotto: { bg: grottoBg, alt: "Мшистый грот: замшелые каменные ступени, родник из скалы, светящийся мох и тёмная заводь" },
   physick: { bg: physickBg, alt: "Аптекарский дворик: плитняк, навес с пучками сушёных трав, медный перегонный куб, котелок над огнём и каменные грядки" },
   moor: { bg: moorBg, alt: "Сумеречная пустошь: деревянные мостки, вереск, туман над холмами, стоячие камни и первая звезда" },
@@ -108,7 +114,8 @@ export function GardenScene({ room, count, fresh, night, hop, unlocked, onPass }
             ))}
           </Button>
         ))}
-        {night && (pond ? LIGHTS : POTAGER_LIGHTS).map((l, i) => <span key={`l${i}`} aria-hidden className="garden-light" style={{ left: `${l.x}%`, top: `${l.y}%`, width: `${l.s}%`, animationDelay: `${i * 0.7}s` } as CSSProperties} />)}
+        {night && (pond || room === "potager") && (pond ? LIGHTS : POTAGER_LIGHTS).map((l, i) => <span key={`l${i}`} aria-hidden className="garden-light" style={{ left: `${l.x}%`, top: `${l.y}%`, width: `${l.s}%`, animationDelay: `${i * 0.7}s` } as CSSProperties} />)}
+        {room === "glasshouse" && GARLAND.map((g, i) => <span key={`g${i}`} aria-hidden className="garden-garland" style={{ left: `${g.x}%`, top: `${g.y}%`, width: `${g.s}%`, animationDelay: `${(i % 4) * 0.9}s` } as CSSProperties} />)}
         <div className="garden-fog garden-fog-1" aria-hidden />
         <div className="garden-fog garden-fog-2" aria-hidden />
         {SPARKS.map((p, i) => <span key={i} aria-hidden className="garden-spark" style={{ left: `${p.x}%`, top: `${p.y}%`, animationDelay: `${p.d}s` } as CSSProperties} />)}
