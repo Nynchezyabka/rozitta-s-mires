@@ -4,19 +4,20 @@ export type GardenId = BloomId | "mushroom" | "fern" | "copper-fern" | "ajuga" |
 export type Habitat = "pond" | "woodland" | "edge" | "meadow" | "potager" | "glasshouse" | "grotto" | "physick" | "moor";
 export type PotagerId = "p-romanesco" | "p-cabbage" | "chard" | "artichoke" | "kale" | "herbs" | "calendula" | "strawberry";
 export type NewRoomPlantId =
-  | "gl-magnolia" | "gl-leucadendron" | "gl-chrysanthemum" | "gl-treefern" | "gl-ficus"
+  | "gl-lemon" | "gl-asparagus" | "gl-asparagus2" | "gl-succulents" | "gl-gull" | "gl-compass" | "gl-toadtear" | "gl-feather"
+  | "gl-leucadendron" | "gl-chrysanthemum" | "gl-ficus"
   | "gr-viburnum" | "gr-adiantum" | "gr-asarum" | "gr-hellebore" | "gr-cyclamen"
   | "ph-digitalis" | "ph-angelica" | "ph-artemisia" | "ph-salvia" | "ph-thyme"
   | "mo-eryngium" | "mo-sanguisorba" | "mo-heather" | "mo-deschampsia" | "mo-anemone";
 export type Room = "pond" | "potager" | "glasshouse" | "grotto" | "physick" | "moor";
-export type Layer = "structure" | "perennial" | "groundcover" | "water";
+export type Layer = "structure" | "perennial" | "groundcover" | "water" | "hanging" | "wonder";
 
 export const HABITATS: Record<Habitat, string> = {
   pond: "Вода", woodland: "Лесная тень", edge: "Влажная опушка", meadow: "Солнечная поляна", potager: "Огород потаже",
   glasshouse: "Тёплая оранжерея", grotto: "Сырой каменистый грот", physick: "Сухой аптекарский дворик", moor: "Открытая пустошь",
 };
 export const LAYERS: Record<Layer, string> = {
-  structure: "Каркас сада", perennial: "Средний ярус", groundcover: "Живой ковёр", water: "Водный ярус",
+  structure: "Каркас сада", perennial: "Средний ярус", groundcover: "Живой ковёр", water: "Водный ярус", hanging: "Ампельный ярус", wonder: "Волшебная диковинка",
 };
 
 export type GardenPlant = {
@@ -102,7 +103,7 @@ export const ROOM_NAMES: Record<Room, string> = {
 export const ROOM_EMPTY: Record<Room, string> = {
   pond: "Пруд ждёт первую кувшинку. Розитта никуда не торопится.",
   potager: "Грядки ждут первый шаг. Следующий посадит романеско.",
-  glasshouse: "Под стеклом тепло и пусто. Первой поселится магнолия.",
+  glasshouse: "Под стеклом тепло и пусто. Первым поселится лимонное деревце.",
   grotto: "У родника тихо. Первый шаг посадит калину-пагоду.",
   physick: "Каменные грядки ждут трав. Первой взойдёт наперстянка.",
   moor: "Над пустошью первая звезда. Первым вырастет синеголовник.",
@@ -112,17 +113,24 @@ export const ROOM_EMPTY: Record<Room, string> = {
 export const ROOM_PLANTS: Record<Room, GardenPlant[]> = {
   pond: GARDEN_PLANTS,
   potager: POTAGER_PLANTS,
+  // Bottom-anchored on the tub, shelf planks and under the hanging baskets of room-glasshouse.
   glasshouse: [
-    p("gl-magnolia", "Магнолия крупноцветковая", "Magnolia grandiflora", "glasshouse", "structure", 62, 62, 15),
-    p("gl-chrysanthemum", "Хризантемы: винный помпон и персиковый паук", "Chrysanthemum", "glasshouse", "perennial", 80, 70, 11),
-    p("gl-treefern", "Древовидный папоротник", "Dicksonia antarctica", "glasshouse", "structure", 28, 82, 14),
-    p("gl-leucadendron", "Леукадендрон", "Leucadendron", "glasshouse", "perennial", 46, 70, 11),
-    p("gl-ficus", "Фикус карликовый", "Ficus pumila", "glasshouse", "groundcover", 90, 90, 11),
+    p("gl-lemon", "Лимонное деревце", "Citrus × limon", "glasshouse", "structure", 50, 76, 24),
+    p("gl-asparagus", "Аспарагус перистый", "Asparagus densiflorus", "glasshouse", "hanging", 50, 43, 15),
+    p("gl-succulents", "Суккуленты: эхеверии, толстянка, очиток", "Echeveria · Crassula · Sedum", "glasshouse", "perennial", 80, 59.5, 9),
+    p("gl-gull", "Чайка в гнезде — высиживает звёздное яйцо", "Larus fabulosus · сказочная птица", "glasshouse", "wonder", 16, 32, 11),
+    p("gl-chrysanthemum", "Хризантемы: винный помпон и персиковый паук", "Chrysanthemum", "glasshouse", "perennial", 15, 59, 10),
+    p("gl-ficus", "Фикус карликовый в подвесной корзине", "Ficus pumila", "glasshouse", "hanging", 31, 36, 12),
+    p("gl-compass", "Звёздный компас — чайка вынесла из гнезда", "Артефакт · всегда показывает домой", "glasshouse", "wonder", 79, 36.5, 8),
+    p("gl-leucadendron", "Леукадендрон", "Leucadendron", "glasshouse", "perennial", 22, 79, 9),
+    p("gl-toadtear", "Жабья слеза — второй подарок чайки", "Артефакт · светится, когда кто-то рядом квакает", "glasshouse", "wonder", 89, 82.5, 8),
+    p("gl-asparagus2", "Аспарагус во второй корзине", "Asparagus densiflorus", "glasshouse", "hanging", 68, 36, 12),
+    p("gl-feather", "Лунное перо в бутылочке", "Артефакт · выпало у чайки в полнолуние", "glasshouse", "wonder", 9, 81, 8),
   ],
   grotto: [
     p("gr-viburnum", "Калина складчатая", "Viburnum plicatum", "grotto", "structure", 30, 62, 16),
     p("gr-hellebore", "Морозник", "Helleborus × hybridus", "grotto", "perennial", 50, 72, 11),
-    p("gr-adiantum", "Адиантум, венерин волос", "Adiantum pedatum", "grotto", "perennial", 62, 50, 11),
+    p("gr-adiantum", "Адиантум, венерин волос", "Adiantum pedatum", "grotto", "perennial", 52, 40, 10),
     p("gr-asarum", "Копытень европейский", "Asarum europaeum", "grotto", "groundcover", 22, 88, 13),
     p("gr-cyclamen", "Цикламен плющелистный", "Cyclamen hederifolium", "grotto", "groundcover", 44, 92, 11),
   ],

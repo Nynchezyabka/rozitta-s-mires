@@ -27,11 +27,16 @@ import dogwood from "@/assets/garden-dogwood.png";
 import hosta from "@/assets/garden-hosta.png";
 import frog from "@/assets/garden-frog.png";
 import { sfx } from "@/lib/rozitta";
-import gl_magnolia from "@/assets/gl-magnolia.webp";
 import gl_leucadendron from "@/assets/gl-leucadendron.webp";
 import gl_chrysanthemum from "@/assets/gl-chrysanthemum.webp";
-import gl_treefern from "@/assets/gl-treefern.webp";
 import gl_ficus from "@/assets/gl-ficus.webp";
+import gl_lemon from "@/assets/gl-lemon.webp";
+import gl_asparagus from "@/assets/gl-asparagus.webp";
+import gl_succulents from "@/assets/gl-succulents.webp";
+import gl_gull from "@/assets/gl-gull.webp";
+import gl_compass from "@/assets/gl-compass.webp";
+import gl_toadtear from "@/assets/gl-toadtear.webp";
+import gl_feather from "@/assets/gl-feather.webp";
 import gr_viburnum from "@/assets/gr-viburnum.webp";
 import gr_adiantum from "@/assets/gr-adiantum.webp";
 import gr_asarum from "@/assets/gr-asarum.webp";
@@ -62,11 +67,11 @@ const PICS: Record<GardenPlant["id"], string> = {
   "p-romanesco": romanesco, "p-cabbage": veggie, chard, artichoke, kale, herbs, calendula, strawberry,
   lily, lily2, kiwi, romanesco, eryngium, veggie, chrysanthemum, peony,
   mushroom, fern, "copper-fern": copperFern, ajuga, veronica, moneywort, dogwood, hosta,
-  "gl-magnolia": gl_magnolia, "gl-leucadendron": gl_leucadendron, "gl-chrysanthemum": gl_chrysanthemum, "gl-treefern": gl_treefern, "gl-ficus": gl_ficus, "gr-viburnum": gr_viburnum, "gr-adiantum": gr_adiantum, "gr-asarum": gr_asarum, "gr-hellebore": gr_hellebore, "gr-cyclamen": gr_cyclamen, "ph-digitalis": ph_digitalis, "ph-angelica": ph_angelica, "ph-artemisia": ph_artemisia, "ph-salvia": ph_salvia, "ph-thyme": ph_thyme, "mo-sanguisorba": mo_sanguisorba, "mo-heather": mo_heather, "mo-deschampsia": mo_deschampsia, "mo-anemone": mo_anemone, "mo-eryngium": eryngium,
+  "gl-lemon": gl_lemon, "gl-asparagus": gl_asparagus, "gl-asparagus2": gl_asparagus, "gl-succulents": gl_succulents, "gl-gull": gl_gull, "gl-compass": gl_compass, "gl-toadtear": gl_toadtear, "gl-feather": gl_feather, "gl-leucadendron": gl_leucadendron, "gl-chrysanthemum": gl_chrysanthemum, "gl-ficus": gl_ficus, "gr-viburnum": gr_viburnum, "gr-adiantum": gr_adiantum, "gr-asarum": gr_asarum, "gr-hellebore": gr_hellebore, "gr-cyclamen": gr_cyclamen, "ph-digitalis": ph_digitalis, "ph-angelica": ph_angelica, "ph-artemisia": ph_artemisia, "ph-salvia": ph_salvia, "ph-thyme": ph_thyme, "mo-sanguisorba": mo_sanguisorba, "mo-heather": mo_heather, "mo-deschampsia": mo_deschampsia, "mo-anemone": mo_anemone, "mo-eryngium": eryngium,
 };
 
 const NEW_ROOMS: Partial<Record<Room, { bg: string; alt: string }>> = {
-  glasshouse: { bg: glasshouseBg, alt: "Старая викторианская оранжерея: треснувшие стеклянные купола, витражная дверь, ржавые этажерки с горшками и пустые грядки в кованых бортиках" },
+  glasshouse: { bg: glasshouseBg, alt: "Уютная оранжерея: кованые стеллажи с глиняными горшками, подвесные корзины, деревянная кадка и фонари" },
   grotto: { bg: grottoBg, alt: "Мшистый грот: замшелые каменные ступени, родник из скалы, светящийся мох и тёмная заводь" },
   physick: { bg: physickBg, alt: "Аптекарский дворик: плитняк, навес с пучками сушёных трав, медный перегонный куб, котелок над огнём и каменные грядки" },
   moor: { bg: moorBg, alt: "Сумеречная пустошь: деревянные мостки, вереск, туман над холмами, стоячие камни и первая звезда" },
@@ -97,7 +102,7 @@ export function GardenScene({ room, count, fresh, night, hop, unlocked, onPass }
             onClick={() => setSelected(plant)}
             className={`garden-plant ${fresh === plant.id ? "garden-plant-fresh" : ""} ${plant.id === "mushroom" ? "garden-mushroom" : ""}`}
             style={{ "--plant-x": `${plant.x}%`, "--plant-y": `${plant.y}%`, "--plant-width": `${plant.size}%`, "--plant-depth": Math.round(plant.y) } as CSSProperties}>
-            {Array.from({ length: plant.copies }, (_, i) => (
+            {Array.from({ length: room === "glasshouse" ? 1 : plant.copies }, (_, i) => (
               <img key={i} src={PICS[plant.id]} alt="" width={320} height={400} loading="lazy"
                 className={`pixel garden-sprite garden-sprite-${i}`} />
             ))}
