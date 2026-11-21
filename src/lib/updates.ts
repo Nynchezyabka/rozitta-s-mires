@@ -55,6 +55,15 @@ export function shouldRemindBackup(now: number, last: number | null, shown: numb
   return now - shown >= 7 * DAY;
 }
 
+/** True while a person is busy: an open window, typed text, or the new-chest wizard. Then no update toast. */
+export function isBusy(): boolean {
+  if (typeof document === "undefined") return false;
+  if (document.querySelector('[role="dialog"], [role="alertdialog"], dialog[open], [data-unsaved="true"]')) return true;
+  if (window.location.pathname.startsWith("/new")) return true;
+  const a = document.activeElement;
+  return (a instanceof HTMLInputElement || a instanceof HTMLTextAreaElement) && !!a.value.trim();
+}
+
 let started = false;
 const DISMISS_KEY = "rozitta-update-dismissed";
 /** Вызывать из useEffect. Мягкие тосты, ничего не перезагружает само. */
@@ -70,9 +79,10 @@ export function initUpdates(boxes: number) {
     }
     if (isPreview()) return;
     const check = async () => {
+      if (isBusy()) return;
       if ((await checkForUpdates()) !== "new") return;
       const fp = await fetchFingerprint();
-      if (!fp || sessionStorage.getItem(DISMISS_KEY) === fp) return;
+      if (!fp || isBusy() || sessionStorage.getItem(DISMISS_KEY) === fp) return;
       toast("🐸 Розитта сварила новую версию", {
         id: "app-update", duration: 30000, closeButton: true,
         action: { label: "Обновить", onClick: () => void hardReload() },
@@ -80,7 +90,8 @@ export function initUpdates(boxes: number) {
         onDismiss: () => sessionStorage.setItem(DISMISS_KEY, fp),
       });
     };
-    void check();
+    // запуск с ярлыка: даём спокойно закончить действие
+    setTimeout(() => void check(), 30_000);
     setInterval(check, 30 * 60 * 1000);
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") void check(); });
   });

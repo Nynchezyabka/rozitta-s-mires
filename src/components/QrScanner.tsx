@@ -7,6 +7,14 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 /** Header button: opens the camera and jumps to the chest whose sticker QR was scanned. */
 export function QrScanner() {
   const [open, setOpen] = useState(false);
+  // ярлык на иконке «Скан QR» открывает камеру сразу: /?go=scan
+  useEffect(() => {
+    const u = new URL(window.location.href);
+    if (u.searchParams.get("go") !== "scan") return;
+    u.searchParams.delete("go");
+    window.history.replaceState(window.history.state, "", u.pathname + u.search + u.hash);
+    setOpen(true);
+  }, []);
   return (
     <>
       <button aria-label="Сканировать наклейку" onClick={() => setOpen(true)} className="shrink-0 rounded-full bg-secondary p-2 text-secondary-foreground"><ScanLine className="h-4 w-4" /></button>

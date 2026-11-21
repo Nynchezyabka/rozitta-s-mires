@@ -2,7 +2,7 @@ import { tagColor } from "@/lib/tags";
 import { normSearch, matchesAll } from "@/lib/search";
 import { DueBadge, LocationPath } from "@/components/BoxBits";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { householdQuery, setToken, useHouses, useToken } from "@/lib/household";
 import { Search, Plus, AlertCircle } from "lucide-react";
@@ -30,6 +30,15 @@ export const Route = createFileRoute("/")({
 
 function Home({ d }: { d: HouseholdData }) {
   const [q, setQ] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+  // ярлык на иконке «Найти» ставит курсор в поиск: /?go=search
+  useEffect(() => {
+    const u = new URL(window.location.href);
+    if (u.searchParams.get("go") !== "search") return;
+    u.searchParams.delete("go");
+    window.history.replaceState(window.history.state, "", u.pathname + u.search + u.hash);
+    searchRef.current?.focus();
+  }, []);
   const [groupFilter, setGroupFilter] = useState<string | null>(null);
   const gmap = useMemo(() => Object.fromEntries(d.groups.map((g) => [g.id, g])), [d.groups]);
   const itemsByBox = useMemo(() => {
@@ -63,7 +72,7 @@ function Home({ d }: { d: HouseholdData }) {
       <RozittaBubble />
       <div className="relative">
         <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Где мои… (вещь, номер сундука)" className="h-14 rounded-2xl bg-card pl-12 text-base" />
+        <Input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Где мои… (вещь, номер сундука)" className="h-14 rounded-2xl bg-card pl-12 text-base" />
       </div>
 
       {query && (
