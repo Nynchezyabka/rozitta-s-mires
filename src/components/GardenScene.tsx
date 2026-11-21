@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
-import { gardenPlantings, potagerPlantings, HABITATS, LAYERS, type GardenPlant, type Room } from "@/lib/garden";
+import { roomPlantings, HABITATS, LAYERS, ROOM_EMPTY, ROOM_NAMES, type GardenPlant, type Room } from "@/lib/garden";
 import potagerBg from "@/assets/potager.webp";
 import chard from "@/assets/potager-chard.webp";
 import artichoke from "@/assets/potager-artichoke.webp";
@@ -27,6 +27,30 @@ import dogwood from "@/assets/garden-dogwood.png";
 import hosta from "@/assets/garden-hosta.png";
 import frog from "@/assets/garden-frog.png";
 import { sfx } from "@/lib/rozitta";
+import gl_magnolia from "@/assets/gl-magnolia.webp";
+import gl_leucadendron from "@/assets/gl-leucadendron.webp";
+import gl_chrysanthemum from "@/assets/gl-chrysanthemum.webp";
+import gl_treefern from "@/assets/gl-treefern.webp";
+import gl_ficus from "@/assets/gl-ficus.webp";
+import gr_viburnum from "@/assets/gr-viburnum.webp";
+import gr_adiantum from "@/assets/gr-adiantum.webp";
+import gr_asarum from "@/assets/gr-asarum.webp";
+import gr_hellebore from "@/assets/gr-hellebore.webp";
+import gr_cyclamen from "@/assets/gr-cyclamen.webp";
+import ph_digitalis from "@/assets/ph-digitalis.webp";
+import ph_angelica from "@/assets/ph-angelica.webp";
+import ph_artemisia from "@/assets/ph-artemisia.webp";
+import ph_salvia from "@/assets/ph-salvia.webp";
+import ph_thyme from "@/assets/ph-thyme.webp";
+import mo_sanguisorba from "@/assets/mo-sanguisorba.webp";
+import mo_heather from "@/assets/mo-heather.webp";
+import mo_deschampsia from "@/assets/mo-deschampsia.webp";
+import mo_anemone from "@/assets/mo-anemone.webp";
+import glasshouseBg from "@/assets/room-glasshouse.webp";
+import grottoBg from "@/assets/room-grotto.webp";
+import physickBg from "@/assets/room-physick.webp";
+import moorBg from "@/assets/room-moor.webp";
+
 
 const FROGS = [{ x: 52, y: 62 }, { x: 66, y: 66 }, { x: 86, y: 70 }];
 const LIGHTS = [{ x: 10, y: 19, s: 9 }, { x: 91, y: 25, s: 8 }, { x: 89, y: 60, s: 10 }, { x: 22, y: 18, s: 14 }, { x: 25, y: 30, s: 10 }];
@@ -38,6 +62,14 @@ const PICS: Record<GardenPlant["id"], string> = {
   "p-romanesco": romanesco, "p-cabbage": veggie, chard, artichoke, kale, herbs, calendula, strawberry,
   lily, lily2, kiwi, romanesco, eryngium, veggie, chrysanthemum, peony,
   mushroom, fern, "copper-fern": copperFern, ajuga, veronica, moneywort, dogwood, hosta,
+  "gl-magnolia": gl_magnolia, "gl-leucadendron": gl_leucadendron, "gl-chrysanthemum": gl_chrysanthemum, "gl-treefern": gl_treefern, "gl-ficus": gl_ficus, "gr-viburnum": gr_viburnum, "gr-adiantum": gr_adiantum, "gr-asarum": gr_asarum, "gr-hellebore": gr_hellebore, "gr-cyclamen": gr_cyclamen, "ph-digitalis": ph_digitalis, "ph-angelica": ph_angelica, "ph-artemisia": ph_artemisia, "ph-salvia": ph_salvia, "ph-thyme": ph_thyme, "mo-sanguisorba": mo_sanguisorba, "mo-heather": mo_heather, "mo-deschampsia": mo_deschampsia, "mo-anemone": mo_anemone, "mo-eryngium": eryngium,
+};
+
+const NEW_ROOMS: Partial<Record<Room, { bg: string; alt: string }>> = {
+  glasshouse: { bg: glasshouseBg, alt: "Старая викторианская оранжерея: треснувшие стеклянные купола, витражная дверь, ржавые этажерки с горшками и пустые грядки в кованых бортиках" },
+  grotto: { bg: grottoBg, alt: "Мшистый грот: замшелые каменные ступени, родник из скалы, светящийся мох и тёмная заводь" },
+  physick: { bg: physickBg, alt: "Аптекарский дворик: плитняк, навес с пучками сушёных трав, медный перегонный куб, котелок над огнём и каменные грядки" },
+  moor: { bg: moorBg, alt: "Сумеречная пустошь: деревянные мостки, вереск, туман над холмами, стоячие камни и первая звезда" },
 };
 
 export function GardenScene({ room, count, fresh, night, hop, unlocked, onPass }: {
@@ -48,17 +80,18 @@ export function GardenScene({ room, count, fresh, night, hop, unlocked, onPass }
   const [selected, setSelected] = useState<GardenPlant | null>(null);
   const [jumping, setJumping] = useState<number | null>(null);
   const jump = (i: number) => { setJumping(null); requestAnimationFrame(() => setJumping(i)); sfx.quack(); };
-  const plantings = pond ? gardenPlantings(total) : potagerPlantings(total);
+  const plantings = roomPlantings(room, total);
+  const extra = NEW_ROOMS[room];
   return (
     <>
-      <div className={`garden-scene ${night ? "garden-night" : ""}`} role="group" aria-label={pond ? "Ярусный сад Розитты" : "Огород потаже"}>
-        {pond
+      <div className={`garden-scene ${night ? "garden-night" : ""}`} role="group" aria-label={ROOM_NAMES[room]}>
+        {extra ? <img src={extra.bg} alt={extra.alt} width={1536} height={1024} className="pixel h-full w-full object-cover" /> : pond
           ? <img src={landscape} alt="Лесной теневой сад: ива на берегу склоняется над прудом с кувшинками, арка с огоньками, скамья и тропинка" width={1536} height={1024} className="pixel h-full w-full object-cover" />
           : <img src={potagerBg} alt="Огород потаже: приподнятые грядки с плетёными бортиками, ивовые обелиски, терракотовые горшки и калитка в лес" width={1536} height={1024} className="pixel h-full w-full object-cover" />}
-        <button type="button" onClick={onPass} className={`garden-passage ${unlocked ? "garden-passage-open" : ""}`}
+        {(pond || room === "potager") && <button type="button" onClick={onPass} className={`garden-passage ${unlocked ? "garden-passage-open" : ""}`}
           style={(pond ? { left: "13%", top: "12%", width: "14%", height: "24%" } : { left: "3%", top: "52%", width: "25%", height: "40%" }) as CSSProperties}
           aria-label={pond ? (unlocked ? "Пройти через арку в огород потаже" : "Арка — тропинка пока заросла") : "Калитка — вернуться к лесному пруду"}
-          title={pond ? (unlocked ? "В огород потаже" : "Тропинка пока заросла") : "К лесному пруду"} />
+          title={pond ? (unlocked ? "В огород потаже" : "Тропинка пока заросла") : "К лесному пруду"} />}
         {plantings.map((plant) => (
           <Button key={plant.id} variant="ghost" aria-label={plant.name} title={plant.name}
             onClick={() => setSelected(plant)}
@@ -86,7 +119,7 @@ export function GardenScene({ room, count, fresh, night, hop, unlocked, onPass }
         {selected ? <>
           <p className="text-sm font-semibold text-primary">{selected.name}</p>
           <p className="mt-1 text-xs text-muted-foreground">{selected.botanical} · {LAYERS[selected.layer]} · {HABITATS[selected.habitat]}</p>
-        </> : <p className="text-sm text-muted-foreground">{total === 0 ? (pond ? "Пруд ждёт первую кувшинку. Розитта никуда не торопится." : "Грядки ждут первый шаг. Следующий посадит романеско.") : "Всё, что здесь выросло, остаётся с тобой."}</p>}
+        </> : <p className="text-sm text-muted-foreground">{total === 0 ? ROOM_EMPTY[room] : "Всё, что здесь выросло, остаётся с тобой."}</p>}
       </div>
     </>
   );

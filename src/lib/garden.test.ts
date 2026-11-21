@@ -47,3 +47,22 @@ describe("night by clock", () => {
     expect(isNightHour(20)).toBe(false);
   });
 });
+
+import { isRoomOpen, roomPlantings, ROOM_ORDER, ROOM_PLANTS } from "./garden";
+describe("новые комнаты сада", () => {
+  const zero = { pond: 0, potager: 0, glasshouse: 0, grotto: 0, physick: 0, moor: 0 };
+  it("идут по порядку: оранжерея, грот, аптекарский дворик, пустошь", () => {
+    expect(ROOM_ORDER).toEqual(["pond", "potager", "glasshouse", "grotto", "physick", "moor"]);
+  });
+  it("оранжерея открывается после 16 шагов в огороде", () => {
+    expect(isRoomOpen("glasshouse", { ...zero, pond: 16, potager: 15 })).toBe(false);
+    expect(isRoomOpen("glasshouse", { ...zero, pond: 16, potager: 16 })).toBe(true);
+  });
+  it("комнату нельзя перескочить", () => {
+    expect(isRoomOpen("grotto", { ...zero, pond: 16, potager: 0, glasshouse: 20 })).toBe(false);
+  });
+  it("у каждой комнаты свои растения, первый шаг сажает первое", () => {
+    expect(roomPlantings("grotto", 1).map((p) => p.id)).toEqual(["gr-viburnum"]);
+    expect(ROOM_PLANTS.moor.every((p) => p.habitat === "moor")).toBe(true);
+  });
+});

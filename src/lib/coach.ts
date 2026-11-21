@@ -86,6 +86,19 @@ export function addPotager(): number {
   return n;
 }
 
+/** Steps in the later garden rooms (glasshouse, grotto, physick, moor); each has its own counter. */
+export const roomKey = (room: string) => `rozitta-room-${room}`;
+export const getRoomSteps = (room: string) => {
+  if (typeof localStorage === "undefined") return 0;
+  const value = Number(localStorage.getItem(roomKey(room)) ?? 0);
+  return Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+};
+export function addRoomStep(room: string): number {
+  const n = getRoomSteps(room) + 1;
+  localStorage.setItem(roomKey(room), String(n));
+  return n;
+}
+
 const LOG = "rozitta-garden-log";
 export type GardenLogEntry = { at: number; what: string; plant: string };
 export function getGardenLog(): GardenLogEntry[] {

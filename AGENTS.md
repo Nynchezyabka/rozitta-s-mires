@@ -43,3 +43,5 @@ use the editor.
 - Item tags live in `items.category` (one free-form tag per thing, set by AI, editable); colours are auto from a name hash in src/lib/tags.ts with per-device overrides. Why: tags must cover any topic without a fixed list and need no extra table.
 - App version comes from the top entry of `src/lib/changelog.ts`; bump it with package.json and the README badge on notable releases. Why: one source for the in-app «Что нового» and the version label.
 - Several houses per device: each is its own household token; the list lives in localStorage (`getHouses`/`useHouses` in src/lib/household.ts), switched from the header; home search also queries the other houses. Why: separate places without any schema change.
+
+- Garden rooms walk in `ROOM_ORDER` (src/lib/garden.ts); each later room has its own localStorage counter (`rozitta-room-<id>`) and opens after `ROOM_UNLOCK` steps in the previous room. Why: pond steps stay derived from the total, so old progress survives.

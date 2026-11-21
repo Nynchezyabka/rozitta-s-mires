@@ -4,8 +4,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Coach } from "@/components/Coach";
 import { GardenScene } from "@/components/GardenScene";
-import { addBloom, addPotager, getPotager, addGardenLog, getGarden, getGardenLog, type GardenLogEntry } from "@/lib/coach";
-import { gardenRewardAt, isNightHour, isPotagerOpen, potagerRewardAt, POTAGER_UNLOCK, type Room } from "@/lib/garden";
+import { addBloom, addPotager, getPotager, addRoomStep, getRoomSteps, addGardenLog, getGarden, getGardenLog, type GardenLogEntry } from "@/lib/coach";
+import { gardenRewardAt, isNightHour, isRoomOpen, roomRewardAt, ROOM_NAMES, ROOM_ORDER, ROOM_UNLOCK, type Room } from "@/lib/garden";
+
+const LATER: Room[] = ["glasshouse", "grotto", "physick", "moor"];
+const readLater = () => Object.fromEntries(LATER.map((r) => [r, getRoomSteps(r)])) as Record<Room, number>;
 import { sfx } from "@/lib/rozitta";
 import door from "@/assets/garden-door.jpg";
 import key from "@/assets/garden-key.webp";
@@ -15,6 +18,7 @@ export function SecretGarden() {
   const [total, setTotal] = useState(0);
   const [fresh, setFresh] = useState<string | null>(null);
   const [potager, setPotager] = useState(0);
+  const [later, setLater] = useState<Record<Room, number>>({} as Record<Room, number>);
   const [room, setRoom] = useState<Room>("pond");
   const [earned, setEarned] = useState("");
   const [night, setNight] = useState(false);
@@ -25,22 +29,31 @@ export function SecretGarden() {
     tick();
     const timer = window.setInterval(tick, 60000);
     setLog(getGardenLog());
-    const refresh = () => { setTotal(getGarden()); setPotager(getPotager()); };
+    const refresh = () => { setTotal(getGarden()); setPotager(getPotager()); setLater(readLater()); };
     refresh();
     window.addEventListener("storage", refresh);
     return () => { window.removeEventListener("storage", refresh); window.clearInterval(timer); };
   }, []);
 
-  const pond = Math.max(0, total - potager);
+  const laterSum = LATER.reduce((a, r) => a + (later[r] ?? 0), 0);
+  const pond = Math.max(0, total - potager - laterSum);
+  const steps = { ...later, pond, potager } as Record<Room, number>;
+  const idx = ROOM_ORDER.indexOf(room);
+  const prevRoom = ROOM_ORDER[idx - 1];
+  const nextRoom = ROOM_ORDER[idx + 1];
+  const nextOpen = nextRoom ? isRoomOpen(nextRoom, steps) : false;
+  const go = (r: Room) => { setRoom(r); setFresh(null); setEarned(""); sfx.key(); };
   const pass = () => {
-    if (!isPotagerOpen(pond)) { toast(`Тропинка за аркой заросла плющом. Ещё ${POTAGER_UNLOCK - pond} шагов к порядку — и путь расчистится.`); return; }
-    setRoom(room === "pond" ? "potager" : "pond"); setFresh(null); setEarned(""); sfx.key();
+    if (room === "potager") { go("pond"); return; }
+    if (!nextOpen) { toast(`Тропинка за аркой заросла плющом. Ещё ${ROOM_UNLOCK - pond} шагов к порядку — и путь расчистится.`); return; }
+    go("potager");
   };
   const done = (what: string) => {
     const count = addBloom();
     let plant;
-    if (room === "potager") { const n = addPotager(); setPotager(n); plant = potagerRewardAt(n - 1); }
-    else plant = gardenRewardAt(count - 1 - potager);
+    if (room === "potager") { const n = addPotager(); setPotager(n); plant = roomRewardAt("potager", n - 1); }
+    else if (room !== "pond") { const n = addRoomStep(room); setLater(readLater()); plant = roomRewardAt(room, n - 1); }
+    else plant = gardenRewardAt(count - 1 - potager - laterSum);
     setTotal(count);
     setFresh(plant.id);
     setEarned(plant.name);
@@ -76,12 +89,13 @@ export function SecretGarden() {
         <Button variant="ghost" size="icon" aria-label="Закрыть дверь сада" title="Закрыть дверь сада" onClick={() => setOpen(false)}><DoorClosed /></Button>
         </div>
       </header>
-      <div className="-mx-4"><GardenScene room={room} count={room === "pond" ? pond : potager} fresh={fresh} night={night} hop={hop} unlocked={isPotagerOpen(pond)} onPass={pass} /></div>
-      <div className="mt-2 flex items-center justify-between gap-2 text-xs">
-        <span className="text-muted-foreground">{room === "pond" ? "Лесной пруд" : "Огород потаже"}</span>
-        {isPotagerOpen(pond)
-          ? <Button variant="outline" size="sm" onClick={pass}>{room === "pond" ? "Через арку в огород →" : "← К лесному пруду"}</Button>
-          : <span className="text-muted-foreground">Огород за аркой: ещё {POTAGER_UNLOCK - pond}</span>}
+      <div className="-mx-4"><GardenScene room={room} count={steps[room] ?? 0} fresh={fresh} night={night} hop={hop} unlocked={room === "pond" ? nextOpen : true} onPass={pass} /></div>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+        {prevRoom ? <Button variant="outline" size="sm" onClick={() => go(prevRoom)}>← {ROOM_NAMES[prevRoom]}</Button> : <span />}
+        <span className="text-muted-foreground">{ROOM_NAMES[room]}</span>
+        {nextRoom && (nextOpen
+          ? <Button variant="outline" size="sm" onClick={() => go(nextRoom)}>{ROOM_NAMES[nextRoom]} →</Button>
+          : <span className="text-muted-foreground">Дальше тропинка заросла: ещё {ROOM_UNLOCK - (steps[room] ?? 0)}</span>)}
       </div>
       {earned && <p className="mt-3 text-sm text-primary" role="status">Выросло: {earned}</p>}
       <Coach onDone={done} />
