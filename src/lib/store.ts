@@ -129,7 +129,7 @@ export async function deleteThing({ data }: { data: Tok & { id: string } }) {
   await rpc("k_delete_thing", { _token: data.token, _id: data.id });
 }
 
-export type Cloth = { id: string; owner: string; name: string; layer: string; season: string; status: string; size: string; box_id: string | null; photo_path: string | null; photo_url: string | null; created_at: string };
+export type Cloth = { id: string; owner: string; name: string; layer: string; season: string; status: string; size: string; category: string; color: string; box_id: string | null; photo_path: string | null; photo_url: string | null; created_at: string };
 export async function getClothes({ data }: { data: Tok }): Promise<Cloth[]> {
   const list = (await rpc<Omit<Cloth, "photo_url">[]>("k_clothes", { _token: data.token })) ?? [];
   const paths = list.map((c) => c.photo_path).filter((p): p is string => !!p);
@@ -138,13 +138,33 @@ export async function getClothes({ data }: { data: Tok }): Promise<Cloth[]> {
     const { data: signed } = await photos(data.token).createSignedUrls(paths, 60 * 60 * 6);
     for (const x of signed ?? []) if (x.path && x.signedUrl) urls[x.path] = x.signedUrl;
   }
-  return list.map((c) => ({ ...c, photo_url: c.photo_path ? urls[c.photo_path] ?? null : null }));
+  return list.map((c) => ({ ...c, category: c.category ?? "", color: c.color ?? "", photo_url: c.photo_path ? urls[c.photo_path] ?? null : null }));
 }
-export async function saveCloth({ data }: { data: Tok & { id?: string | undefined; owner: string; name: string; layer: string; season: string; status: string; size: string; box_id: string | null; photo?: string | null } }) {
+export async function saveCloth({ data }: { data: Tok & { id?: string | undefined; owner: string; name: string; layer: string; season: string; status: string; size: string; category: string; color: string; box_id: string | null; photo?: string | null } }) {
   const { token, photo, ...c } = data;
   const photo_path = photo?.startsWith("data:image/") ? await uploadPhoto(token, photo) : null;
   return { id: await rpc<string>("k_save_cloth", { _token: token, _c: { ...c, id: c.id ?? null, photo_path } }) };
 }
 export async function deleteCloth({ data }: { data: Tok & { id: string } }) {
   await rpc("k_delete_cloth", { _token: data.token, _id: data.id });
+}
+
+export type Outfit = { id: string; name: string; owner: string; photo_path: string | null; photo_url: string | null; cloth_ids: string[]; created_at: string };
+export async function getOutfits({ data }: { data: Tok }): Promise<Outfit[]> {
+  const list = (await rpc<Omit<Outfit, "photo_url">[]>("k_outfits", { _token: data.token })) ?? [];
+  const paths = list.map((o) => o.photo_path).filter((p): p is string => !!p);
+  const urls: Record<string, string> = {};
+  if (paths.length) {
+    const { data: signed } = await photos(data.token).createSignedUrls(paths, 60 * 60 * 6);
+    for (const x of signed ?? []) if (x.path && x.signedUrl) urls[x.path] = x.signedUrl;
+  }
+  return list.map((o) => ({ ...o, cloth_ids: o.cloth_ids ?? [], photo_url: o.photo_path ? urls[o.photo_path] ?? null : null }));
+}
+export async function saveOutfit({ data }: { data: Tok & { id?: string | undefined; name: string; owner: string; cloth_ids: string[]; photo?: string | null } }) {
+  const { token, photo, ...o } = data;
+  const photo_path = photo?.startsWith("data:image/") ? await uploadPhoto(token, photo) : null;
+  return { id: await rpc<string>("k_save_outfit", { _token: token, _o: { ...o, id: o.id ?? null, photo_path } }) };
+}
+export async function deleteOutfit({ data }: { data: Tok & { id: string } }) {
+  await rpc("k_delete_outfit", { _token: data.token, _id: data.id });
 }

@@ -71,6 +71,13 @@
       "when": 1795426576096,
       "tag": "0009_wardrobe",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795427223686,
+      "tag": "0010_wardrobe_categories_outfits",
+      "breakpoints": true
     }
   ]
 }

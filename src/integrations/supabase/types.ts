@@ -80,6 +80,8 @@ export type Database = {
       clothes: {
         Row: {
           box_id: string | null
+          category: string
+          color: string
           created_at: string
           household_id: string
           id: string
@@ -93,6 +95,8 @@ export type Database = {
         }
         Insert: {
           box_id?: string | null
+          category?: string
+          color?: string
           created_at?: string
           household_id: string
           id?: string
@@ -106,6 +110,8 @@ export type Database = {
         }
         Update: {
           box_id?: string | null
+          category?: string
+          color?: string
           created_at?: string
           household_id?: string
           id?: string
@@ -279,6 +285,44 @@ export type Database = {
           },
         ]
       }
+      outfits: {
+        Row: {
+          cloth_ids: string[]
+          created_at: string
+          household_id: string
+          id: string
+          name: string
+          owner: string
+          photo_path: string | null
+        }
+        Insert: {
+          cloth_ids?: string[]
+          created_at?: string
+          household_id: string
+          id?: string
+          name?: string
+          owner?: string
+          photo_path?: string | null
+        }
+        Update: {
+          cloth_ids?: string[]
+          created_at?: string
+          household_id?: string
+          id?: string
+          name?: string
+          owner?: string
+          photo_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outfits_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       things: {
         Row: {
           created_at: string
@@ -339,6 +383,10 @@ export type Database = {
         Args: { _id: string; _token: string }
         Returns: undefined
       }
+      k_delete_outfit: {
+        Args: { _id: string; _token: string }
+        Returns: undefined
+      }
       k_delete_thing: {
         Args: { _id: string; _token: string }
         Returns: undefined
@@ -350,6 +398,7 @@ export type Database = {
         Args: { _id: string; _kind: string; _token: string }
         Returns: undefined
       }
+      k_outfits: { Args: { _token: string }; Returns: Json }
       k_rename: { Args: { _name: string; _token: string }; Returns: undefined }
       k_save_box: {
         Args: { _box: Json; _items: Json; _token: string }
@@ -371,6 +420,7 @@ export type Database = {
         Args: { _body: string; _id: string; _title: string; _token: string }
         Returns: string
       }
+      k_save_outfit: { Args: { _o: Json; _token: string }; Returns: string }
       k_save_thing: {
         Args: {
           _id: string

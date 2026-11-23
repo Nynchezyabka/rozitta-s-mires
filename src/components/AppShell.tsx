@@ -89,11 +89,11 @@ function MoreMenu() {
       <DropdownMenuContent align="end" className="z-50 w-60 border-2 border-primary/60 bg-card">
         <p className="px-2 pb-1 pt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Магия болот</p>
         <DropdownMenuItem asChild><Link to="/garden"><img src={gardenKey} alt="" width={816} height={816} className="pixel mr-2 h-6 w-6" />Таинственный сад</Link></DropdownMenuItem>
-        <DropdownMenuItem asChild><Link to="/wardrobe"><span className="mr-2 w-4 text-center">👗</span>Гардероб</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/grimoire"><BookOpen className="mr-2 h-4 w-4" />Гримуар</Link></DropdownMenuItem>
         <DropdownMenuSeparator />
         <p className="px-2 pb-1 pt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Семья и сундуки</p>
         <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Подключить телефон</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/wardrobe"><span className="mr-2 w-4 text-center">👗</span>Гардероб</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/stickers"><Printer className="mr-2 h-4 w-4" />Наклейки</Link></DropdownMenuItem>
         <DropdownMenuSeparator />
         <p className="px-2 pb-1 pt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Система</p>

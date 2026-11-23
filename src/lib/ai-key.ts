@@ -224,14 +224,14 @@ export async function categorizeWithKey(key: string, names: string[], known: str
   return parseCategories(await call(key, categorizePrompt(names, known)), names);
 }
 
-export type ClothGuess = { name: string; layer: string | null; season: string | null; size: string | null };
+export type ClothGuess = { name: string; layer: string | null; season: string | null; size: string | null; color: string | null };
 /** One photo = one garment: short name, layer, season, size if a label is readable. */
 export async function recognizeCloth(key: string, photo: string): Promise<ClothGuess> {
-  const prompt = `На фото одна вещь одежды, обувь или аксессуар. Верни только JSON: {"name":"коротко по-русски с цветом, например «Мятный детский комбинезон»","layer":"top|bottom|outer|shoes|acc|dress","season":"winter|summer|mid|all","size":"размер или рост с бирки, если читается, иначе null"}`;
+  const prompt = `На фото одна вещь одежды, обувь или аксессуар. Верни только JSON: {"name":"коротко по-русски с цветом, например «Мятный детский комбинезон»","layer":"top|bottom|outer|shoes|acc|dress","season":"winter|summer|mid|all","size":"размер или рост с бирки, если читается, иначе null","color":"основной цвет одним словом по-русски"}`;
   const text = stripThinking(await call(key, prompt, photo));
   try {
     const p = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] ?? "");
-    return { name: typeof p.name === "string" ? p.name : "", layer: p.layer ?? null, season: p.season ?? null, size: typeof p.size === "string" ? p.size : null };
+    return { name: typeof p.name === "string" ? p.name : "", layer: p.layer ?? null, season: p.season ?? null, size: typeof p.size === "string" ? p.size : null, color: typeof p.color === "string" ? p.color : null };
   } catch {
     throw new Error("Модель ответила непонятно — заполните вручную");
   }
