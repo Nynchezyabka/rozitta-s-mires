@@ -140,7 +140,7 @@ export async function getClothes({ data }: { data: Tok }): Promise<Cloth[]> {
   }
   return list.map((c) => ({ ...c, photo_url: c.photo_path ? urls[c.photo_path] ?? null : null }));
 }
-export async function saveCloth({ data }: { data: Tok & { id?: string; owner: string; name: string; layer: string; season: string; status: string; size: string; box_id: string | null; photo?: string | null } }) {
+export async function saveCloth({ data }: { data: Tok & { id?: string | undefined; owner: string; name: string; layer: string; season: string; status: string; size: string; box_id: string | null; photo?: string | null } }) {
   const { token, photo, ...c } = data;
   const photo_path = photo?.startsWith("data:image/") ? await uploadPhoto(token, photo) : null;
   return { id: await rpc<string>("k_save_cloth", { _token: token, _c: { ...c, id: c.id ?? null, photo_path } }) };
