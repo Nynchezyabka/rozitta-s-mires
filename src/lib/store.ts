@@ -128,3 +128,23 @@ export async function markThing({ data }: { data: Tok & { id: string; kind: "wat
 export async function deleteThing({ data }: { data: Tok & { id: string } }) {
   await rpc("k_delete_thing", { _token: data.token, _id: data.id });
 }
+
+export type Cloth = { id: string; owner: string; name: string; layer: string; season: string; status: string; size: string; box_id: string | null; photo_path: string | null; photo_url: string | null; created_at: string };
+export async function getClothes({ data }: { data: Tok }): Promise<Cloth[]> {
+  const list = (await rpc<Omit<Cloth, "photo_url">[]>("k_clothes", { _token: data.token })) ?? [];
+  const paths = list.map((c) => c.photo_path).filter((p): p is string => !!p);
+  const urls: Record<string, string> = {};
+  if (paths.length) {
+    const { data: signed } = await photos(data.token).createSignedUrls(paths, 60 * 60 * 6);
+    for (const x of signed ?? []) if (x.path && x.signedUrl) urls[x.path] = x.signedUrl;
+  }
+  return list.map((c) => ({ ...c, photo_url: c.photo_path ? urls[c.photo_path] ?? null : null }));
+}
+export async function saveCloth({ data }: { data: Tok & { id?: string; owner: string; name: string; layer: string; season: string; status: string; size: string; box_id: string | null; photo?: string | null } }) {
+  const { token, photo, ...c } = data;
+  const photo_path = photo?.startsWith("data:image/") ? await uploadPhoto(token, photo) : null;
+  return { id: await rpc<string>("k_save_cloth", { _token: token, _c: { ...c, id: c.id ?? null, photo_path } }) };
+}
+export async function deleteCloth({ data }: { data: Tok & { id: string } }) {
+  await rpc("k_delete_cloth", { _token: data.token, _id: data.id });
+}

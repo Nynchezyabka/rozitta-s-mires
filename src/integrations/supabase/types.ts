@@ -77,6 +77,63 @@ export type Database = {
           },
         ]
       }
+      clothes: {
+        Row: {
+          box_id: string | null
+          created_at: string
+          household_id: string
+          id: string
+          layer: string
+          name: string
+          owner: string
+          photo_path: string | null
+          season: string
+          size: string
+          status: string
+        }
+        Insert: {
+          box_id?: string | null
+          created_at?: string
+          household_id: string
+          id?: string
+          layer?: string
+          name?: string
+          owner?: string
+          photo_path?: string | null
+          season?: string
+          size?: string
+          status?: string
+        }
+        Update: {
+          box_id?: string | null
+          created_at?: string
+          household_id?: string
+          id?: string
+          layer?: string
+          name?: string
+          owner?: string
+          photo_path?: string | null
+          season?: string
+          size?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clothes_box_id_fkey"
+            columns: ["box_id"]
+            isOneToOne: false
+            referencedRelation: "boxes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clothes_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           color: string
@@ -268,7 +325,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      k_clothes: { Args: { _token: string }; Returns: Json }
       k_create_household: { Args: { _name: string }; Returns: string }
+      k_delete_cloth: {
+        Args: { _id: string; _token: string }
+        Returns: undefined
+      }
       k_delete_group: {
         Args: { _id: string; _token: string }
         Returns: undefined
@@ -293,6 +355,7 @@ export type Database = {
         Args: { _box: Json; _items: Json; _token: string }
         Returns: string
       }
+      k_save_cloth: { Args: { _c: Json; _token: string }; Returns: string }
       k_save_group: {
         Args: {
           _color: string

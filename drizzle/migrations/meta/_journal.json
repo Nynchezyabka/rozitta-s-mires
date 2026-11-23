@@ -64,6 +64,13 @@
       "when": 1794900000003,
       "tag": "0008_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795426576096,
+      "tag": "0009_wardrobe",
+      "breakpoints": true
     }
   ]
 }

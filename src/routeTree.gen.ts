@@ -21,6 +21,7 @@ import { Route as NewRouteImport } from './routes/new'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StickersRouteImport } from './routes/stickers'
 import { Route as TagsRouteImport } from './routes/tags'
+import { Route as WardrobeRouteImport } from './routes/wardrobe'
 import { Route as BIdRouteImport } from './routes/b.$id'
 import { Route as BoxIdRouteImport } from './routes/box.$id'
 import { Route as HouseSpaceRouteImport } from './routes/house.$space'
@@ -86,6 +87,11 @@ const TagsRoute = TagsRouteImport.update({
   path: '/tags',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WardrobeRoute = WardrobeRouteImport.update({
+  id: '/wardrobe',
+  path: '/wardrobe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BIdRoute = BIdRouteImport.update({
   id: '/b/$id',
   path: '/b/$id',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
   '/tags': typeof TagsRoute
+  '/wardrobe': typeof WardrobeRoute
   '/b/$id': typeof BIdRoute
   '/box/$id': typeof BoxIdRoute
   '/house/$space': typeof HouseSpaceRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
   '/tags': typeof TagsRoute
+  '/wardrobe': typeof WardrobeRoute
   '/b/$id': typeof BIdRoute
   '/box/$id': typeof BoxIdRoute
   '/house/$space': typeof HouseSpaceRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/stickers': typeof StickersRoute
   '/tags': typeof TagsRoute
+  '/wardrobe': typeof WardrobeRoute
   '/b/$id': typeof BIdRoute
   '/box/$id': typeof BoxIdRoute
   '/house/$space': typeof HouseSpaceRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stickers'
     | '/tags'
+    | '/wardrobe'
     | '/b/$id'
     | '/box/$id'
     | '/house/$space'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stickers'
     | '/tags'
+    | '/wardrobe'
     | '/b/$id'
     | '/box/$id'
     | '/house/$space'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stickers'
     | '/tags'
+    | '/wardrobe'
     | '/b/$id'
     | '/box/$id'
     | '/house/$space'
@@ -232,6 +244,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StickersRoute: typeof StickersRoute
   TagsRoute: typeof TagsRoute
+  WardrobeRoute: typeof WardrobeRoute
   BIdRoute: typeof BIdRoute
   BoxIdRoute: typeof BoxIdRoute
   JoinTokenRoute: typeof JoinTokenRoute
@@ -323,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TagsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wardrobe': {
+      id: '/wardrobe'
+      path: '/wardrobe'
+      fullPath: '/wardrobe'
+      preLoaderRoute: typeof WardrobeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/b/$id': {
       id: '/b/$id'
       path: '/b/$id'
@@ -377,6 +397,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StickersRoute: StickersRoute,
   TagsRoute: TagsRoute,
+  WardrobeRoute: WardrobeRoute,
   BIdRoute: BIdRoute,
   BoxIdRoute: BoxIdRoute,
   JoinTokenRoute: JoinTokenRoute,
