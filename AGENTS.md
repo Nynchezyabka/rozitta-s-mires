@@ -45,3 +45,4 @@ use the editor.
 - Several houses per device: each is its own household token; the list lives in localStorage (`getHouses`/`useHouses` in src/lib/household.ts), switched from the header; home search also queries the other houses. Why: separate places without any schema change.
 
 - Garden rooms walk in `ROOM_ORDER` (src/lib/garden.ts); each later room has its own localStorage counter (`rozitta-room-<id>`) and opens after `ROOM_UNLOCK` steps in the previous room. Why: pond steps stay derived from the total, so old progress survives.
+- Wardrobe items live in the `clothes` table via token-checked k_clothes/k_save_cloth/k_delete_cloth; vocabulary and outfit picker in src/lib/wardrobe.ts; family names are free text with a per-device list. Why: same no-accounts model as chests, optional box link.
