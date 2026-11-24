@@ -291,8 +291,10 @@ export type Database = {
           created_at: string
           household_id: string
           id: string
+          kind: string
           name: string
           owner: string
+          packed_ids: string[]
           photo_path: string | null
         }
         Insert: {
@@ -300,8 +302,10 @@ export type Database = {
           created_at?: string
           household_id: string
           id?: string
+          kind?: string
           name?: string
           owner?: string
+          packed_ids?: string[]
           photo_path?: string | null
         }
         Update: {
@@ -309,8 +313,10 @@ export type Database = {
           created_at?: string
           household_id?: string
           id?: string
+          kind?: string
           name?: string
           owner?: string
+          packed_ids?: string[]
           photo_path?: string | null
         }
         Relationships: [

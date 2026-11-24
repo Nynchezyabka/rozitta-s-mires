@@ -20,7 +20,7 @@ export function toCsv(d: HouseholdData): string {
 }
 
 /** Settings on this device that may travel with the copy. The AI key never does. */
-export const DEVICE_KEYS = ["rozitta-garden", "rozitta-garden-log", "rozitta-potager", "wardrobe-people", "rozitta-room-glasshouse", "rozitta-room-grotto", "rozitta-room-physick", "rozitta-room-moor", "rozitta-health"] as const;
+export const DEVICE_KEYS = ["rozitta-garden", "rozitta-garden-log", "rozitta-potager", "wardrobe-people", "wardrobe-categories", "rozitta-room-glasshouse", "rozitta-room-grotto", "rozitta-room-physick", "rozitta-room-moor", "rozitta-health"] as const;
 export const readDevice = (): Record<string, string> =>
   Object.fromEntries(DEVICE_KEYS.map((k) => [k, localStorage.getItem(k)]).filter((e): e is [string, string] => e[1] != null));
 

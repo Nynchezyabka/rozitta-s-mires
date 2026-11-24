@@ -12,7 +12,7 @@ _«Где зимние сапоги? — В сундуке №7, на балко
 
 Без регистрации · Фото → список вещей · QR-наклейки · Общий доступ для семьи
 
-![Версия](https://img.shields.io/badge/версия-1.6.0-3ee6c8)
+![Версия](https://img.shields.io/badge/версия-1.7.0-3ee6c8)
 ![Стиль](https://img.shields.io/badge/стиль-неоновое_болото-7cff3a)
 ![Без аккаунта](https://img.shields.io/badge/аккаунт-не_нужен-b06cff)
 ![ИИ](https://img.shields.io/badge/ИИ-Gemini_·_Claude_·_OpenRouter-ff6fb5)

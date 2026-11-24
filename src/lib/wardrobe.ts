@@ -39,8 +39,19 @@ type C = { id: string; owner: string; layer: string; season: string; status: str
 /** Outfit from things in the closet for one person in this season: a dress OR top+bottom, plus shoes/outer if any. */
 export function pickOutfit<T extends C>(all: T[], owner: string, season: string, rnd = Math.random): T[] {
   const ok = all.filter((c) => c.status === "closet" && (!owner || c.owner === owner) && (c.season === season || c.season === "all"));
-  const one = (layer: string) => { const l = ok.filter((c) => c.layer === layer); return l.length ? l[Math.floor(rnd() * l.length)]! : null; };
+  const one = (layer: string) => { const l = ok.filter((c) => c.layer === layer); return l[Math.floor(rnd() * l.length)] ?? null; };
   const dress = one("dress"), top = one("top"), bottom = one("bottom");
   const base = dress && (!top || !bottom || rnd() < 0.4) ? [dress] : [top, bottom];
   return [...base, one("shoes"), season === "summer" ? null : one("outer")].filter((x): x is T => !!x);
+}
+
+/** Moving into storage keeps hand-me-down/give-away intent; taking out makes it wearable. */
+export function clothDestination(status: string, boxId: string | null) {
+  return { box_id: boxId, status: boxId ? (status === "closet" ? "stored" : status) : "closet" };
+}
+
+/** Stored selections may contain deleted things; never show or pack missing entries. */
+export function selectedClothes<T extends { id: string }>(all: T[], ids: string[]) {
+  const wanted = new Set(ids);
+  return all.filter((c) => wanted.has(c.id));
 }

@@ -149,7 +149,7 @@ export async function deleteCloth({ data }: { data: Tok & { id: string } }) {
   await rpc("k_delete_cloth", { _token: data.token, _id: data.id });
 }
 
-export type Outfit = { id: string; name: string; owner: string; photo_path: string | null; photo_url: string | null; cloth_ids: string[]; created_at: string };
+export type Outfit = { id: string; name: string; owner: string; kind: "look" | "capsule"; packed_ids: string[]; photo_path: string | null; photo_url: string | null; cloth_ids: string[]; created_at: string };
 export async function getOutfits({ data }: { data: Tok }): Promise<Outfit[]> {
   const list = (await rpc<Omit<Outfit, "photo_url">[]>("k_outfits", { _token: data.token })) ?? [];
   const paths = list.map((o) => o.photo_path).filter((p): p is string => !!p);
@@ -160,7 +160,7 @@ export async function getOutfits({ data }: { data: Tok }): Promise<Outfit[]> {
   }
   return list.map((o) => ({ ...o, cloth_ids: o.cloth_ids ?? [], photo_url: o.photo_path ? urls[o.photo_path] ?? null : null }));
 }
-export async function saveOutfit({ data }: { data: Tok & { id?: string | undefined; name: string; owner: string; cloth_ids: string[]; photo?: string | null } }) {
+export async function saveOutfit({ data }: { data: Tok & { id?: string | undefined; name: string; owner: string; kind: "look" | "capsule"; packed_ids: string[]; cloth_ids: string[]; photo?: string | null } }) {
   const { token, photo, ...o } = data;
   const photo_path = photo?.startsWith("data:image/") ? await uploadPhoto(token, photo) : null;
   return { id: await rpc<string>("k_save_outfit", { _token: token, _o: { ...o, id: o.id ?? null, photo_path } }) };

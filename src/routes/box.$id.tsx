@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { MapPin, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BoxClothes } from "@/components/ClothStorage";
 import { PhotoStrip } from "@/components/PhotoStrip";
 import { CreateGroup } from "@/components/CreateGroup";
 import { AppShell } from "@/components/AppShell";
@@ -137,6 +138,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
         <h2 className="font-semibold">Что внутри</h2>
         <ItemsEditor items={items} onChange={setItems} />
       </section>
+      <BoxClothes token={token} boxId={id} boxes={d.boxes} />
       <section className="space-y-2">
         <h2 className="font-semibold">Группа</h2>
         <GroupPicker groups={d.groups} value={groupId} onChange={setGroupId} />

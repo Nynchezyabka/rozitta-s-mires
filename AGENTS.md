@@ -46,3 +46,6 @@ use the editor.
 
 - Garden rooms walk in `ROOM_ORDER` (src/lib/garden.ts); each later room has its own localStorage counter (`rozitta-room-<id>`) and opens after `ROOM_UNLOCK` steps in the previous room. Why: pond steps stay derived from the total, so old progress survives.
 - Wardrobe items live in the `clothes` table via token-checked k_clothes/k_save_cloth/k_delete_cloth; vocabulary and outfit picker in src/lib/wardrobe.ts; family names are free text with a per-device list. Why: same no-accounts model as chests, optional box link.
+
+- Wardrobe storage controls are shared by chest and wardrobe views; moves update the existing clothing row, not ordinary chest items. Why: keep one garment identity and preserve drafts.
+- Outfits and capsules store clothing IDs and packing selections via token-checked RPCs, with images in the household photo bucket. Why: manual combinations sync between family devices without copied inventory.

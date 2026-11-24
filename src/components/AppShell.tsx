@@ -1,7 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag } from "lucide-react";
+import { Home, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag, Shirt } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -116,6 +116,7 @@ const more = [
   { to: "/garden", label: "Таинственный сад", icon: Sprout },
   { to: "/grimoire", label: "Гримуар", icon: BookOpen },
   { to: "/family", label: "Подключить телефон", icon: Users },
+  { to: "/wardrobe", label: "Гардероб", icon: Shirt },
   { to: "/stickers", label: "Наклейки", icon: Printer },
   { to: "/backup", label: "Копия и обновления", icon: Save },
   { to: "/help", label: "Справка", icon: HelpCircle },
