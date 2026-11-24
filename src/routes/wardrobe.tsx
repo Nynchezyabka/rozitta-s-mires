@@ -140,7 +140,7 @@ function Wardrobe({ d, token }: { d: HouseholdData; token: string }) {
       )}
       </>}
 
-      <Button className="fixed bottom-6 right-6 z-40 h-14 rounded-full px-5 shadow-lg" onClick={() => tab === "looks" ? setLook({ name: "", owner, cloth_ids: [] }) : setDraft(blank())}><Plus className="mr-1" />{tab === "looks" ? "Образ" : "Вещь"}</Button>
+      <Button className="fixed bottom-24 right-6 z-40 h-14 rounded-full px-5 shadow-lg lg:bottom-6" onClick={() => tab === "looks" ? setLook({ name: "", owner, cloth_ids: [] }) : setDraft(blank())}><Plus className="mr-1" />{tab === "looks" ? "Образ" : "Вещь"}</Button>
 
       {draft && <ClothDialog draft={draft} people={people} cats={cats} looks={outfits.filter((o) => draft.id && o.cloth_ids.includes(draft.id)).map((o) => o.name || "Без названия")} d={d} token={token} onClose={() => setDraft(null)} onSaved={refresh} />}
       {look && <LookDialog look={look} clothes={clothes} people={people} token={token} onClose={() => setLook(null)} onSaved={refreshLooks} />}
@@ -197,8 +197,8 @@ function ClothDialog({ draft, people, cats, looks, d, token, onClose, onSaved }:
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader><DialogTitle>{f.id ? "Вещь" : "Новая вещь"}</DialogTitle></DialogHeader>
         <input ref={file} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { const x = e.target.files?.[0]; if (x) void onPhoto(x); e.target.value = ""; }} />
-        <Button variant="ghost" type="button" onClick={() => file.current?.click()} className="grid h-auto p-0 aspect-[4/3] w-full place-items-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-muted">
-          {f.photo_url ? <img src={f.photo_url} alt="" className="h-full w-full object-cover" /> : <span className="flex items-center gap-2 text-sm"><Camera />Сфотографировать</span>}
+        <Button variant="ghost" type="button" onClick={() => file.current?.click()} className="relative grid h-auto p-0 aspect-[4/3] w-full place-items-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-muted">
+          {f.photo_url ? <img src={f.photo_url} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <span className="flex items-center gap-2 text-sm"><Camera />Сфотографировать</span>}
         </Button>
         {busy === "ai" && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Розитта разглядывает вещь…</p>}
         <Input value={f.name} onChange={(e) => set({ name: e.target.value })} placeholder="Что это? Например: мятный комбинезон" />
@@ -271,10 +271,10 @@ function LookDialog({ look, clothes, people, token, onClose, onSaved }: { look: 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>{look.id ? "Образ" : "Новый образ или капсула"}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{look.id ? kind === "capsule" ? "Капсула" : "Образ" : "Новый образ или капсула"}</DialogTitle></DialogHeader>
         <input ref={file} type="file" accept="image/*" hidden onChange={async (e) => { const input = e.currentTarget; const x = input.files?.[0]; if (x) { try { setPhoto(await compressImage(x, 1024)); } catch { toast.error("Не удалось открыть фото"); } } input.value = ""; }} />
-        <Button variant="ghost" type="button" onClick={() => file.current?.click()} className="grid h-auto p-0 aspect-[4/3] w-full place-items-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-muted">
-          {shown ? <img src={shown} alt="" className="h-full w-full object-cover" /> : <span className="flex items-center gap-2 text-sm"><Camera />Фото в зеркале (можно без)</span>}
+        <Button variant="ghost" type="button" onClick={() => file.current?.click()} className="relative grid h-auto p-0 aspect-[4/3] w-full place-items-center overflow-hidden rounded-lg border-2 border-dashed border-border bg-muted">
+          {shown ? <img src={shown} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <span className="flex items-center gap-2 text-sm"><Camera />Фото в зеркале (можно без)</span>}
         </Button>
         <div className="flex gap-2"><Button variant={kind === "look" ? "default" : "secondary"} onClick={() => setKind("look")}>✨ Образ</Button><Button variant={kind === "capsule" ? "default" : "secondary"} onClick={() => setKind("capsule")}>🧳 Капсула</Button></div>
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Название: В театр, Поездка в Питер…" />

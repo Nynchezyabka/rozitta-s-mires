@@ -13,6 +13,8 @@ import { RozittaBubble } from "@/components/RozittaBubble";
 import type { HouseholdData } from "@/lib/household";
 import cabbage from "@/assets/cabbage.webp";
 import rozitta from "@/assets/rozitta.webp";
+import { getClothes } from "@/lib/store";
+import { matchesCloth, STATUSES } from "@/lib/wardrobe";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -64,6 +66,19 @@ function Home({ d }: { d: HouseholdData }) {
       .map((it) => ({ it, b: bx[it.box_id]!, house: od.household.name, t: others[i]! }));
   }) : [];
   const boxById = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
+  const searchHouses = token ? [token, ...others] : [];
+  const wardrobes = useQueries({ queries: searchHouses.map((t) => ({ queryKey: ["clothes", t], queryFn: () => getClothes({ data: { token: t } }), enabled: !!query, staleTime: 60_000 })) });
+  const clothHits = query ? wardrobes.flatMap((r, i) => {
+    const t = searchHouses[i];
+    if (!t) return [];
+    const home = i === 0 ? d : otherData[i - 1]?.data;
+    return (r.data ?? []).flatMap((c) => {
+      const box = home?.boxes.find((b) => b.id === c.box_id);
+      return matchesCloth(c, query, box?.location ?? "") ? [{ c, box, t, house: i === 0 ? "" : home?.household.name ?? "Другой дом" }] : [];
+    });
+  }) : [];
+  const wardrobePending = wardrobes.some((r) => r.isPending);
+  const wardrobeError = wardrobes.some((r) => r.isError);
   const today = new Date().toISOString().slice(0, 10);
   const overdue = d.boxes.filter((b) => b.decide_by && b.decide_by <= today);
 
@@ -77,6 +92,13 @@ function Home({ d }: { d: HouseholdData }) {
 
       {query && (
         <section className="space-y-2">
+          {wardrobePending && <p className="text-sm text-muted-foreground">Ищу также в гардеробе…</p>}
+          {wardrobeError && <p className="text-sm text-destructive">Гардероб не удалось проверить — попробуйте ещё раз.</p>}
+          {clothHits.length > 0 && <h2 className="text-sm font-semibold text-muted-foreground">👗 Гардероб: {clothHits.length}</h2>}
+          {clothHits.slice(0, 30).map(({ c, box, t, house }) => <Link key={`${t}-${c.id}`} to="/wardrobe" search={{ item: c.id }} onClick={() => { if (t !== token) setToken(t); }} className="flex min-w-0 items-center gap-3 rounded-lg border-2 border-border bg-card p-3">
+            {c.photo_url ? <img src={c.photo_url} alt="" className="h-14 w-14 shrink-0 rounded-md object-cover" /> : <span className="grid h-14 w-14 shrink-0 place-items-center bg-muted text-2xl">👗</span>}
+            <span className="min-w-0 flex-1"><span className="block break-words font-medium">{c.name}</span><span className="block text-xs text-muted-foreground">{[c.owner, c.size, c.category, c.color].filter(Boolean).join(" · ")}</span>{house && <span className="block text-xs text-accent">🏠 {house}</span>}<span className="block text-xs text-muted-foreground">{c.box_id ? box ? `📦 Сундук №${box.number}${box.location ? ` · ${box.location}` : ""}` : "📦 Сундук недоступен" : STATUSES.find((s) => s.id === c.status)?.label ?? "Место не указано"}</span></span>
+          </Link>)}
           <h2 className="text-sm font-semibold text-muted-foreground">Вещи: {hits.length}</h2>
           {hits.slice(0, 30).map((it) => {
             const b = boxById[it.box_id];
@@ -123,7 +145,7 @@ function Home({ d }: { d: HouseholdData }) {
         </Link>
       )}
 
-      {query && hits.length === 0 && boxes.length === 0 && (
+      {query && hits.length === 0 && otherHits.length === 0 && clothHits.length === 0 && !wardrobePending && !wardrobeError && boxes.length === 0 && (
         <div className="flex flex-col items-center gap-2 py-6 text-center text-muted-foreground">
           <img src={cabbage} alt="" className="pixel h-16 w-16" />
           Розитта перерыла всё болото — такого нет

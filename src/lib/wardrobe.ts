@@ -1,3 +1,5 @@
+import { matchesAll, normSearch } from "./search";
+
 /** Wardrobe vocabulary and the «Что надеть?» picker (pure, testable). */
 export const LAYERS = [
   { id: "top", label: "Верх", icon: "👕" }, { id: "bottom", label: "Низ", icon: "👖" }, { id: "dress", label: "Платья", icon: "👗" },
@@ -54,4 +56,8 @@ export function clothDestination(status: string, boxId: string | null) {
 export function selectedClothes<T extends { id: string }>(all: T[], ids: string[]) {
   const wanted = new Set(ids);
   return all.filter((c) => wanted.has(c.id));
+}
+
+export function matchesCloth(c: { name: string; color: string; category: string; owner: string; size: string }, query: string, location = "") {
+  return matchesAll(`${c.name} ${c.color} ${c.category} ${c.owner} ${c.size} ${location}`, normSearch(query));
 }
