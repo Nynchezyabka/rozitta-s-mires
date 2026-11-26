@@ -49,3 +49,5 @@ use the editor.
 
 - Wardrobe storage controls are shared by chest and wardrobe views; moves update the existing clothing row, not ordinary chest items. Why: keep one garment identity and preserve drafts.
 - Outfits and capsules store clothing IDs and packing selections via token-checked RPCs, with images in the household photo bucket. Why: manual combinations sync between family devices without copied inventory.
+- Chest summaries and sticker lists share boxContents; missing chest pages resolve only saved household tokens. Why: clothing stays consistent and QR works across device-known homes without granting new access.
+- Quick deadline decisions use k_decide_box, separate from k_save_box; trash is read through k_trash. Why: small actions must not overwrite inventory and deleted chests remain token-scoped.

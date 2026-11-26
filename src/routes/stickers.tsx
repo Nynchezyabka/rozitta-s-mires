@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useToken } from "@/lib/household";
+import { getClothes } from "@/lib/store";
+import { boxContents } from "@/lib/box-actions";
 import { toast } from "sonner";
 import { Download, ImageDown, Printer } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -25,6 +29,8 @@ export const Route = createFileRoute("/stickers")({
 });
 
 function Stickers({ d }: { d: HouseholdData }) {
+  const token = useToken();
+  const wardrobe = useQuery({ queryKey: ["clothes", token], queryFn: () => getClothes({ data: { token: token ?? "" } }), enabled: !!token });
   const [printed, setPrinted] = useState<Set<string>>(new Set());
   const [sel, setSel] = useState<Set<string>>(() => new Set(d.boxes.map((b) => b.id)));
   useEffect(() => {
@@ -47,13 +53,13 @@ function Stickers({ d }: { d: HouseholdData }) {
   useEffect(() => setHost(location.hostname), []);
   const gmap = Object.fromEntries(d.groups.map((g) => [g.id, g]));
   const toggle = (id: string) => setSel((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  const base = FORMATS.find((f) => f.id === fid)!;
+  const base = FORMATS.find((f) => f.id === fid) ?? { id: "a4" as const, w: 92, h: 62 };
   const tooBig = fid === "custom" && (Number(cw) > MAX_CUSTOM_MM || Number(ch) > MAX_CUSTOM_MM);
   const fmt: Format = fid === "custom" ? { id: "custom", w: Math.min(MAX_CUSTOM_MM, Math.max(20, Number(cw) || 60)), h: Math.min(MAX_CUSTOM_MM, Math.max(15, Number(ch) || 40)) } : { id: base.id, w: base.w, h: base.h };
   const list = (): Sticker[] =>
     d.boxes.filter((b) => sel.has(b.id)).map((b) => {
       const g = gmap[b.group_id ?? ""];
-      return { number: b.number, groupName: g?.name ?? "Без группы", color: g?.color ?? "#dddddd", icon: g?.icon ?? "📦", url: qr ? boxQrUrl(location.origin, b.id) : undefined, items: d.items.filter((i) => i.box_id === b.id).map((i) => i.name), photo: b.photo_url };
+      return { number: b.number, groupName: g?.name ?? "Без группы", color: g?.color ?? "#dddddd", icon: g?.icon ?? "📦", url: qr ? boxQrUrl(location.origin, b.id) : undefined, items: boxContents(b.id, d.items, wardrobe.data ?? []), photo: b.photo_url };
     });
   useEffect(() => {
     const first = list()[0];
@@ -62,11 +68,14 @@ function Stickers({ d }: { d: HouseholdData }) {
     drawSticker(first, fmt.w, fmt.h, style, content).then((u) => live && setPreview(u));
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fid, cw, ch, qr, sel, style, content]);
+  }, [fid, cw, ch, qr, sel, style, content, wardrobe.data, d]);
   const run = async (fn: typeof stickersPdf) => {
     if (tooBig) { toast.error(`Слишком большая наклейка: максимум ${MAX_CUSTOM_MM}×${MAX_CUSTOM_MM} мм`); return; }
     setBusy(true);
-    try { await fn(list(), fmt, style, content); setPrinted(markPrinted([...sel])); } catch (e) { console.error(e); toast.error("Не получилось сделать наклейки"); } finally { setBusy(false); }
+    try {
+      if (content === "list" && !wardrobe.data) throw new Error("Дождитесь загрузки гардероба — иначе опись будет неполной");
+      await fn(list(), fmt, style, content); setPrinted(markPrinted([...sel]));
+    } catch (e) { console.error(e); toast.error((e as Error).message || "Не получилось сделать наклейки"); } finally { setBusy(false); }
   };
 
   return (
@@ -132,6 +141,8 @@ function Stickers({ d }: { d: HouseholdData }) {
             <button onClick={() => setSel(new Set())} className="min-h-11 rounded-full bg-secondary px-4 text-sm text-secondary-foreground">Снять все</button>
           </div>
           <div className="grid grid-cols-2 gap-2">
+            {content === "list" && wardrobe.isPending && <p className="col-span-2 text-sm text-muted-foreground">Добавляю одежду в опись…</p>}
+            {content === "list" && wardrobe.isError && <div className="col-span-2"><p className="text-sm text-destructive">Не удалось проверить гардероб. Опись пока недоступна.</p><Button variant="outline" onClick={() => wardrobe.refetch()}>Повторить</Button></div>}
             {d.boxes.map((b) => {
               const g = gmap[b.group_id ?? ""];
               return (

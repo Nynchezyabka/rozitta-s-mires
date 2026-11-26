@@ -107,6 +107,14 @@ export async function restoreBox({ data }: { data: Tok & { id: string } }) {
   return { ok: true };
 }
 
+export type TrashedBox = { id: string; number: number; note: string | null; location: string | null; deleted_at: string };
+export async function getTrash({ data }: { data: Tok }): Promise<TrashedBox[]> {
+  return (await rpc<TrashedBox[]>("k_trash", { _token: data.token })) ?? [];
+}
+export async function decideBox({ data }: { data: Tok & { id: string; date: string | null } }) {
+  await rpc("k_decide_box", { _token: data.token, _id: data.id, _date: data.date });
+}
+
 export async function saveNote({ data }: { data: Tok & { id?: string; title: string; body: string } }) {
   return { id: await rpc<string>("k_save_note", { _token: data.token, _id: data.id ?? null, _title: data.title, _body: data.body }) };
 }

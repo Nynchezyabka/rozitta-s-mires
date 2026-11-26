@@ -377,6 +377,10 @@ export type Database = {
     Functions: {
       k_clothes: { Args: { _token: string }; Returns: Json }
       k_create_household: { Args: { _name: string }; Returns: string }
+      k_decide_box: {
+        Args: { _date: string; _id: string; _token: string }
+        Returns: undefined
+      }
       k_delete_cloth: {
         Args: { _id: string; _token: string }
         Returns: undefined
@@ -438,6 +442,7 @@ export type Database = {
         Returns: string
       }
       k_things: { Args: { _token: string }; Returns: Json }
+      k_trash: { Args: { _token: string }; Returns: Json }
       k_trash_box: {
         Args: { _deleted: boolean; _id: string; _token: string }
         Returns: undefined

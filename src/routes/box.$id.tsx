@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { MapPin, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BoxClothes } from "@/components/ClothStorage";
+import { MissingBox } from "@/components/MissingBox";
 import { PhotoStrip } from "@/components/PhotoStrip";
 import { CreateGroup } from "@/components/CreateGroup";
 import { AppShell } from "@/components/AppShell";
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/box/$id")({
 
 function BoxPage() {
   const { id } = Route.useParams();
-  return <AppShell>{(d, t) => <BoxEdit key={id} d={d} token={t} id={id} />}</AppShell>;
+  return <AppShell>{(d, t) => <BoxEdit key={`${t}-${id}`} d={d} token={t} id={id} />}</AppShell>;
 }
 
 function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string }) {
@@ -69,7 +70,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
     setBase("pending");
   }, [box?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!box) return <p className="py-10 text-center text-muted-foreground">Сундук не найден. Возможно, он из другого дома или удалён — отсканируйте наклейку кнопкой сканера в шапке.</p>;
+  if (!box) return <MissingBox id={id} token={token} />;
   const group = d.groups.find((g) => g.id === groupId);
 
   const save = async () => {

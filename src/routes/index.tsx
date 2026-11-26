@@ -5,7 +5,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { householdQuery, setToken, useHouses, useToken } from "@/lib/household";
-import { Search, Plus, AlertCircle } from "lucide-react";
+import { Search, Plus } from "lucide-react";
+import { BoxDecisions } from "@/components/BoxDecisions";
+import { boxContents } from "@/lib/box-actions";
 import { AppShell } from "@/components/AppShell";
 import { GroupChip } from "@/components/GroupChip";
 import { Input } from "@/components/ui/input";
@@ -63,11 +65,15 @@ function Home({ d }: { d: HouseholdData }) {
     if (!od) return [];
     const bx = Object.fromEntries(od.boxes.map((b) => [b.id, b]));
     return od.items.filter((it) => bx[it.box_id] && matchesAll(`${it.name} ${it.author ?? ""} ${it.category ?? ""}`, query))
-      .map((it) => ({ it, b: bx[it.box_id]!, house: od.household.name, t: others[i]! }));
+      .flatMap((it) => {
+        const b = bx[it.box_id];
+        const t = others[i];
+        return b && t ? [{ it, b, house: od.household.name, t }] : [];
+      });
   }) : [];
   const boxById = Object.fromEntries(d.boxes.map((b) => [b.id, b]));
   const searchHouses = token ? [token, ...others] : [];
-  const wardrobes = useQueries({ queries: searchHouses.map((t) => ({ queryKey: ["clothes", t], queryFn: () => getClothes({ data: { token: t } }), enabled: !!query, staleTime: 60_000 })) });
+  const wardrobes = useQueries({ queries: searchHouses.map((t, i) => ({ queryKey: ["clothes", t], queryFn: () => getClothes({ data: { token: t } }), enabled: i === 0 || !!query, staleTime: 60_000 })) });
   const clothHits = query ? wardrobes.flatMap((r, i) => {
     const t = searchHouses[i];
     if (!t) return [];
@@ -79,8 +85,7 @@ function Home({ d }: { d: HouseholdData }) {
   }) : [];
   const wardrobePending = wardrobes.some((r) => r.isPending);
   const wardrobeError = wardrobes.some((r) => r.isError);
-  const today = new Date().toISOString().slice(0, 10);
-  const overdue = d.boxes.filter((b) => b.decide_by && b.decide_by <= today);
+  const currentClothes = wardrobes[0]?.data ?? [];
 
   return (
     <div className="space-y-5 pt-2">
@@ -131,11 +136,7 @@ function Home({ d }: { d: HouseholdData }) {
         </section>
       )}
 
-      {!query && overdue.length > 0 && (
-        <div className="flex items-center gap-2 rounded-2xl bg-warning/30 p-3 text-sm">
-          <AlertCircle className="h-5 w-5" /> Пора решить: сундуки {overdue.map((b) => "№" + b.number).join(", ")}
-        </div>
-      )}
+      {!query && token && <BoxDecisions d={d} token={token} />}
 
       {!query && d.boxes.length === 0 && (
         <Link to="/new" className="flex flex-col items-center gap-3 rounded-3xl border-2 border-dashed border-primary/40 bg-card p-10 text-center">
@@ -181,6 +182,8 @@ function Home({ d }: { d: HouseholdData }) {
         {boxes.map((b) => {
           const g = gmap[b.group_id ?? ""];
           const its = itemsByBox[b.id] ?? [];
+          const clothingCount = currentClothes.filter((c) => c.box_id === b.id).length;
+          const contents = boxContents(b.id, d.items, currentClothes);
           return (
             <Link key={b.id} to="/box/$id" params={{ id: b.id }} className="overflow-hidden rounded-2xl bg-card shadow-sm">
               <div className="h-2" style={{ backgroundColor: g?.color ?? "transparent" }} />
@@ -193,7 +196,8 @@ function Home({ d }: { d: HouseholdData }) {
                 <GroupChip g={g} />
                 <LocationPath value={b.location} />
                 <DueBadge date={b.decide_by} />
-                <p className="line-clamp-2 text-sm text-muted-foreground">{its.map((i) => i.name).join(", ") || "Пусто"}</p>
+                {clothingCount > 0 && <p className="text-xs text-muted-foreground">{its.length > 0 ? `Предметы: ${its.length} · ` : ""}👗 Одежда: {clothingCount}</p>}
+                <p className="line-clamp-2 text-sm text-muted-foreground">{contents.join(", ") || (wardrobes[0]?.isPending ? "Проверяю содержимое…" : wardrobes[0]?.isError ? "Гардероб не удалось проверить" : "Пусто")}</p>
               </div>
             </Link>
           );

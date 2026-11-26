@@ -1,7 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag, Shirt } from "lucide-react";
+import { Home, Printer, Users, Hourglass, Settings, BookOpen, HelpCircle, Menu, Sprout, Save, ArrowLeft, Tag, Shirt, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -95,6 +95,7 @@ function MoreMenu() {
         <DropdownMenuItem asChild><Link to="/family"><Users className="mr-2 h-4 w-4" />Подключить телефон</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/wardrobe"><span className="mr-2 w-4 text-center">👗</span>Гардероб</Link></DropdownMenuItem>
         <DropdownMenuItem asChild><Link to="/stickers"><Printer className="mr-2 h-4 w-4" />Наклейки</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild><Link to="/trash"><Trash2 className="mr-2 h-4 w-4" />Корзина</Link></DropdownMenuItem>
         <DropdownMenuSeparator />
         <p className="px-2 pb-1 pt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Система</p>
         <DropdownMenuItem asChild><Link to="/backup"><Save className="mr-2 h-4 w-4" />Копия и обновления</Link></DropdownMenuItem>
@@ -118,6 +119,7 @@ const more = [
   { to: "/family", label: "Подключить телефон", icon: Users },
   { to: "/wardrobe", label: "Гардероб", icon: Shirt },
   { to: "/stickers", label: "Наклейки", icon: Printer },
+  { to: "/trash", label: "Корзина", icon: Trash2 },
   { to: "/backup", label: "Копия и обновления", icon: Save },
   { to: "/help", label: "Справка", icon: HelpCircle },
   { to: "/settings", label: "Настройки", icon: Settings },
