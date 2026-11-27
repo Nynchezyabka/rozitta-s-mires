@@ -29,6 +29,7 @@ export type Database = {
           number: number
           photo_path: string | null
           photo_paths: string[]
+          revision: number
         }
         Insert: {
           created_at?: string
@@ -44,6 +45,7 @@ export type Database = {
           number: number
           photo_path?: string | null
           photo_paths?: string[]
+          revision?: number
         }
         Update: {
           created_at?: string
@@ -59,6 +61,7 @@ export type Database = {
           number?: number
           photo_path?: string | null
           photo_paths?: string[]
+          revision?: number
         }
         Relationships: [
           {
@@ -408,11 +411,24 @@ export type Database = {
         Args: { _id: string; _kind: string; _token: string }
         Returns: undefined
       }
+      k_move_box: {
+        Args: {
+          _id: string
+          _location: string
+          _revision: number
+          _token: string
+        }
+        Returns: number
+      }
       k_outfits: { Args: { _token: string }; Returns: Json }
       k_rename: { Args: { _name: string; _token: string }; Returns: undefined }
       k_save_box: {
         Args: { _box: Json; _items: Json; _token: string }
         Returns: string
+      }
+      k_save_box_checked: {
+        Args: { _box: Json; _items: Json; _revision: number; _token: string }
+        Returns: Json
       }
       k_save_cloth: { Args: { _c: Json; _token: string }; Returns: string }
       k_save_group: {

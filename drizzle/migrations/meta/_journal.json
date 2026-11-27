@@ -92,6 +92,13 @@
       "when": 1795672006425,
       "tag": "0012_box_decisions_and_trash",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1795743750301,
+      "tag": "0013_box_revision_guard",
+      "breakpoints": true
     }
   ]
 }
