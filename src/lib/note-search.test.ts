@@ -9,6 +9,9 @@ describe("note search", () => {
   it("finds notes in the home space", () => {
     expect(findQuickNotes([{ id: "b", title: "Ёлочные игрушки", space: "home" }], "елочные").map((r) => r.room.key)).toEqual(["other"]);
   });
+  it("includes saved quick-note details", () => {
+    expect(findQuickNotes([{ id: "d", title: "Шкатулка", space: "home", note: "Запасной ключ" }], "ключ").map((r) => r.note.id)).toEqual(["d"]);
+  });
   it("searches both title and body of household notes", () => {
     const notes = [{ id: "c", title: "Запасы", body: "Ключ от дачи на полке" }];
     expect(findHomeNotes(notes, "ключ дачи")).toEqual(notes);
