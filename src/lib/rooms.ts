@@ -14,13 +14,14 @@ import room_sport from "@/assets/space-sport.webp";
 import room_beauty from "@/assets/space-beauty.webp";
 import room_balcony from "@/assets/space-balcony.webp";
 import room_dacha from "@/assets/space-dacha.webp";
+import { searchWords } from "./search";
 
 /** A room groups chests by words found in their "Где стоит" text. `notes` links the old quick list. */
 export type Room = { key: string; title: string; icon: string; hint: string; img?: string; words: string[]; notes?: string };
 
 export const ROOMS: Room[] = [
   { key: "wardrobe", title: "Гардеробная и шкафы", icon: "🚪", hint: "Одежда, пледы, сезонное", img: wardrobe, words: ["шкаф", "кладов", "гардероб", "антресол", "коридор"], notes: "wardrobe" },
-  { key: "kitchen", title: "Кухня и морозный ларь", icon: "❄️", hint: "Посуда, запасы, морозилка", img: fridge, words: ["кухн", "холодил", "морозил", "кладовк", "буфет"], notes: "fridge" },
+  { key: "kitchen", title: "Кухня и морозный ларь", icon: "❄️", hint: "Посуда, запасы, морозилка", img: fridge, words: ["кухн", "холодил", "морозил", "буфет"], notes: "fridge" },
   { key: "library", title: "Библиотека фолиантов", icon: "📚", hint: "Книги, журналы, комиксы", img: library, words: ["библиот", "книж", "кабинет"], notes: "library" },
   { key: "music", img: room_music, title: "Фонотека и граммофон", icon: "📻", hint: "Винил, кассеты, диафильмы, видео", words: ["фонотек", "винил", "пластин", "граммоф", "проигрыв", "стеллаж с музык"] },
   { key: "memory", img: room_memory, title: "Память и архив", icon: "🎞️", hint: "Фото, плёнки, письма, VHS", words: ["архив", "памят", "альбом"] },
@@ -40,13 +41,34 @@ export const ROOMS: Room[] = [
 export const DEFAULT_ROOMS = ["wardrobe", "kitchen", "library", "music", "workshop", "kids", "plants"];
 export const roomByKey = (k: string) => ROOMS.find((r) => r.key === k);
 
-const norm = (s: string) => s.toLowerCase().replace(/ё/g, "е");
+/** Physical rooms outrank furniture/content: a wardrobe in a nursery belongs to the nursery. */
+const PLACE_WORDS: Record<string, string[]> = {
+  wardrobe: ["гардероб", "кладов", "коридор"], kitchen: ["кухн"],
+  library: ["библиот", "кабинет"], music: ["фонотек"], memory: ["архив"],
+  workshop: ["мастерск"], art: ["студи", "художеств"], kids: ["детск"],
+  garage: ["гараж"], sport: ["спортзал"], beauty: ["будуар", "ванн"],
+  balcony: ["балкон", "лоджи"], dacha: ["дач", "сара", "погреб", "подвал"],
+  plants: ["оранжер"], aid: ["аптечк", "зельевар"],
+};
 
-/** Chests whose place mentions the room; "other" gets those no other room claims. */
+/** One deterministic assignment, independent of which rooms the device displays. */
+export function roomForLocation(location: string | null): Room | undefined {
+  const words = searchWords(location ?? "");
+  const candidates = ROOMS.flatMap((room) => {
+    const patterns = [...room.words, ...(PLACE_WORDS[room.key] ?? [])];
+    return patterns.flatMap((pattern) => {
+      const parts = searchWords(pattern);
+      const start = words.findIndex((_, i) => parts.every((part, j) => words[i + j]?.startsWith(part)));
+      return start < 0 ? [] : [{ room, start, physical: (PLACE_WORDS[room.key] ?? []).includes(pattern), length: pattern.length }];
+    });
+  });
+  candidates.sort((a, b) => Number(b.physical) - Number(a.physical) || a.start - b.start || b.length - a.length);
+  return candidates[0]?.room ?? roomByKey("other");
+}
+
+/** Chests appear in exactly one room; unrecognized places go to "other". */
 export function inRoom<T extends { location: string | null }>(room: Room, boxes: T[]): T[] {
-  const hit = (r: Room, b: T) => !!b.location && r.words.some((w) => norm(b.location!).includes(w));
-  if (room.key === "other") return boxes.filter((b) => !ROOMS.some((r) => r.key !== "other" && hit(r, b)));
-  return boxes.filter((b) => hit(room, b));
+  return boxes.filter((b) => roomForLocation(b.location)?.key === room.key);
 }
 
 const KEY = "rooms-shown";

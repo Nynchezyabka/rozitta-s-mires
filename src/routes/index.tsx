@@ -15,8 +15,9 @@ import { RozittaBubble } from "@/components/RozittaBubble";
 import type { HouseholdData } from "@/lib/household";
 import cabbage from "@/assets/cabbage.webp";
 import rozitta from "@/assets/rozitta.webp";
-import { getClothes } from "@/lib/store";
+import { getClothes, getThings } from "@/lib/store";
 import { matchesCloth, STATUSES } from "@/lib/wardrobe";
+import { findQuickNotes, findHomeNotes } from "@/lib/note-search";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -86,6 +87,23 @@ function Home({ d }: { d: HouseholdData }) {
   const wardrobePending = wardrobes.some((r) => r.isPending);
   const wardrobeError = wardrobes.some((r) => r.isError);
   const currentClothes = wardrobes[0]?.data ?? [];
+  const quickNotes = useQueries({ queries: searchHouses.map((t) => ({
+    queryKey: ["things", t], queryFn: () => getThings({ data: { token: t } }), enabled: !!query, staleTime: 60_000,
+  })) });
+  const quickNoteHits = query ? quickNotes.flatMap((r, i) => {
+    const t = searchHouses[i];
+    if (!t) return [];
+    const home = i === 0 ? d : otherData[i - 1]?.data;
+    return findQuickNotes(r.data ?? [], query).map((hit) => ({ ...hit, t, house: i === 0 ? "" : home?.household.name ?? "Другой дом" }));
+  }) : [];
+  const homeNoteHits = query ? searchHouses.flatMap((t, i) => {
+    const home = i === 0 ? d : otherData[i - 1]?.data;
+    return findHomeNotes(home?.notes ?? [], query).map((note) => ({ note, t, house: i === 0 ? "" : home?.household.name ?? "Другой дом" }));
+  }) : [];
+  const notesPending = !!query && quickNotes.some((r) => r.isPending);
+  const notesError = quickNotes.some((r) => r.isError);
+  const otherPending = !!query && otherData.some((r) => r.isPending);
+  const otherError = otherData.some((r) => r.isError);
 
   return (
     <div className="space-y-5 pt-2">
@@ -99,6 +117,10 @@ function Home({ d }: { d: HouseholdData }) {
         <section className="space-y-2">
           {wardrobePending && <p className="text-sm text-muted-foreground">Ищу также в гардеробе…</p>}
           {wardrobeError && <p className="text-sm text-destructive">Гардероб не удалось проверить — попробуйте ещё раз.</p>}
+          {notesPending && <p className="text-sm text-muted-foreground">Ищу также в заметках…</p>}
+          {notesError && <p className="text-sm text-destructive">Быстрые заметки не удалось проверить — попробуйте ещё раз.</p>}
+          {otherPending && <p className="text-sm text-muted-foreground">Проверяю другие дома…</p>}
+          {otherError && <p className="text-sm text-destructive">Не все дома удалось проверить — попробуйте ещё раз.</p>}
           {clothHits.length > 0 && <h2 className="text-sm font-semibold text-muted-foreground">👗 Гардероб: {clothHits.length}</h2>}
           {clothHits.slice(0, 30).map(({ c, box, t, house }) => <Link key={`${t}-${c.id}`} to="/wardrobe" search={{ item: c.id }} onClick={() => { if (t !== token) setToken(t); }} className="flex min-w-0 items-center gap-3 rounded-lg border-2 border-border bg-card p-3">
             {c.photo_url ? <img src={c.photo_url} alt="" className="h-14 w-14 shrink-0 rounded-md object-cover" /> : <span className="grid h-14 w-14 shrink-0 place-items-center bg-muted text-2xl">👗</span>}
@@ -133,6 +155,22 @@ function Home({ d }: { d: HouseholdData }) {
             </Link>
           ))}
           {hits.length > 30 && <p className="text-center text-sm text-muted-foreground">Показаны первые 30 из {hits.length} — уточните запрос</p>}
+          {quickNoteHits.length > 0 && <h2 className="pt-2 text-sm font-semibold text-muted-foreground">Быстрые заметки: {quickNoteHits.length}</h2>}
+          {quickNoteHits.slice(0, 30).map(({ note, room, t, house }) => (
+            <Link key={`${t}-${note.id}`} to="/house/$space" params={{ space: room.key }} hash={`quick-note-${note.id}`} onClick={() => { if (t !== token) setToken(t); }} className="block min-w-0 rounded-2xl bg-card p-3">
+              <span className="block break-words font-medium">{note.title}</span>
+              <span className="block text-xs text-muted-foreground">{room.icon} {room.title}</span>
+              {house && <span className="block text-xs text-accent">🏠 {house}</span>}
+            </Link>
+          ))}
+          {homeNoteHits.length > 0 && <h2 className="pt-2 text-sm font-semibold text-muted-foreground">Заметки гримуара: {homeNoteHits.length}</h2>}
+          {homeNoteHits.slice(0, 30).map(({ note, t, house }) => (
+            <Link key={`${t}-${note.id}`} to="/grimoire" search={{ note: note.id }} onClick={() => { if (t !== token) setToken(t); }} className="block min-w-0 rounded-2xl bg-card p-3">
+              <span className="block break-words font-medium">{note.title || "Без названия"}</span>
+              <span className="line-clamp-2 break-words text-sm text-muted-foreground">{note.body}</span>
+              {house && <span className="block text-xs text-accent">🏠 {house}</span>}
+            </Link>
+          ))}
         </section>
       )}
 
@@ -146,7 +184,7 @@ function Home({ d }: { d: HouseholdData }) {
         </Link>
       )}
 
-      {query && hits.length === 0 && otherHits.length === 0 && clothHits.length === 0 && !wardrobePending && !wardrobeError && boxes.length === 0 && (
+      {query && hits.length === 0 && otherHits.length === 0 && clothHits.length === 0 && quickNoteHits.length === 0 && homeNoteHits.length === 0 && !wardrobePending && !wardrobeError && !notesPending && !notesError && !otherPending && !otherError && boxes.length === 0 && (
         <div className="flex flex-col items-center gap-2 py-6 text-center text-muted-foreground">
           <img src={cabbage} alt="" className="pixel h-16 w-16" />
           Розитта перерыла всё болото — такого нет

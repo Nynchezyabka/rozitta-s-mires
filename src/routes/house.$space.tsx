@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, Trash2 } from "lucide-react";
@@ -61,6 +61,13 @@ function RoomPage({ r, d, token }: { r: Room; d: HouseholdData; token: string })
 function SpacePage({ s, token }: { s: Space; token: string }) {
   const qc = useQueryClient();
   const { data = [] } = useQuery(thingsQuery(token));
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id.startsWith("quick-note-")) return;
+    const target = document.getElementById(id);
+    target?.scrollIntoView({ block: "center" });
+    target?.focus({ preventScroll: true });
+  }, [data]);
   const list = data.filter((x) => x.space === s.key);
   const [title, setTitle] = useState("");
   const refresh = () => qc.invalidateQueries({ queryKey: ["things", token] });
@@ -89,7 +96,7 @@ function SpacePage({ s, token }: { s: Space; token: string }) {
       )}
       <ul className="space-y-2">
         {list.map((x) => (
-          <li key={x.id} className="rounded-2xl bg-card p-3">
+          <li key={x.id} id={`quick-note-${x.id}`} tabIndex={-1} className="scroll-mt-24 rounded-2xl bg-card p-3 target:ring-2 target:ring-primary">
             <div className="flex items-center gap-2">
               <span className="flex-1 font-semibold">{x.title}</span>
               <button aria-label="Удалить" onClick={() => del(x.id)} className="text-muted-foreground"><Trash2 className="h-4 w-4" /></button>

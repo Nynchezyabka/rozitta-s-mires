@@ -3,8 +3,16 @@ export function normSearch(s: string): string {
   return s.toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim();
 }
 
-/** Every word of the query (first 4+ letters as a rough stem) must appear in the text. */
+/** Unicode words keep Russian, numbers and punctuation-separated names searchable. */
+export function searchWords(text: string): string[] {
+  return normSearch(text).match(/[\p{L}\p{N}]+/gu) ?? [];
+}
+
+/** Every query word must match a word start; retain the existing rough inflection stem. */
 export function matchesAll(text: string, query: string): boolean {
-  const t = normSearch(text);
-  return normSearch(query).split(" ").filter(Boolean).every((w) => t.includes(w.length > 5 ? w.slice(0, w.length - 2) : w));
+  const words = searchWords(text);
+  return searchWords(query).every((w) => {
+    const stem = w.length > 5 ? w.slice(0, w.length - 2) : w;
+    return words.some((word) => word.startsWith(stem));
+  });
 }

@@ -14,17 +14,21 @@ import type { HouseholdData } from "@/lib/store";
 const T = "Гримуар · Топи Розитты";
 const D = "Советы о порядке для уставших глазами архитектора и общие заметки дома.";
 export const Route = createFileRoute("/grimoire")({
+  validateSearch: (search: Record<string, unknown>): { note?: string } => typeof search["note"] === "string" ? { note: search["note"] } : {},
   head: () => ({ meta: [
     { title: T }, { name: "description", content: D }, { property: "og:title", content: T },
     { property: "og:description", content: D }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
-  component: () => <AppShell>{(d, t) => <Grimoire d={d} token={t} />}</AppShell>,
+  component: () => {
+    const { note } = Route.useSearch();
+    return <AppShell>{(d, t) => <Grimoire key={`${t}-${note ?? ""}`} d={d} token={t} noteId={note} />}</AppShell>;
+  },
 });
 
 const READ_KEY = "grimoire-read";
 
-function Grimoire({ d, token }: { d: HouseholdData; token: string }) {
-  const [tab, setTab] = useState<"tips" | "notes">("tips");
+function Grimoire({ d, token, noteId }: { d: HouseholdData; token: string; noteId: string | undefined }) {
+  const [tab, setTab] = useState<"tips" | "notes">(noteId ? "notes" : "tips");
   return (
     <div className="space-y-4 pt-2">
       <h1 className="font-display text-xl text-primary">📖 Гримуар</h1>
@@ -33,7 +37,8 @@ function Grimoire({ d, token }: { d: HouseholdData; token: string }) {
           <button key={k} onClick={() => setTab(k)} className={`rounded-xl py-2 text-sm font-semibold ${tab === k ? "bg-primary text-primary-foreground" : "text-secondary-foreground"}`}>{l}</button>
         ))}
       </div>
-      {tab === "tips" ? <Tips /> : <Notes d={d} token={token} />}
+      {noteId && !d.notes.some((n) => n.id === noteId) && <p className="text-sm text-muted-foreground">Этой заметки уже нет.</p>}
+      {tab === "tips" ? <Tips /> : <Notes d={d} token={token} noteId={noteId} />}
     </div>
   );
 }
@@ -47,7 +52,8 @@ function Tips() {
     setRead(n);
     localStorage.setItem(READ_KEY, JSON.stringify(n));
   };
-  const today = TIPS[new Date().getDate() % TIPS.length]!;
+  const today = TIPS[new Date().getDate() % TIPS.length];
+  if (!today) return null;
 
   if (open)
     return (
@@ -91,9 +97,12 @@ function Tips() {
   );
 }
 
-function Notes({ d, token }: { d: HouseholdData; token: string }) {
+function Notes({ d, token, noteId }: { d: HouseholdData; token: string; noteId: string | undefined }) {
   const qc = useQueryClient();
-  const [edit, setEdit] = useState<{ id?: string; title: string; body: string } | null>(null);
+  const [edit, setEdit] = useState<{ id?: string; title: string; body: string } | null>(() => {
+    const note = d.notes.find((n) => n.id === noteId);
+    return note ? { id: note.id, title: note.title, body: note.body } : null;
+  });
   const [busy, setBusy] = useState(false);
   const refresh = () => qc.invalidateQueries({ queryKey: ["household", token] });
 
@@ -112,7 +121,9 @@ function Notes({ d, token }: { d: HouseholdData; token: string }) {
         </div>
         {edit.id && (
           <button className="flex w-full items-center justify-center gap-2 py-2 text-sm text-destructive" onClick={async () => {
-            await deleteNote({ data: { token, id: edit.id! } }); await refresh(); setEdit(null); toast("Заметка удалена");
+            const id = edit.id;
+            if (!id) return;
+            await deleteNote({ data: { token, id } }); await refresh(); setEdit(null); toast("Заметка удалена");
           }}><Trash2 className="h-4 w-4" /> Удалить заметку</button>
         )}
       </div>
