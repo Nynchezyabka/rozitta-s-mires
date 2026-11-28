@@ -23,4 +23,13 @@ export async function initOfflineApp() {
   }
   if (!("serviceWorker" in navigator)) return;
   await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+  await navigator.serviceWorker.ready;
+  // Warm the fallback after installation; navigations still always try the network first.
+  if (navigator.onLine && "caches" in window) {
+    const response = await fetch("/", { cache: "no-store" });
+    if (response.ok && response.headers.get("content-type")?.includes("text/html")) {
+      const cache = await caches.open("rozitta-pages-v1");
+      await cache.put("/", response);
+    }
+  }
 }

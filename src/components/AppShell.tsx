@@ -13,6 +13,7 @@ import gardenKey from "@/assets/garden-key.webp";
 import { SwampDecor } from "./SwampDecor";
 import { QrScanner } from "./QrScanner";
 import { APP_VERSION, initUpdates } from "@/lib/updates";
+import { useOffline } from "@/lib/use-offline";
 
 function SessionTimer() {
   const [end, setEnd] = useState<number | null>(null);
@@ -163,6 +164,7 @@ function SideNav() {
 
 export function AppShell({ children, garden = false }: { children: (d: NonNullable<ReturnType<typeof useHousehold>["data"]>, token: string) => ReactNode; garden?: boolean }) {
   const { token, data, isLoading, error } = useHousehold();
+  const { offline, savedAt } = useOffline(token ?? "");
   const boxes = data?.boxes.length;
   useEffect(() => { if (boxes !== undefined) initUpdates(boxes); }, [boxes]);
   if (token === undefined) return <div className="min-h-screen" />;
@@ -186,6 +188,7 @@ export function AppShell({ children, garden = false }: { children: (d: NonNullab
         </div>
       </header>
       <main className={`relative z-[1] mx-auto px-4 ${garden ? "max-w-2xl" : "lg:max-w-6xl lg:px-8"}`}>
+        {offline && <div role="status" className="my-3 border-l-4 border-warning bg-card p-3 text-sm text-foreground">Нет связи — только чтение.{savedAt ? ` Копия на ${new Date(savedAt).toLocaleString("ru-RU")}.` : " Показаны последние загруженные данные."}</div>}
         {isLoading && <p className="py-10 text-center text-muted-foreground">Загружаю…</p>}
         {error && <p className="py-10 text-center text-destructive">{(error as Error).message}</p>}
         {data && children(data, token)}

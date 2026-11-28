@@ -1,6 +1,8 @@
 /** Data access straight from the browser via token-checked database functions (works on any static hosting). */
 import { createClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { BoxConflictError, requireRevision } from "./box-conflict";
+import { assertOnline, offlineResources, readOffline } from "./offline-store";
 
 /** Storage access scoped to one household: the token header is checked by storage policies. */
 const storages: Record<string, ReturnType<typeof createClient>> = {};
@@ -17,10 +19,18 @@ type Tok = { token: string };
 type ItemIn = { name: string; kind?: string; author?: string | null; needs_review?: boolean; category?: string | null };
 
 async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
+  const token = args['_token'];
+  if (offlineResources.includes(fn) && typeof token === "string") return readOffline(token, fn, () => rpcRequest<T>(fn, args));
+  assertOnline();
+  return rpcRequest<T>(fn, args);
+}
+
+async function rpcRequest<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   const { data, error } = await (supabase.rpc as unknown as (f: string, a: unknown) => Promise<{ data: T; error: { message: string } | null }>)(fn, args);
   if (error) {
     console.error(`[база] ${fn}:`, error);
     const m = error.message ?? "";
+    if (m.includes("BOX_CONFLICT")) throw new BoxConflictError();
     if (/failed to fetch|networkerror|load failed|network request failed|fetch/i.test(m)) throw new Error("Не получилось — проверьте интернет");
     if (m.includes("Дом")) throw new Error(m);
     throw new Error(`Розитта не смогла записать в свиток: ${m.slice(0, 120) || "ошибка базы"}`);
@@ -31,7 +41,7 @@ async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
 export type HouseholdData = {
   household: { id: string; name: string };
   groups: { id: string; name: string; color: string; icon: string; position: number }[];
-  boxes: { id: string; number: number; group_id: string | null; photo_path: string | null; photo_url: string | null; photo_paths: string[]; photo_urls: string[]; note: string | null; decide_by: string | null; kid_size: string | null; kid_season: string | null; location: string | null; created_at: string }[];
+  boxes: { id: string; number: number; revision?: number; group_id: string | null; photo_path: string | null; photo_url: string | null; photo_paths: string[]; photo_urls: string[]; note: string | null; decide_by: string | null; kid_size: string | null; kid_season: string | null; location: string | null; created_at: string }[];
   notes: { id: string; title: string; body: string; updated_at: string }[];
   items: { id: string; box_id: string; name: string; kind: string; author: string | null; needs_review: boolean; category: string | null }[];
 };
@@ -46,7 +56,7 @@ export async function getHousehold({ data }: { data: Tok }): Promise<HouseholdDa
   for (const b of r.boxes) b.photo_paths = b.photo_paths?.length ? b.photo_paths : b.photo_path ? [b.photo_path] : [];
   const paths = [...new Set(r.boxes.flatMap((b) => b.photo_paths))];
   const urls: Record<string, string> = {};
-  if (paths.length) {
+  if (paths.length && navigator.onLine) {
     const { data: signed } = await photos(data.token).createSignedUrls(paths, 60 * 60 * 6);
     for (const x of signed ?? []) if (x.path && x.signedUrl) urls[x.path] = x.signedUrl;
   }
@@ -74,6 +84,7 @@ export async function deleteGroup({ data }: { data: Tok & { id: string } }) {
 export const MAX_PHOTOS = 5;
 
 async function uploadPhoto(token: string, dataUrl: string) {
+  assertOnline();
   const blob = await (await fetch(dataUrl)).blob();
   const hid = hids[token] ?? (await getHousehold({ data: { token } })).household.id;
   const path = `${hid}/${crypto.randomUUID()}.jpg`;
@@ -83,19 +94,27 @@ async function uploadPhoto(token: string, dataUrl: string) {
 }
 
 /** photos: full ordered list (data: URLs = new, others = existing storage paths), first is the cover. Omit to keep photos as is. */
-export async function saveBox({ data }: { data: Tok & { id?: string; number?: number; restore?: boolean; group_id: string | null; note?: string; decide_by?: string | null; kid_size?: string | null; kid_season?: string | null; location?: string | null; photo?: string | null; photos?: string[]; items: ItemIn[] } }) {
+export async function saveBox({ data }: { data: Tok & { id?: string; revision?: number | undefined; number?: number; restore?: boolean; group_id: string | null; note?: string; decide_by?: string | null; kid_size?: string | null; kid_season?: string | null; location?: string | null; photo?: string | null; photos?: string[]; items: ItemIn[] } }) {
+  assertOnline();
+  const revision = requireRevision(data.id, data.restore, data.revision);
   const list = data.photos ?? (data.photo ? [data.photo] : undefined);
   let photo_paths: string[] | undefined;
   if (list) {
     photo_paths = [];
     for (const p of list.slice(0, MAX_PHOTOS)) photo_paths.push(p.startsWith("data:image/") ? await uploadPhoto(data.token, p) : p);
   }
-  const id = await rpc<string>("k_save_box", {
+  const saved = await rpc<{ id: string; revision: number }>("k_save_box_checked", {
     _token: data.token,
+    _revision: revision,
     _box: { id: data.id ?? null, number: data.number ?? null, restore: !!data.restore, group_id: data.group_id, note: data.note ?? null, decide_by: data.decide_by || null, kid_size: data.kid_size || null, kid_season: data.kid_season || null, location: data.location || null, ...(photo_paths ? { photo_paths } : {}) },
     _items: data.items,
   });
-  return { id };
+  return saved;
+}
+
+export async function moveBox({ data }: { data: Tok & { id: string; revision: number | undefined; location: string } }) {
+  const revision = requireRevision(data.id, false, data.revision);
+  return { revision: await rpc<number>("k_move_box", { _token: data.token, _id: data.id, _location: data.location, _revision: revision }) };
 }
 
 export async function deleteBox({ data }: { data: Tok & { id: string } }) {
@@ -142,7 +161,7 @@ export async function getClothes({ data }: { data: Tok }): Promise<Cloth[]> {
   const list = (await rpc<Omit<Cloth, "photo_url">[]>("k_clothes", { _token: data.token })) ?? [];
   const paths = list.map((c) => c.photo_path).filter((p): p is string => !!p);
   const urls: Record<string, string> = {};
-  if (paths.length) {
+  if (paths.length && navigator.onLine) {
     const { data: signed } = await photos(data.token).createSignedUrls(paths, 60 * 60 * 6);
     for (const x of signed ?? []) if (x.path && x.signedUrl) urls[x.path] = x.signedUrl;
   }
@@ -162,7 +181,7 @@ export async function getOutfits({ data }: { data: Tok }): Promise<Outfit[]> {
   const list = (await rpc<Omit<Outfit, "photo_url">[]>("k_outfits", { _token: data.token })) ?? [];
   const paths = list.map((o) => o.photo_path).filter((p): p is string => !!p);
   const urls: Record<string, string> = {};
-  if (paths.length) {
+  if (paths.length && navigator.onLine) {
     const { data: signed } = await photos(data.token).createSignedUrls(paths, 60 * 60 * 6);
     for (const x of signed ?? []) if (x.path && x.signedUrl) urls[x.path] = x.signedUrl;
   }

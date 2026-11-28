@@ -44,7 +44,7 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
         const b = d.boxes.find((x) => x.id === id);
         if (!b) continue;
         const items = d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind, author: i.author, needs_review: i.needs_review, category: normTag(i.category) ?? found[i.name] ?? null }));
-        await saveBox({ data: { token, id, group_id: b.group_id, note: b.note ?? "", decide_by: b.decide_by, kid_size: b.kid_size, kid_season: b.kid_season, location: b.location, photos: b.photo_paths, items } });
+        await saveBox({ data: { token, id, revision: b.revision, group_id: b.group_id, note: b.note ?? "", decide_by: b.decide_by, kid_size: b.kid_size, kid_season: b.kid_season, location: b.location, photos: b.photo_paths, items } });
       }
       await qc.invalidateQueries({ queryKey: ["household", token] });
       const n = untagged.filter((i) => found[i.name]).length;
@@ -71,7 +71,7 @@ function Tags({ d, token }: { d: HouseholdData; token: string }) {
     if (!it || !b) return;
     try {
       const items = d.items.filter((i) => i.box_id === b.id).map((i) => ({ name: i.name, kind: i.kind, author: i.author, needs_review: i.needs_review, category: i.id === itemId ? tag : normTag(i.category) }));
-      await saveBox({ data: { token, id: b.id, group_id: b.group_id, note: b.note ?? "", decide_by: b.decide_by, kid_size: b.kid_size, kid_season: b.kid_season, location: b.location, photos: b.photo_paths, items } });
+      await saveBox({ data: { token, id: b.id, revision: b.revision, group_id: b.group_id, note: b.note ?? "", decide_by: b.decide_by, kid_size: b.kid_size, kid_season: b.kid_season, location: b.location, photos: b.photo_paths, items } });
       await qc.invalidateQueries({ queryKey: ["household", token] });
       toast.success(`🏷️ ${it.name}: ${tag}`);
     } catch (e) { toast.error((e as Error).message); }

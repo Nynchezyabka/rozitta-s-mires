@@ -1,5 +1,6 @@
-/** Обновления и напоминания о копии. Без service worker: свежая версия приходит при перезагрузке страницы. */
+/** Обновления и напоминания о копии; ничего не перезагружается во время правок. */
 import { CHANGELOG } from "./changelog";
+import { unregisterAppWorker } from "./pwa";
 export const APP_VERSION = CHANGELOG[0]?.version ?? "1.6.0";
 
 function isPreview(): boolean {
@@ -33,8 +34,8 @@ export async function checkForUpdates(): Promise<"current" | "new" | "offline"> 
 /** Сбрасывает сохранённые файлы сайта и перезагружает. Дом, ключи и настройки остаются. */
 export async function hardReload() {
   try {
-    if ("serviceWorker" in navigator) await Promise.allSettled((await navigator.serviceWorker.getRegistrations()).map((r) => r.unregister()));
-    if ("caches" in window) await Promise.allSettled((await caches.keys()).map((k) => caches.delete(k)));
+    await unregisterAppWorker();
+    if ("caches" in window) await Promise.allSettled((await caches.keys()).filter((k) => k.startsWith("rozitta-") || (/^workbox-precache-/.test(k) && k.endsWith(`${window.location.origin}/`))).map((k) => caches.delete(k)));
   } finally {
     const u = new URL(window.location.href);
     u.searchParams.set("v", String(Date.now()));

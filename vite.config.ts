@@ -8,8 +8,24 @@
 // hosting already compresses at the edge.
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  plugins: [VitePWA({
+    strategies: "generateSW", filename: "sw.js", outDir: "dist/client",
+    injectRegister: null, registerType: "autoUpdate", manifest: false,
+    devOptions: { enabled: false },
+    workbox: {
+      globPatterns: ["assets/**/*.{js,css,webp,png,jpg,woff2}", "icon-*.png", "favicon.png", "manifest.webmanifest"],
+      maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
+      navigateFallback: null,
+      cleanupOutdatedCaches: true,
+      runtimeCaching: [
+        { urlPattern: ({ request, url }) => request.mode === "navigate" && !url.pathname.startsWith("/~oauth"), handler: "NetworkFirst", options: { cacheName: "rozitta-pages-v1", networkTimeoutSeconds: 3, expiration: { maxEntries: 40 } } },
+        { urlPattern: ({ url, sameOrigin }) => sameOrigin && /^\/assets\/.*-[a-zA-Z0-9_-]{6,}\.(js|css|webp|png|jpg|woff2)$/.test(url.pathname), handler: "CacheFirst", options: { cacheName: "rozitta-assets-v1", expiration: { maxEntries: 350 } } },
+      ],
+    },
+  })],
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { getHousehold } from "./store";
+import { clearOfflineHouse } from "./offline-store";
 
 const KEY = "korobki-token";
 const listeners = new Set<(t: string | null) => void>();
@@ -29,6 +30,7 @@ export function setToken(t: string | null) {
     if (!list.includes(t)) saveHouses([...list, t]);
   } else {
     const cur = localStorage.getItem(KEY);
+    if (cur) void clearOfflineHouse(cur);
     const rest = list.filter((x) => x !== cur);
     saveHouses(rest);
     if (rest[0]) { localStorage.setItem(KEY, rest[0]); t = rest[0]; }

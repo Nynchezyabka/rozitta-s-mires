@@ -16,7 +16,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { type HouseholdData } from "@/lib/household";
-import { deleteBox, restoreBox, saveBox } from "@/lib/store";
+import { deleteBox, restoreBox, saveBox, moveBox, getHousehold } from "@/lib/store";
+import { BoxConflictError } from "@/lib/box-conflict";
+import { useOffline } from "@/lib/use-offline";
 
 export const Route = createFileRoute("/box/$id")({
   head: () => ({
@@ -53,21 +55,32 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const [moveOpen, setMoveOpen] = useState(false);
   const [moveTo, setMoveTo] = useState("");
   const [base, setBase] = useState("");
+  const [revision, setRevision] = useState<number | undefined>(undefined);
+  const [conflict, setConflict] = useState(false);
+  const [reloadOpen, setReloadOpen] = useState(false);
+  const { offline } = useOffline(token);
   const snap = JSON.stringify([items, groupId, note, decideBy, kidSize, kidSeason, place, shots]);
   const dirty = !!box && !busy && base !== "" && base !== "pending" && snap !== base;
   const blocker = useBlocker({ shouldBlockFn: () => dirty, enableBeforeUnload: () => dirty, withResolver: true });
   useEffect(() => { if (base === "pending") setBase(snap); }, [snap, base]); // eslint-disable-line react-hooks/exhaustive-deps
+  const loadDraft = (source: HouseholdData) => {
+    const stored = source.boxes.find((b) => b.id === id);
+    if (!stored) return;
+    setItems(source.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? "book" : "item", author: i.author, needs_review: i.needs_review, category: i.category })));
+    setGroupId(stored.group_id);
+    setNote(stored.note ?? "");
+    setDecideBy(stored.decide_by ?? "");
+    setKidSize(stored.kid_size ?? "");
+    setKidSeason(stored.kid_season ?? "");
+    setPlace(stored.location ?? "");
+    setShots(stored.photo_paths);
+    setRevision(stored.revision);
+    setConflict(false);
+    setBase("pending");
+  };
   useEffect(() => {
     if (!box) return;
-    setItems(d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? "book" : "item", author: i.author, needs_review: i.needs_review, category: i.category })));
-    setGroupId(box.group_id);
-    setNote(box.note ?? "");
-    setDecideBy(box.decide_by ?? "");
-    setKidSize(box.kid_size ?? "");
-    setKidSeason(box.kid_season ?? "");
-    setPlace(box.location ?? "");
-    setShots(box.photo_paths);
-    setBase("pending");
+    loadDraft(d);
   }, [box?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!box) return <MissingBox id={id} token={token} />;
@@ -76,11 +89,14 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const save = async () => {
     setBusy(true);
     try {
-      await saveBox({ data: { token, id, group_id: groupId, note, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, location: place, photos: shots, items } });
+      const saved = await saveBox({ data: { token, id, revision, group_id: groupId, note, decide_by: decideBy || null, kid_size: isKids(group) ? kidSize : null, kid_season: isKids(group) ? kidSeason : null, location: place, photos: shots, items } });
+      setRevision(saved.revision);
+      setConflict(false);
       await qc.invalidateQueries({ queryKey: ["household", token] });
       setBase(snap);
       toast.success("Сохранено");
     } catch (e) {
+      if (e instanceof BoxConflictError) setConflict(true);
       toast.error((e as Error).message);
     } finally {
       setBusy(false);
@@ -91,13 +107,19 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   const move = async () => {
     setBusy(true);
     try {
-      const stored = d.items.filter((i) => i.box_id === id).map((i) => ({ name: i.name, kind: i.kind === "book" ? ("book" as const) : ("item" as const), author: i.author, needs_review: i.needs_review, category: i.category ?? null }));
-      await saveBox({ data: { token, id, group_id: box.group_id, note: box.note ?? "", decide_by: box.decide_by, kid_size: box.kid_size, kid_season: box.kid_season, location: moveTo.trim(), photos: box.photo_paths, items: stored } });
+      const saved = await moveBox({ data: { token, id, revision, location: moveTo.trim() } });
+      setRevision(saved.revision);
+      if (base && base !== "pending") {
+        const previous = JSON.parse(base) as unknown[];
+        previous[6] = moveTo.trim();
+        setBase(JSON.stringify(previous));
+      }
       await qc.invalidateQueries({ queryKey: ["household", token] });
       setPlace(moveTo.trim());
       setMoveOpen(false);
       toast.success("Сундук переставлен");
     } catch (e) {
+      if (e instanceof BoxConflictError) setConflict(true);
       toast.error((e as Error).message);
     } finally {
       setBusy(false);
@@ -105,7 +127,26 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
   };
 
   return (
-    <div className="space-y-5 pt-2">
+    <div className="space-y-5 pt-2" data-unsaved={dirty ? "true" : undefined}>
+      {conflict && <section role="alert" className="space-y-3 border-l-4 border-warning bg-card p-3">
+        <p className="font-semibold">Этот сундук уже изменили</p>
+        <p className="text-sm">Ваши правки остались здесь. Скопируйте их перед загрузкой свежей записи.</p>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={async () => {
+            try { await navigator.clipboard.writeText(JSON.stringify({ items, note, location: place, group_id: groupId, decide_by: decideBy, kid_size: kidSize, kid_season: kidSeason }, null, 2)); toast.success("Ваши правки скопированы"); }
+            catch { toast.error("Не удалось скопировать правки"); }
+          }}>Скопировать мои правки</Button>
+          <Button variant="secondary" disabled={offline || busy} onClick={() => setReloadOpen(true)}>Загрузить свежую запись</Button>
+        </div>
+      </section>}
+      <AlertDialog open={reloadOpen} onOpenChange={setReloadOpen}>
+        <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Загрузить свежую запись?</AlertDialogTitle><AlertDialogDescription>Несохранённые правки на этом экране заменятся последней записью дома. Сначала скопируйте их, если хотите сохранить.</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogFooter><AlertDialogCancel>Остаться</AlertDialogCancel><AlertDialogAction onClick={async () => {
+            try { const fresh = await getHousehold({ data: { token } }); qc.setQueryData(["household", token], fresh); loadDraft(fresh); }
+            catch (e) { toast.error((e as Error).message); }
+          }}>Загрузить</AlertDialogAction></AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl font-display text-2xl font-bold" style={{ backgroundColor: group?.color ?? "transparent" }}>
           {box.number}
@@ -121,7 +162,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
           <p className="text-sm text-muted-foreground">Где стоит</p>
           <p className="truncate font-medium">{box.location || "Место не указано"}</p>
         </div>
-        <Button variant="outline" className="h-11" onClick={() => { setMoveTo(box.location ?? ""); setMoveOpen(true); }}>{box.location ? "Переставить" : "Указать"}</Button>
+        <Button variant="outline" className="h-11" disabled={offline} onClick={() => { setMoveTo(box.location ?? ""); setMoveOpen(true); }}>{box.location ? "Переставить" : "Указать"}</Button>
       </div>
       <Dialog open={moveOpen} onOpenChange={(o) => { if (!busy) setMoveOpen(o); }}>
         <DialogContent className="w-[calc(100%-2rem)] rounded-lg bg-background">
@@ -159,7 +200,7 @@ function BoxEdit({ d, token, id }: { d: HouseholdData; token: string; id: string
         <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Например: стоит в кладовке" />
       </section>
       <div className="sticky bottom-20 z-20 lg:bottom-4">
-        <Button className={`h-14 w-full rounded-2xl text-base shadow-lg ${dirty ? "" : "opacity-90"}`} disabled={busy} onClick={save}>
+        <Button className={`h-14 w-full rounded-2xl text-base shadow-lg ${dirty ? "" : "opacity-90"}`} disabled={busy || offline || conflict} onClick={save}>
           {busy ? "Сохраняю…" : dirty ? "Сохранить изменения" : "Сохранить"}
         </Button>
       </div>
