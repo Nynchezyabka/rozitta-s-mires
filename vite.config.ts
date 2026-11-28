@@ -16,12 +16,20 @@ export default defineConfig({
     injectRegister: null, registerType: "autoUpdate", manifest: false,
     devOptions: { enabled: false },
     workbox: {
-      globPatterns: ["assets/**/*.{js,css,webp,png,jpg,woff2}", "icon-*.png", "favicon.png", "manifest.webmanifest"],
+      globPatterns: ["assets/**/*.{js,css,webp,png,jpg,woff2}"],
       maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
       navigateFallback: null,
       cleanupOutdatedCaches: true,
       runtimeCaching: [
-        { urlPattern: ({ request, url }) => request.mode === "navigate" && !url.pathname.startsWith("/~oauth"), handler: "NetworkFirst", options: { cacheName: "rozitta-pages-v1", networkTimeoutSeconds: 3, expiration: { maxEntries: 40 } } },
+        { urlPattern: ({ request, url, sameOrigin }) => sameOrigin && request.mode === "navigate" && !url.pathname.startsWith("/~oauth"), handler: "NetworkFirst", options: {
+          cacheName: "rozitta-pages-v1", networkTimeoutSeconds: 3, expiration: { maxEntries: 40 },
+          plugins: [{ handlerDidError: async () => {
+            const cache = await caches.open("rozitta-pages-v1");
+            const shell = await cache.match("/");
+            if (!shell) throw new Error("No offline app shell");
+            return shell;
+          } }],
+        } },
         { urlPattern: ({ url, sameOrigin }) => sameOrigin && /^\/assets\/.*-[a-zA-Z0-9_-]{6,}\.(js|css|webp|png|jpg|woff2)$/.test(url.pathname), handler: "CacheFirst", options: { cacheName: "rozitta-assets-v1", expiration: { maxEntries: 350 } } },
       ],
     },
